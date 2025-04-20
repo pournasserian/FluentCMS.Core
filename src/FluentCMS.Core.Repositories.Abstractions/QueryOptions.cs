@@ -9,4 +9,7 @@ public class QueryOptions<T>
     
     // Pagination options
     public PaginationOptions? Pagination { get; set; }
+    
+    // Sorting options
+    public IList<SortOption<T>>? Sorting { get; set; }
 }
