@@ -2,8 +2,6 @@ using FluentAssertions;
 using FluentCMS.Core.Repositories.Abstractions;
 using FluentCMS.Core.Repositories.LiteDB;
 using System.Linq.Expressions;
-using System.Collections.Generic;
-using System.Linq;
 using Xunit;
 
 namespace FluentCMS.Core.Repositories.Tests;
@@ -25,13 +23,8 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
     public async Task GetById_ShouldReturnEntity_WhenEntityExists()
     {
         // Arrange
-        var entity = new TestEntity
-        {
-            Name = "Test Entity",
-            Description = "Test Description",
-            Counter = 1
-        };
-        await _repository.Add(entity);
+        await ClearCollection();
+        var entity = await AddTestData();
 
         // Act
         var result = await _repository.GetById(entity.Id);
@@ -78,18 +71,7 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
     {
         // Arrange
         await ClearCollection();
-
-        var entities = new List<TestEntity>
-        {
-            new() { Name = "Entity 1", Counter = 1 },
-            new() { Name = "Entity 2", Counter = 2 },
-            new() { Name = "Entity 3", Counter = 3 }
-        };
-
-        foreach (var entity in entities)
-        {
-            await _repository.Add(entity);
-        }
+        var entities = await AddRangeTestData(5);
 
         // Act
         var results = await _repository.GetAll();
@@ -121,18 +103,7 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
     {
         // Arrange
         await ClearCollection();
-
-        var entities = new List<TestEntity>
-        {
-            new() { Name = "Active Entity", IsActive = true },
-            new() { Name = "Inactive Entity", IsActive = false },
-            new() { Name = "Another Active Entity", IsActive = true }
-        };
-
-        foreach (var entity in entities)
-        {
-            await _repository.Add(entity);
-        }
+        var entities = await AddRangeTestData(3);
 
         // Act
         Expression<Func<TestEntity, bool>> filter = e => e.IsActive;
@@ -148,7 +119,7 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
     {
         // Arrange
         await ClearCollection();
-        await EnsureTestData();
+        await AddRangeTestData(10);
 
         // Act
         var paginationOptions = new PaginationOptions { PageNumber = 3, PageSize = 3 };
@@ -163,7 +134,7 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
     {
         // Arrange
         await ClearCollection();
-        await EnsureTestData();
+        await AddRangeTestData(10);
 
         // Act
         Expression<Func<TestEntity, bool>> filter = e => e.IsActive;
@@ -180,7 +151,7 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
     {
         // Arrange
         await ClearCollection();
-        await EnsureTestData();
+        await AddRangeTestData(10);
 
         // Act
         var queryOptions = new QueryOptions<TestEntity>
@@ -201,16 +172,7 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
     {
         // Arrange
         await ClearCollection();
-        var entities = new List<TestEntity>
-        {
-            new TestEntity { Name = "A", Counter = 2 },
-            new TestEntity { Name = "B", Counter = 1 },
-            new TestEntity { Name = "C", Counter = 3 }
-        };
-        foreach (var entity in entities)
-        {
-            await _repository.Add(entity);
-        }
+        var entities = await AddRangeTestData(3);
 
         // Act
         var queryOptions = new QueryOptions<TestEntity>
@@ -237,17 +199,7 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
         // Arrange
         await ClearCollection();
 
-        var entities = new List<TestEntity>
-        {
-            new() { Name = "Entity 1" },
-            new() { Name = "Entity 2" },
-            new() { Name = "Entity 3" }
-        };
-
-        foreach (var entity in entities)
-        {
-            await _repository.Add(entity);
-        }
+        var entities = await AddRangeTestData(10);
 
         // Act
         var count = await _repository.Count();
@@ -261,18 +213,7 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
     {
         // Arrange
         await ClearCollection();
-
-        var entities = new List<TestEntity>
-        {
-            new() { Name = "Active Entity", IsActive = true },
-            new() { Name = "Inactive Entity", IsActive = false },
-            new() { Name = "Another Active Entity", IsActive = true }
-        };
-
-        foreach (var entity in entities)
-        {
-            await _repository.Add(entity);
-        }
+        var entities = await AddRangeTestData(3);
 
         // Act
         Expression<Func<TestEntity, bool>> filter = e => e.IsActive;
@@ -426,14 +367,30 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
 
     #region Helper Methods
 
-    private async Task EnsureTestData() 
+    private async Task<TestEntity> AddTestData()
+    {
+        var i = 1;
+        var entity = new TestEntity
+        {
+            Name = $"Entity {i}",
+            Description = $"Entity Description {i}",
+            Counter = i,
+            IsActive = i % 2 == 0 // Even-numbered entities are active
+        };
+
+        await _repository.Add(entity);
+        return entity;
+    }
+
+    private async Task<List<TestEntity>> AddRangeTestData(int count)
     {
         var entities = new List<TestEntity>();
-        for (int i = 1; i <= 10; i++)
+        for (int i = 1; i <= count + 1; i++)
         {
             entities.Add(new TestEntity
             {
                 Name = $"Entity {i}",
+                Description = $"Entity Description {i}",
                 Counter = i,
                 IsActive = i % 2 == 0 // Even-numbered entities are active
             });
@@ -442,6 +399,7 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
         {
             await _repository.Add(entity);
         }
+        return entities;
     }
 
     private async Task ClearCollection()
