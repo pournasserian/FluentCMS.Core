@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using FluentCMS.Core.Repositories.Abstractions;
 using LiteDB;
+using Microsoft.Extensions.Logging;
 
 namespace FluentCMS.Core.Repositories.LiteDB;
 
@@ -9,8 +10,9 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
     private readonly ILiteCollection<T> _collection;
     private readonly ILiteDatabase _database;
     private readonly string _entityName;
+    private readonly ILogger<LiteDBRepository<T>> _logger;
 
-    public LiteDBRepository(ILiteDBContext dbContext)
+    public LiteDBRepository(ILiteDBContext dbContext, ILogger<LiteDBRepository<T>> logger)
     {
         _database = dbContext.Database;
         _entityName = typeof(T).Name;
@@ -18,6 +20,7 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
 
         // Ensure we have an index on Id field
         _collection.EnsureIndex(x => x.Id);
+        _logger = logger;
     }
 
     public async Task<T?> GetById(Guid id, CancellationToken cancellationToken = default)
@@ -32,6 +35,7 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
         }
         catch (Exception ex)
         {
+            _logger.LogCritical(ex, "Critical error in {MethodName}: Error while retrieving {EntityType} with ID {EntityId}", nameof(GetById), _entityName, id);
             throw new RepositoryOperationException(nameof(GetById), ex);
         }
     }
@@ -47,6 +51,7 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
         }
         catch (Exception ex)
         {
+            _logger.LogCritical(ex, "Critical error in {MethodName}: Error while retrieving all {EntityType} entities", nameof(GetAll), _entityName);
             throw new RepositoryOperationException(nameof(GetAll), ex);
         }
     }
@@ -104,6 +109,7 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
         }
         catch (Exception ex)
         {
+            _logger.LogCritical(ex, "Critical error in {MethodName}: Error while querying {EntityType} entities", nameof(Query), _entityName);
             throw new RepositoryOperationException(nameof(Query), ex);
         }
     }
@@ -120,6 +126,7 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
         }
         catch (Exception ex)
         {
+            _logger.LogCritical(ex, "Critical error in {MethodName}: Error while counting {EntityType} entities", nameof(Count), _entityName);
             throw new RepositoryOperationException(nameof(Count), ex);
         }
     }
@@ -134,6 +141,7 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
         var inserted = _collection.Insert(entity);
         if (inserted == null)
         {
+            _logger.LogCritical("Critical error in {MethodName}: Failed to add {EntityType} with ID {EntityId}", nameof(Add), _entityName, entity.Id);
             throw new RepositoryOperationException(nameof(Add), $"Failed to add entity with ID {entity.Id}");
         }
         return await Task.FromResult(entity);
@@ -146,12 +154,14 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
         // Verify entity exists before update
         if (!_collection.Exists(e => e.Id == entity.Id))
         {
+            _logger.LogCritical("Critical error in {MethodName}: {EntityType} with ID {EntityId} not found for update", nameof(Update), _entityName, entity.Id);
             throw new EntityNotFoundException(entity.Id, _entityName);
         }
 
         var updated = _collection.Update(entity);
         if (!updated)
         {
+            _logger.LogCritical("Critical error in {MethodName}: Failed to update {EntityType} with ID {EntityId}", nameof(Update), _entityName, entity.Id);
             throw new RepositoryOperationException(nameof(Update), $"Failed to update entity with ID {entity.Id}");
         }
 
@@ -165,12 +175,14 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
         // Verify entity exists before deletion
         if (!_collection.Exists(e => e.Id == id))
         {
+            _logger.LogCritical("Critical error in {MethodName}: {EntityType} with ID {EntityId} not found for removal", nameof(Remove), _entityName, id);
             throw new EntityNotFoundException(id, _entityName);
         }
 
         var deleted = _collection.Delete(id);
         if (!deleted)
         {
+            _logger.LogCritical("Critical error in {MethodName}: Failed to remove {EntityType} with ID {EntityId}", nameof(Remove), _entityName, id);
             throw new RepositoryOperationException(nameof(Remove), $"Failed to remove entity with ID {id}");
         }
 
