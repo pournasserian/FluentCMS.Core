@@ -5,8 +5,8 @@ namespace FluentCMS.Core.Interception;
 public class AspectProxy : DispatchProxy
 {
     private object _target;
-    private IServiceProvider _serviceProvider;
-    private List<InterceptorRegistration> _interceptorRegistrations;
+    private IServiceProvider? _serviceProvider;
+    private List<InterceptorRegistration> _interceptorRegistrations = [];
 
     /// <summary>
     /// Initializes the proxy with the target instance and service provider
@@ -23,26 +23,20 @@ public class AspectProxy : DispatchProxy
     /// </summary>
     private List<IAspectInterceptor> GetInterceptorsForMethod(MethodInfo method)
     {
-        return _interceptorRegistrations
-            .Where(r => r.MethodFilter(method))
-            .SelectMany(r => r.Interceptors)
-            .OrderBy(i => i.Order)
-            .ToList();
+        return [.. _interceptorRegistrations.Where(r => r.MethodFilter(method)).SelectMany(r => r.Interceptors).OrderBy(i => i.Order)];
     }
 
     /// <summary>
     /// Invokes the method with all applicable interceptors
     /// </summary>
-    protected override object Invoke(MethodInfo? targetMethod, object?[]? args)
+    protected override object? Invoke(MethodInfo? targetMethod, object?[]? args)
     {
         // If the target or method is null, return null
         if (_target == null || targetMethod == null)
             return null;
 
         // Find the implementation method
-        var implementationMethod = _target.GetType().GetMethod(
-            targetMethod.Name,
-            targetMethod.GetParameters().Select(p => p.ParameterType).ToArray());
+        var implementationMethod = _target.GetType().GetMethod(targetMethod.Name, [.. targetMethod.GetParameters().Select(p => p.ParameterType)]);
 
         if (implementationMethod == null)
             return null;
@@ -51,11 +45,9 @@ public class AspectProxy : DispatchProxy
         var interceptors = GetInterceptorsForMethod(implementationMethod);
 
         // Check if this is an async method
-        bool isAsync = typeof(Task).IsAssignableFrom(targetMethod.ReturnType) ||
-                      (targetMethod.ReturnType.IsGenericType &&
-                       targetMethod.ReturnType.GetGenericTypeDefinition() == typeof(Task<>));
+        bool isAsync = typeof(Task).IsAssignableFrom(targetMethod.ReturnType) || (targetMethod.ReturnType.IsGenericType && targetMethod.ReturnType.GetGenericTypeDefinition() == typeof(Task<>));
 
-        if (!interceptors.Any())
+        if (interceptors.Count == 0)
         {
             // If no interceptors, just invoke the method directly
             return implementationMethod.Invoke(_target, args);
@@ -76,19 +68,18 @@ public class AspectProxy : DispatchProxy
     /// <summary>
     /// Handles synchronous method invocation with interceptors
     /// </summary>
-    private object InvokeSync(MethodInfo? method, object?[]? args, List<IAspectInterceptor> interceptors)
+    private object? InvokeSync(MethodInfo method, object?[]? args, List<IAspectInterceptor> interceptors)
     {
-        object result = null;
+        // Call OnBefore for all interceptors
+        foreach (var interceptor in interceptors)
+        {
+            interceptor.OnBefore(method, args, _target);
+        }
+
         try
         {
-            // Call OnBefore for all interceptors
-            foreach (var interceptor in interceptors)
-            {
-                interceptor.OnBefore(method, args, _target);
-            }
-
             // Invoke the target method
-            result = method.Invoke(_target, args);
+            var result = method.Invoke(_target, args);
 
             // Process return value through all interceptors
             foreach (var interceptor in interceptors)
@@ -122,13 +113,12 @@ public class AspectProxy : DispatchProxy
     /// <summary>
     /// Handles asynchronous method invocation with interceptors
     /// </summary>
-    private object InvokeAsync(MethodInfo? method, object?[]? args, List<IAspectInterceptor> interceptors)
+    private object? InvokeAsync(MethodInfo method, object?[]? args, List<IAspectInterceptor> interceptors)
     {
         // Determine if the method returns Task or Task<T>
-        bool isTaskWithResult = method.ReturnType.IsGenericType &&
-                               method.ReturnType.GetGenericTypeDefinition() == typeof(Task<>);
+        bool isTaskWithResult = method.ReturnType.IsGenericType && method.ReturnType.GetGenericTypeDefinition() == typeof(Task<>);
 
-        Type taskResultType = isTaskWithResult ? method.ReturnType.GetGenericArguments()[0] : null;
+        var taskResultType = isTaskWithResult ? method.ReturnType.GetGenericArguments()[0] : null;
 
         try
         {

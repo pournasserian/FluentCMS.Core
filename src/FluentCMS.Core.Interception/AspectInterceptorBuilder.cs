@@ -15,9 +15,6 @@ public class AspectInterceptorBuilder<TService, TImplementation> where TService 
         _lifetime = lifetime;
     }
 
-    /// <summary>
-    /// Registers a global interceptor for all methods on the service
-    /// </summary>
     public AspectInterceptorBuilder<TService, TImplementation> AddInterceptor(IAspectInterceptor interceptor)
     {
         var registration = new InterceptorRegistration();
@@ -26,12 +23,7 @@ public class AspectInterceptorBuilder<TService, TImplementation> where TService 
         return this;
     }
 
-    /// <summary>
-    /// Registers an interceptor for methods matching a filter
-    /// </summary>
-    public AspectInterceptorBuilder<TService, TImplementation> AddInterceptor(
-        IAspectInterceptor interceptor,
-        Func<MethodInfo, bool> methodFilter)
+    public AspectInterceptorBuilder<TService, TImplementation> AddInterceptor(IAspectInterceptor interceptor, Func<MethodInfo, bool> methodFilter)
     {
         var registration = new InterceptorRegistration();
         registration.AddInterceptor(interceptor);
@@ -40,9 +32,6 @@ public class AspectInterceptorBuilder<TService, TImplementation> where TService 
         return this;
     }
 
-    /// <summary>
-    /// Creates a new registration group for multiple interceptors with a shared filter
-    /// </summary>
     public InterceptorGroup<TService, TImplementation> CreateInterceptorGroup()
     {
         var registration = new InterceptorRegistration();
@@ -50,9 +39,6 @@ public class AspectInterceptorBuilder<TService, TImplementation> where TService 
         return new InterceptorGroup<TService, TImplementation>(this, registration);
     }
 
-    /// <summary>
-    /// Builds the service registration with all configured interceptors
-    /// </summary>
     public IServiceCollection Build()
     {
         // Register the implementation
