@@ -2,6 +2,8 @@ using FluentAssertions;
 using FluentCMS.Core.Repositories.Abstractions;
 using FluentCMS.Core.Repositories.LiteDB;
 using System.Linq.Expressions;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace FluentCMS.Core.Repositories.Tests;
@@ -192,6 +194,37 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
         // Assert
         results.Should().HaveCount(2);
         results.All(e => e.IsActive).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Query_WithSorting_ShouldReturnSortedEntities_WhenSortingProvided()
+    {
+        // Arrange
+        await ClearCollection();
+        var entities = new List<TestEntity>
+        {
+            new TestEntity { Name = "A", Counter = 2 },
+            new TestEntity { Name = "B", Counter = 1 },
+            new TestEntity { Name = "C", Counter = 3 }
+        };
+        foreach (var entity in entities)
+        {
+            await _repository.Add(entity);
+        }
+
+        // Act
+        var queryOptions = new QueryOptions<TestEntity>
+        {
+            Sorting = new List<SortOption<TestEntity>>
+            {
+                new SortOption<TestEntity>(e => e.Counter, SortDirection.Ascending)
+            }
+        };
+
+        var results = await _repository.Query(queryOptions);
+
+        // Assert
+        results.Select(e => e.Counter).Should().BeInAscendingOrder();
     }
 
     #endregion
