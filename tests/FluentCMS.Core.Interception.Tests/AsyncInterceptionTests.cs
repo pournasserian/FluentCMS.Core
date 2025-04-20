@@ -116,7 +116,7 @@ public class AsyncInterceptionTests
         }
     }
 
-    [Fact(Skip = "Requires framework fix for TaskCompletionSource handling")]
+    [Fact]
     public async Task Should_Intercept_Task_With_Result()
     {
         // Arrange
@@ -141,7 +141,7 @@ public class AsyncInterceptionTests
         result.Should().Be("Original Async Data");
     }
 
-    [Fact(Skip = "Requires framework fix for TaskCompletionSource handling")]
+    [Fact]
     public async Task Should_Intercept_Task_With_Complex_Result()
     {
         // Arrange

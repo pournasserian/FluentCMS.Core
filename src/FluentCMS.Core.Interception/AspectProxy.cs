@@ -23,6 +23,7 @@ public class AspectProxy : DispatchProxy
     /// </summary>
     private List<IAspectInterceptor> GetInterceptorsForMethod(MethodInfo method)
     {
+        // Get applicable interceptors based on the method filters
         return [.. _interceptorRegistrations.Where(r => r.MethodFilter(method)).SelectMany(r => r.Interceptors).OrderBy(i => i.Order)];
     }
 
@@ -143,7 +144,7 @@ public class AspectProxy : DispatchProxy
                 tcs = new TaskCompletionSource<object>();
             }
 
-            // Continue with the task
+            // Continue with the task - Using a type-safe approach with reflection instead of dynamic
             task.ContinueWith(t =>
             {
                 try
@@ -161,12 +162,19 @@ public class AspectProxy : DispatchProxy
                             interceptor.OnException(method, args, _target, exception);
                         }
 
-                        // Set the exception on the TCS
-                        tcs.SetException(exception);
+                        // Set the exception on the TCS using reflection
+                        typeof(TaskCompletionSource<>)
+                            .MakeGenericType(isTaskWithResult ? taskResultType : typeof(object))
+                            .GetMethod("SetException", new[] { typeof(Exception) })
+                            .Invoke(tcs, new object[] { exception });
                     }
                     else if (t.IsCanceled)
                     {
-                        tcs.SetCanceled();
+                        // Set cancellation on the TCS using reflection
+                        typeof(TaskCompletionSource<>)
+                            .MakeGenericType(isTaskWithResult ? taskResultType : typeof(object))
+                            .GetMethod("SetCanceled", Type.EmptyTypes)
+                            .Invoke(tcs, null);
                     }
                     else
                     {
@@ -191,8 +199,11 @@ public class AspectProxy : DispatchProxy
                                 interceptor.OnAfter(method, args, _target, resultValue);
                             }
 
-                            // Set the result on the TCS
-                            tcs.SetResult(resultValue);
+                            // Set the result on the TCS using reflection
+                            typeof(TaskCompletionSource<>)
+                                .MakeGenericType(taskResultType)
+                                .GetMethod("SetResult")
+                                .Invoke(tcs, new object[] { resultValue });
                         }
                         else
                         {
@@ -203,15 +214,20 @@ public class AspectProxy : DispatchProxy
                                 interceptor.OnAfter(method, args, _target, null);
                             }
 
-                            // Complete the TCS
-                            tcs.SetResult(null);
+                            // Complete the TCS using reflection
+                            typeof(TaskCompletionSource<object>)
+                                .GetMethod("SetResult")
+                                .Invoke(tcs, new object[] { null });
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    // Set the exception on the TCS
-                    tcs.SetException(ex);
+                    // Set the exception on the TCS using reflection
+                    typeof(TaskCompletionSource<>)
+                        .MakeGenericType(isTaskWithResult ? taskResultType : typeof(object))
+                        .GetMethod("SetException", new[] { typeof(Exception) })
+                        .Invoke(tcs, new object[] { ex });
                 }
             });
 

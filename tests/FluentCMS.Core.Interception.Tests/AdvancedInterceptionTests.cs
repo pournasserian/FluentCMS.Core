@@ -12,7 +12,6 @@ public class AdvancedInterceptionTests
         int Calculate(int a, int b);
         Task<string> GetDataAsync();
         void LogMessage(string message);
-        [NoIntercept]
         string GetUninterceptedData();
     }
 
@@ -26,6 +25,8 @@ public class AdvancedInterceptionTests
         public int Calculate(int a, int b) => a + b;
         public Task<string> GetDataAsync() => Task.FromResult("Original Async Data");
         public void LogMessage(string message) { /* Just a test method */ }
+        
+        [NoIntercept] // Place attribute on implementation method instead of interface method
         public string GetUninterceptedData() => "Unintercepted Data";
     }
 
@@ -168,7 +169,7 @@ public class AdvancedInterceptionTests
         counter.MethodCalls.Should().NotContainKey("LogMessage");
     }
 
-    [Fact(Skip = "Need to investigate attribute behavior in the framework")]
+    [Fact]
     public void Interceptor_Groups_Should_Respect_Method_Filters()
     {
         // Arrange
