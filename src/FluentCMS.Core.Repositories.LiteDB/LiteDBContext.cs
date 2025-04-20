@@ -7,15 +7,17 @@ public class LiteDBContext : ILiteDBContext, IDisposable
     private readonly LiteDatabase _database;
     private bool _disposed = false;
 
-    public LiteDBContext(string connectionString)
+    public LiteDBContext(LiteDBOptions options)
     {
-        _database = new LiteDatabase(connectionString);
-        
-        //// Map Guid to BSON
-        //BsonMapper.Global.RegisterType(
-        //    serialize: (guid) => guid.ToString(),
-        //    deserialize: (bson) => Guid.Parse(bson.AsString)
-        //);
+        ArgumentException.ThrowIfNullOrEmpty(options.ConnectionString, nameof(options.ConnectionString));
+
+        // Configure connection parameters
+        var connectionString = options.ConnectionString;
+
+        // Configure mapper if provided
+        var mapper = new BsonMapper();
+        options.MapperConfiguration?.Invoke(mapper);
+        _database = new LiteDatabase(connectionString, mapper);
     }
 
     public ILiteDatabase Database => _database;
