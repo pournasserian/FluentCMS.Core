@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FluentCMS.Core.Repositories.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fcd91c87abede15ecda0b94cf999358738ea3203")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b1ba6abb79401d157a41627b89c2ea8466a389f1")]
 [assembly: System.Reflection.AssemblyProductAttribute("FluentCMS.Core.Repositories.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FluentCMS.Core.Repositories.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
