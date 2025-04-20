@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using FluentCMS.Core.EventBus;
 
 namespace FluentCMS.Core.Repositories.LiteDB;
 
@@ -10,6 +11,10 @@ public static class LiteDBRepositoryConfiguration
 {
     public static IServiceCollection AddLiteDBRepositories(this IServiceCollection services, LiteDBOptions options)
     {
+        services.AddScoped(typeof(IEventSubscriber<>), typeof(EntityHistoryEventHandler<>));
+
+        services.AddScoped(typeof(IEntityHistoryRepository<>), typeof(EntityHistoryRepository<>));
+
         // Register the options
         services.TryAddSingleton(Options.Create(options));
 
@@ -36,6 +41,10 @@ public static class LiteDBRepositoryConfiguration
 
     public static IServiceCollection AddLiteDBRepositories(this IServiceCollection services, IConfiguration configuration, string sectionName = "LiteDB")
     {
+        services.AddScoped(typeof(IEventSubscriber<>), typeof(EntityHistoryEventHandler<>));
+
+        services.AddScoped(typeof(IEntityHistoryRepository<>), typeof(EntityHistoryRepository<>));
+
         // Configure options from settings
         services.Configure<LiteDBOptions>(configuration.GetSection(sectionName));
 

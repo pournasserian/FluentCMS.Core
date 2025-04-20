@@ -1,7 +1,9 @@
 using FluentAssertions;
+using FluentCMS.Core.EventBus;
 using FluentCMS.Core.Repositories.Abstractions;
 using FluentCMS.Core.Repositories.LiteDB;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using System.Linq.Expressions;
 using Xunit;
 
@@ -11,12 +13,14 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
 {
     private readonly LiteDBContextFixture _fixture;
     private readonly LiteDBRepository<TestEntity> _repository;
+    private readonly Mock<IEventPublisher> _eventPublisherMock;
 
     public LiteDBRepositoryTests(LiteDBContextFixture fixture)
     {
         _fixture = fixture;
         var logger = new NullLogger<LiteDBRepository<TestEntity>>();
-        _repository = new LiteDBRepository<TestEntity>(_fixture.Context, logger);
+        _eventPublisherMock = new Mock<IEventPublisher>();
+        _repository = new LiteDBRepository<TestEntity>(_fixture.Context, logger, _eventPublisherMock.Object);
     }
 
     #region GetById Tests

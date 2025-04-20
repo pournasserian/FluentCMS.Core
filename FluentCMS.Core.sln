@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Core.Interception
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Core.Interception.Tests", "tests\FluentCMS.Core.Interception.Tests\FluentCMS.Core.Interception.Tests.csproj", "{4FB4E812-EE47-0CAC-67E4-24F06812D818}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Core.EventBus", "src\FluentCMS.Core.EventBus\FluentCMS.Core.EventBus.csproj", "{3E029A33-51B2-4101-AE73-6B5F2AB3EDBE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{4FB4E812-EE47-0CAC-67E4-24F06812D818}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4FB4E812-EE47-0CAC-67E4-24F06812D818}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4FB4E812-EE47-0CAC-67E4-24F06812D818}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E029A33-51B2-4101-AE73-6B5F2AB3EDBE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E029A33-51B2-4101-AE73-6B5F2AB3EDBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E029A33-51B2-4101-AE73-6B5F2AB3EDBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E029A33-51B2-4101-AE73-6B5F2AB3EDBE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
