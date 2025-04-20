@@ -4,7 +4,7 @@ namespace FluentCMS.Core.Repositories.Abstractions;
 
 public interface IBaseEntityRepository<T> where T : IBaseEntity
 {
-    Task<T?> GetById(Guid id, CancellationToken cancellationToken = default);
+    Task<T> GetById(Guid id, CancellationToken cancellationToken = default);
 
     Task<IEnumerable<T>> GetAll(CancellationToken cancellationToken = default);
 

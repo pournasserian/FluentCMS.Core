@@ -23,7 +23,7 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
         _logger = logger;
     }
 
-    public async Task<T?> GetById(Guid id, CancellationToken cancellationToken = default)
+    public async Task<T> GetById(Guid id, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 

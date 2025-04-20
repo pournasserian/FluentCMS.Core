@@ -1,7 +1,6 @@
 using FluentAssertions;
 using FluentCMS.Core.Repositories.Abstractions;
 using FluentCMS.Core.Repositories.LiteDB;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Linq.Expressions;
 using Xunit;
@@ -93,6 +92,18 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
 
         // Assert
         results.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task GetAll_ShouldThrowOperationCancelledException_WhenCancellationRequested()
+    {
+        // Arrange
+        var cancellationTokenSource = new CancellationTokenSource();
+        cancellationTokenSource.Cancel();
+
+        // Act & Assert
+        await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+            await _repository.GetAll(cancellationTokenSource.Token));
     }
 
     #endregion
@@ -190,6 +201,116 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
         results.Select(e => e.Counter).Should().BeInAscendingOrder();
     }
 
+    [Fact]
+    public async Task Query_WithDescendingSorting_ShouldReturnDescendingSortedEntities()
+    {
+        // Arrange
+        await ClearCollection();
+        await AddRangeTestData(5);
+
+        // Act
+        var queryOptions = new QueryOptions<TestEntity>
+        {
+            Sorting = new List<SortOption<TestEntity>>
+            {
+                new SortOption<TestEntity>(e => e.Counter, SortDirection.Descending)
+            }
+        };
+
+        var results = await _repository.Query(queryOptions);
+
+        // Assert
+        results.Select(e => e.Counter).Should().BeInDescendingOrder();
+    }
+
+    [Fact]
+    public async Task Query_WithMultipleSortOptions_ShouldApplyAllSortCriteria()
+    {
+        // Arrange
+        await ClearCollection();
+        
+        // Add entities with different IsActive values but some with the same Counter
+        var entity1 = new TestEntity { Name = "Entity 1", Counter = 5, IsActive = true };
+        var entity2 = new TestEntity { Name = "Entity 2", Counter = 5, IsActive = false };
+        var entity3 = new TestEntity { Name = "Entity 3", Counter = 10, IsActive = true };
+        
+        await _repository.Add(entity1);
+        await _repository.Add(entity2);
+        await _repository.Add(entity3);
+
+        // Act
+        // Sort by Counter (ascending), then by IsActive (descending)
+        var queryOptions = new QueryOptions<TestEntity>
+        {
+            Sorting = new List<SortOption<TestEntity>>
+            {
+                new SortOption<TestEntity>(e => e.Counter, SortDirection.Ascending),
+                new SortOption<TestEntity>(e => e.IsActive, SortDirection.Descending)
+            }
+        };
+
+        var results = await _repository.Query(queryOptions);
+        var resultsList = results.ToList();
+
+        // Assert
+        // First two entries should have Counter = 5, with the active one first
+        resultsList.Count.Should().Be(3);
+        resultsList[0].Counter.Should().Be(5);
+        resultsList[1].Counter.Should().Be(5);
+        
+        // For the entries with Counter = 5, IsActive = true should come first
+        if (resultsList[0].Counter == 5 && resultsList[1].Counter == 5)
+        {
+            resultsList[0].IsActive.Should().BeTrue();
+            resultsList[1].IsActive.Should().BeFalse();
+        }
+        
+        // Last entry should have Counter = 10
+        resultsList[2].Counter.Should().Be(10);
+    }
+
+    [Fact]
+    public async Task Query_WithEmptyResults_ShouldReturnEmptyCollection()
+    {
+        // Arrange
+        await ClearCollection();
+        await AddRangeTestData(3);
+
+        // Act
+        Expression<Func<TestEntity, bool>> filter = e => e.Counter > 100; // No entities have Counter > 100
+        var results = await _repository.Query(filter);
+
+        // Assert
+        results.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Query_WithPaginationBeyondResultSet_ShouldReturnEmptyCollection()
+    {
+        // Arrange
+        await ClearCollection();
+        await AddRangeTestData(5); // Adds 6 items (count + 1)
+
+        // Act
+        var paginationOptions = new PaginationOptions { PageNumber = 10, PageSize = 10 }; // Page beyond available entities
+        var results = await _repository.Query(default, paginationOptions);
+
+        // Assert
+        results.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Query_ShouldThrowOperationCancelledException_WhenCancellationRequested()
+    {
+        // Arrange
+        var cancellationTokenSource = new CancellationTokenSource();
+        cancellationTokenSource.Cancel();
+
+        // Act & Assert
+        await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+            await _repository.Query(default, default, default, cancellationTokenSource.Token));
+    }
+
     #endregion
 
     #region Count Tests
@@ -222,6 +343,33 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
 
         // Assert
         count.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task Count_ShouldReturnZero_WhenNoEntitiesMatchFilter()
+    {
+        // Arrange
+        await ClearCollection();
+        await AddRangeTestData(5);
+
+        // Act
+        Expression<Func<TestEntity, bool>> filter = e => e.Counter > 100; // No entities have Counter > 100
+        var count = await _repository.Count(filter);
+
+        // Assert
+        count.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task Count_ShouldThrowOperationCancelledException_WhenCancellationRequested()
+    {
+        // Arrange
+        var cancellationTokenSource = new CancellationTokenSource();
+        cancellationTokenSource.Cancel();
+
+        // Act & Assert
+        await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+            await _repository.Count(default, cancellationTokenSource.Token));
     }
 
     #endregion
@@ -272,6 +420,19 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
         // Verify the entity was saved with the provided id
         var savedEntity = await _repository.GetById(id);
         savedEntity.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task Add_ShouldThrowOperationCancelledException_WhenCancellationRequested()
+    {
+        // Arrange
+        var entity = new TestEntity { Name = "Test Entity" };
+        var cancellationTokenSource = new CancellationTokenSource();
+        cancellationTokenSource.Cancel();
+
+        // Act & Assert
+        await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+            await _repository.Add(entity, cancellationTokenSource.Token));
     }
 
     #endregion
@@ -329,6 +490,19 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
             await _repository.Update(nonExistentEntity));
     }
 
+    [Fact]
+    public async Task Update_ShouldThrowOperationCancelledException_WhenCancellationRequested()
+    {
+        // Arrange
+        var entity = new TestEntity { Id = Guid.NewGuid(), Name = "Test Entity" };
+        var cancellationTokenSource = new CancellationTokenSource();
+        cancellationTokenSource.Cancel();
+
+        // Act & Assert
+        await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+            await _repository.Update(entity, cancellationTokenSource.Token));
+    }
+
     #endregion
 
     #region Remove Tests
@@ -361,6 +535,19 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
         // Act & Assert
         await Assert.ThrowsAsync<EntityNotFoundException>(async () =>
             await _repository.Remove(nonExistentId));
+    }
+
+    [Fact]
+    public async Task Remove_ShouldThrowOperationCancelledException_WhenCancellationRequested()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var cancellationTokenSource = new CancellationTokenSource();
+        cancellationTokenSource.Cancel();
+
+        // Act & Assert
+        await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+            await _repository.Remove(id, cancellationTokenSource.Token));
     }
 
     #endregion
