@@ -51,19 +51,53 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
         }
     }
 
-    public async Task<IEnumerable<T>> Query(Expression<Func<T, bool>>? filter = default, PaginationOptions? paginationOptions = default, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<T>> Query(Expression<Func<T, bool>>? filter = default, PaginationOptions? paginationOptions = default, IList<SortOption<T>>? sortOptions = default, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var options = new QueryOptions<T>
+        {
+            Filter = filter,
+            Pagination = paginationOptions,
+            Sorting = sortOptions
+        };
+
+        return await Query(options, cancellationToken);
+    }
+
+    public async Task<IEnumerable<T>> Query(QueryOptions<T> options, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
         try
         {
-            // Start with all entities or apply filter if provided
-            var query = filter == null ? _collection.FindAll() : _collection.Find(filter);
+            // Initialize query with filter or all entities
+            IEnumerable<T> query = options.Filter == null
+                ? _collection.FindAll()
+                : _collection.Find(options.Filter);
+
+            // Apply sorting if provided
+            if (options.Sorting != null && options.Sorting.Any())
+            {
+                var firstSort = options.Sorting.First();
+                var orderedQuery = firstSort.Direction == SortDirection.Ascending
+                    ? query.OrderBy(firstSort.KeySelector.Compile())
+                    : query.OrderByDescending(firstSort.KeySelector.Compile());
+
+                foreach (var sortOption in options.Sorting.Skip(1))
+                {
+                    orderedQuery = sortOption.Direction == SortDirection.Ascending
+                        ? orderedQuery.ThenBy(sortOption.KeySelector.Compile())
+                        : orderedQuery.ThenByDescending(sortOption.KeySelector.Compile());
+                }
+
+                query = orderedQuery;
+            }
 
             // Apply pagination if provided
-            if (paginationOptions != null)
+            if (options.Pagination != null)
             {
-                query = query.Skip(paginationOptions.Skip).Take(paginationOptions.PageSize);
+                query = query.Skip(options.Pagination.Skip).Take(options.Pagination.PageSize);
             }
 
             return await Task.FromResult(query.ToList());
@@ -73,49 +107,6 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
             throw new RepositoryOperationException(nameof(Query), ex);
         }
     }
-
-public async Task<IEnumerable<T>> Query(QueryOptions<T> options, CancellationToken cancellationToken = default)
-{
-    cancellationToken.ThrowIfCancellationRequested();
-
-    try
-    {
-        // Initialize query with filter or all entities
-        IEnumerable<T> query = options.Filter == null
-            ? _collection.FindAll()
-            : _collection.Find(options.Filter);
-
-        // Apply sorting if provided
-        if (options.Sorting != null && options.Sorting.Any())
-        {
-            var firstSort = options.Sorting.First();
-            var orderedQuery = firstSort.Direction == SortDirection.Ascending
-                ? query.OrderBy(firstSort.KeySelector.Compile())
-                : query.OrderByDescending(firstSort.KeySelector.Compile());
-
-            foreach (var sortOption in options.Sorting.Skip(1))
-            {
-                orderedQuery = sortOption.Direction == SortDirection.Ascending
-                    ? orderedQuery.ThenBy(sortOption.KeySelector.Compile())
-                    : orderedQuery.ThenByDescending(sortOption.KeySelector.Compile());
-            }
-
-            query = orderedQuery;
-        }
-
-        // Apply pagination if provided
-        if (options.Pagination != null)
-        {
-            query = query.Skip(options.Pagination.Skip).Take(options.Pagination.PageSize);
-        }
-
-        return await Task.FromResult(query.ToList());
-    }
-    catch (Exception ex)
-    {
-        throw new RepositoryOperationException(nameof(Query), ex);
-    }
-}
 
     public async Task<int> Count(Expression<Func<T, bool>>? filter = null, CancellationToken cancellationToken = default)
     {
