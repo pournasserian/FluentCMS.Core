@@ -31,7 +31,19 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
         {
             // LiteDB is synchronous, but we'll wrap in Task to comply with interface
             var entity = _collection.FindById(id);
+            
+            if (entity == null)
+            {
+                _logger.LogCritical("Critical error in {MethodName}: {EntityType} with ID {EntityId} not found", nameof(GetById), _entityName, id);
+                throw new EntityNotFoundException(id, _entityName);
+            }
+            
             return await Task.FromResult(entity);
+        }
+        catch (EntityNotFoundException)
+        {
+            // Re-throw EntityNotFoundException without wrapping
+            throw;
         }
         catch (Exception ex)
         {

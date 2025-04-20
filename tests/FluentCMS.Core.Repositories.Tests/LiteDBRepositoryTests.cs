@@ -41,16 +41,14 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
     }
 
     [Fact]
-    public async Task GetById_ShouldReturnNull_WhenEntityDoesNotExist()
+    public async Task GetById_ShouldThrowEntityNotFoundException_WhenEntityDoesNotExist()
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
 
-        // Act
-        var result = await _repository.GetById(nonExistentId);
-
-        // Assert
-        result.Should().BeNull();
+        // Act & Assert
+        await Assert.ThrowsAsync<EntityNotFoundException>(async () =>
+            await _repository.GetById(nonExistentId));
     }
 
     [Fact]
@@ -250,8 +248,7 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
 
         // Verify the entity was saved
         var savedEntity = await _repository.GetById(result.Id);
-        savedEntity.Should().NotBeNull();
-        savedEntity!.Name.Should().Be(entity.Name);
+        savedEntity.Name.Should().Be(entity.Name);
         savedEntity.Counter.Should().Be(entity.Counter);
     }
 
@@ -351,8 +348,8 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
         await _repository.Remove(addedEntity.Id);
 
         // Assert
-        var deletedEntity = await _repository.GetById(addedEntity.Id);
-        deletedEntity.Should().BeNull();
+        await Assert.ThrowsAsync<EntityNotFoundException>(async () =>
+            await _repository.GetById(addedEntity.Id));
     }
 
     [Fact]
@@ -417,9 +414,13 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
             {
                 await _repository.Remove(entity.Id);
             }
-            catch
+            catch (EntityNotFoundException)
             {
-                // Ignore errors during cleanup
+                // Entity may have been deleted already
+            }
+            catch (Exception)
+            {
+                // Ignore other errors during cleanup
             }
         }
     }
