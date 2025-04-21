@@ -1,6 +1,6 @@
 namespace FluentCMS.Core.Repositories.LiteDB;
 
-public static class LiteDBRepositoryConfiguration
+public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddLiteDBRepositories(this IServiceCollection services, LiteDBOptions options)
     {
