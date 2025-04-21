@@ -48,16 +48,33 @@ public class ErrorHandlingTests
         testProvider.Dispose();
     }
     
-    [Fact(Skip = "This test is known to fail due to implementation specifics")]
-    public async Task Publish_WithMultipleSubscribersOneFailingForEvenEvents_ShouldHaveCorrectBehavior()
+    [Fact]
+    public async Task Publish_WithMultipleSubscribers_ShouldFailIfAnySubscriberFails()
     {
-        // This test is skipped as the EventPublisher implementation is designed to
-        // stop processing when any subscriber throws an exception.
+        // Arrange
+        var testProvider = new TestServiceProvider();
         
-        // In a real-world scenario, you might modify the EventPublisher to handle exceptions
-        // from individual subscribers without failing the entire publish operation.
+        testProvider.RegisterService<TestEventSubscriber, TestEventSubscriber>();
+        testProvider.RegisterService<TestEventFailingSubscriber, TestEventFailingSubscriber>();
         
-        await Task.CompletedTask;
+        testProvider.RegisterEventSubscriber<TestEvent, TestEventSubscriber>();
+        testProvider.RegisterEventSubscriber<TestEvent, TestEventFailingSubscriber>();
+        
+        var serviceProvider = testProvider.BuildServiceProvider();
+        var publisher = serviceProvider.GetRequiredService<IEventPublisher>();
+        var normalSubscriber = serviceProvider.GetRequiredService<TestEventSubscriber>();
+        var failingSubscriber = serviceProvider.GetRequiredService<TestEventFailingSubscriber>();
+        
+        var testEvent = new TestEvent { Message = "Error Propagation Test" };
+        
+        // Act & Assert
+        // The current implementation using Task.WhenAll will throw an exception
+        // if any of the subscribers throws an exception
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await publisher.Publish(testEvent, "ErrorPropagationTest"));
+        
+        // Cleanup
+        testProvider.Dispose();
     }
     
     [Fact]
