@@ -1,4 +1,4 @@
-using FluentCMS.Core.Repositories.Abstractions;
+using FluentCMS.Core;
 
 namespace FluentCMS.TodoApi.Models;
 

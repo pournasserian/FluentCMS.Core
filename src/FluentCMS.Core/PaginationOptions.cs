@@ -1,4 +1,4 @@
-﻿namespace FluentCMS.Core.Repositories.Abstractions;
+﻿namespace FluentCMS.Core;
 
 public class PaginationOptions
 {

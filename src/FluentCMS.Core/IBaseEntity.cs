@@ -1,4 +1,4 @@
-namespace FluentCMS.Core.Repositories.Abstractions;
+namespace FluentCMS.Core;
 
 /// <summary>
 /// Represents the base interface for all entities in the system.
