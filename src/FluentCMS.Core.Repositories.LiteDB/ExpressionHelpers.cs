@@ -11,13 +11,13 @@ public static class ExpressionHelpers
         {
             return memberExpression.Member.Name;
         }
-        
-        if (expression.Body is UnaryExpression unaryExpression && 
+
+        if (expression.Body is UnaryExpression unaryExpression &&
             unaryExpression.Operand is MemberExpression memberExpr)
         {
             return memberExpr.Member.Name;
         }
-        
+
         throw new ArgumentException("Expression does not reference a property or field", nameof(expression));
     }
 }

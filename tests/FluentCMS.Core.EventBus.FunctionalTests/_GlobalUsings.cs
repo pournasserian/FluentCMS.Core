@@ -1,9 +1,9 @@
-﻿global using Microsoft.Extensions.Logging;
-global using Microsoft.Extensions.DependencyInjection;
+﻿global using FluentAssertions;
 global using FluentCMS.Core.EventBus.Abstractions;
-global using FluentAssertions;
 global using FluentCMS.Core.EventBus.FunctionalTests.Infrastructure;
 global using FluentCMS.Core.EventBus.FunctionalTests.TestEvents;
 global using FluentCMS.Core.EventBus.FunctionalTests.TestSubscribers;
-global using Xunit;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;
 global using System.Diagnostics;
+global using Xunit;

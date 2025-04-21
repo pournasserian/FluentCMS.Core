@@ -260,7 +260,7 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
         resultsList.Where(e => e.Counter == 5).Should().HaveCount(2);
         // The last entry should have Counter = 10
         resultsList.Last().Counter.Should().Be(10);
-        
+
         result.TotalCount.Should().Be(3);
     }
 
@@ -307,7 +307,7 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
         await Assert.ThrowsAsync<OperationCanceledException>(async () =>
             await _repository.Query(default, default, default, cancellationTokenSource.Token));
     }
-    
+
     [Fact]
     public async Task Query_ShouldReturnCorrectTotalCount_WithFilterAndPagination()
     {
