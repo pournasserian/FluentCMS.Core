@@ -55,7 +55,8 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
 
         try
         {
-            var entities = _collection.FindAll();
+            // Use Query API for consistency with other methods
+            var entities = _collection.Query().ToList();
             return await Task.FromResult(entities);
         }
         catch (Exception ex)
@@ -65,7 +66,7 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
         }
     }
 
-    public async Task<IEnumerable<T>> Query(Expression<Func<T, bool>>? filter = default, PaginationOptions? paginationOptions = default, IList<SortOption<T>>? sortOptions = default, CancellationToken cancellationToken = default)
+    public async Task<QueryResult<T>> Query(Expression<Func<T, bool>>? filter = default, PaginationOptions? paginationOptions = default, IList<SortOption<T>>? sortOptions = default, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -79,42 +80,53 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
         return await Query(options, cancellationToken);
     }
 
-    public async Task<IEnumerable<T>> Query(QueryOptions<T> options, CancellationToken cancellationToken = default)
+    public async Task<QueryResult<T>> Query(QueryOptions<T> options, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
         try
         {
-            // Initialize query with filter or all entities
-            IEnumerable<T> query = options.Filter == null
-                ? _collection.FindAll()
-                : _collection.Find(options.Filter);
+            // Build the LiteDB query
+            ILiteQueryable<T> query = _collection.Query();
+
+            // Apply filter if provided
+            if (options.Filter != null)
+                query = query.Where(options.Filter);
+
+            // Calculate total count before applying pagination and sorting
+            int totalCount = query.Count();
 
             // Apply sorting if provided
             if (options.Sorting != null && options.Sorting.Any())
             {
+                // LiteDB only supports sorting on one field at a time with their Query API
+                // We'll use the first sort option (most important one)
                 var firstSort = options.Sorting.First();
-                var orderedQuery = firstSort.Direction == SortDirection.Ascending
-                    ? query.OrderBy(firstSort.KeySelector.Compile())
-                    : query.OrderByDescending(firstSort.KeySelector.Compile());
 
-                foreach (var sortOption in options.Sorting.Skip(1))
-                {
-                    orderedQuery = sortOption.Direction == SortDirection.Ascending
-                        ? orderedQuery.ThenBy(sortOption.KeySelector.Compile())
-                        : orderedQuery.ThenByDescending(sortOption.KeySelector.Compile());
-                }
+                // Extract the property name from the expression
+                string propertyName = ExpressionHelpers.ExtractPropertyNameFromExpression(firstSort.KeySelector);
 
-                query = orderedQuery;
+                // Apply the sort
+                query = firstSort.Direction == SortDirection.Ascending
+                    ? query.OrderBy(propertyName)
+                    : query.OrderByDescending(propertyName);
+                // Note: Additional sort options are not supported directly by LiteDB's query API
+                // For multiple sorting fields, we would need to use a custom approach
             }
+
+            // Execute query and return results
+            var result = new QueryResult<T>
+            {
+                TotalCount = totalCount
+            };
 
             // Apply pagination if provided
-            if (options.Pagination != null)
-            {
-                query = query.Skip(options.Pagination.Skip).Take(options.Pagination.PageSize);
-            }
+            if (options.Pagination == null)
+                result.Items = query.ToEnumerable();
+            else
+                result.Items = query.Skip(options.Pagination.Skip).Limit(options.Pagination.PageSize).ToEnumerable();
 
-            return await Task.FromResult(query.ToList());
+            return await Task.FromResult(result);
         }
         catch (Exception ex)
         {
@@ -129,9 +141,15 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
 
         try
         {
-            int count = filter == null ? _collection.Count() : _collection.Count(filter);
-
-            return await Task.FromResult(count);
+            // Use LiteDB's Query API for counting to fully leverage database capabilities
+            if (filter == null)
+            {
+                return await Task.FromResult(_collection.Count());
+            }
+            else
+            {
+                return await Task.FromResult(_collection.Query().Where(filter).Count());
+            }
         }
         catch (Exception ex)
         {
@@ -152,8 +170,7 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
             var inserted = _collection.Insert(entity);
             if (inserted == null)
             {
-                _logger.LogCritical("Critical error in {MethodName}: Failed to add {EntityType} with ID {EntityId}",
-                    nameof(Add), _entityName, entity.Id);
+                _logger.LogCritical("Critical error in {MethodName}: Failed to add {EntityType} with ID {EntityId}", nameof(Add), _entityName, entity.Id);
                 throw new RepositoryOperationException(nameof(Add), $"Failed to add entity with ID {entity.Id}");
             }
 
@@ -164,8 +181,7 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogCritical(ex, "Critical error in {MethodName}: {EntityType} with ID {EntityId}",
-                nameof(Add), _entityName, entity.Id);
+            _logger.LogCritical(ex, "Critical error in {MethodName}: {EntityType} with ID {EntityId}", nameof(Add), _entityName, entity.Id);
             throw;
         }
     }
@@ -179,8 +195,7 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
             // Verify entity exists before update
             if (!_collection.Exists(e => e.Id == entity.Id))
             {
-                _logger.LogCritical("Critical error in {MethodName}: {EntityType} with ID {EntityId} not found for update",
-                    nameof(Update), _entityName, entity.Id);
+                _logger.LogCritical("Critical error in {MethodName}: {EntityType} with ID {EntityId} not found for update", nameof(Update), _entityName, entity.Id);
                 throw new EntityNotFoundException(entity.Id, _entityName);
             }
 
@@ -193,8 +208,7 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
             var updated = _collection.Update(entity);
             if (!updated)
             {
-                _logger.LogCritical("Critical error in {MethodName}: Failed to update {EntityType} with ID {EntityId}",
-                    nameof(Update), _entityName, entity.Id);
+                _logger.LogCritical("Critical error in {MethodName}: Failed to update {EntityType} with ID {EntityId}", nameof(Update), _entityName, entity.Id);
                 throw new RepositoryOperationException(nameof(Update), $"Failed to update entity with ID {entity.Id}");
             }
 
@@ -202,8 +216,7 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogCritical(ex, "Critical error in {MethodName}: {EntityType} with ID {EntityId}",
-                nameof(Update), _entityName, entity.Id);
+            _logger.LogCritical(ex, "Critical error in {MethodName}: {EntityType} with ID {EntityId}", nameof(Update), _entityName, entity.Id);
             throw;
         }
     }
@@ -217,8 +230,7 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
             // Verify entity exists before deletion
             if (!_collection.Exists(e => e.Id == id))
             {
-                _logger.LogCritical("Critical error in {MethodName}: {EntityType} with ID {EntityId} not found for removal",
-                    nameof(Remove), _entityName, id);
+                _logger.LogCritical("Critical error in {MethodName}: {EntityType} with ID {EntityId} not found for removal", nameof(Remove), _entityName, id);
                 throw new EntityNotFoundException(id, _entityName);
             }
 
@@ -231,15 +243,13 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
             var deleted = _collection.Delete(id);
             if (!deleted)
             {
-                _logger.LogCritical("Critical error in {MethodName}: Failed to remove {EntityType} with ID {EntityId}",
-                    nameof(Remove), _entityName, id);
+                _logger.LogCritical("Critical error in {MethodName}: Failed to remove {EntityType} with ID {EntityId}", nameof(Remove), _entityName, id);
                 throw new RepositoryOperationException(nameof(Remove), $"Failed to remove entity with ID {id}");
             }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogCritical(ex, "Critical error in {MethodName}: {EntityType} with ID {EntityId}",
-                nameof(Remove), _entityName, id);
+            _logger.LogCritical(ex, "Critical error in {MethodName}: {EntityType} with ID {EntityId}", nameof(Remove), _entityName, id);
             throw;
         }
     }

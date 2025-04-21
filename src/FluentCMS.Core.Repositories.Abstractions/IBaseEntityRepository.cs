@@ -6,9 +6,9 @@ public interface IBaseEntityRepository<T> where T : IBaseEntity
 
     Task<IEnumerable<T>> GetAll(CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<T>> Query(Expression<Func<T, bool>>? filter = default, PaginationOptions? paginationOptions = default, IList<SortOption<T>>? sortOptions = default, CancellationToken cancellationToken = default);
+    Task<QueryResult<T>> Query(Expression<Func<T, bool>>? filter = default, PaginationOptions? paginationOptions = default, IList<SortOption<T>>? sortOptions = default, CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<T>> Query(QueryOptions<T> options, CancellationToken cancellationToken = default);
+    Task<QueryResult<T>> Query(QueryOptions<T> options, CancellationToken cancellationToken = default);
 
     Task<int> Count(Expression<Func<T, bool>>? filter = default, CancellationToken cancellationToken = default);
 
