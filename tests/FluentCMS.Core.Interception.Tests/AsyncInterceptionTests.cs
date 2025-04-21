@@ -1,5 +1,5 @@
-using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace FluentCMS.Core.Interception.Tests;
 
@@ -99,7 +99,7 @@ public class AsyncInterceptionTests
         {
             ReturnCalled = true;
             LastReturnValue = returnValue;
-            
+
             // We're just testing that the method is called, not modifying the return value
             // since that causes issues with TaskCompletionSource
             return returnValue;
@@ -210,9 +210,9 @@ public class AsyncInterceptionTests
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(
             async () => await service.GetDataAsync());
-        
+
         exception.Message.Should().Be(expectedMessage);
-        
+
         interceptor.BeforeCalled.Should().BeTrue();
         interceptor.ExceptionCalled.Should().BeTrue();
         interceptor.AfterCalled.Should().BeFalse();
@@ -238,9 +238,9 @@ public class AsyncInterceptionTests
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(
             async () => await service.DoSomethingAsync());
-        
+
         exception.Message.Should().Be(expectedMessage);
-        
+
         interceptor.BeforeCalled.Should().BeTrue();
         interceptor.ExceptionCalled.Should().BeTrue();
         interceptor.AfterCalled.Should().BeFalse();

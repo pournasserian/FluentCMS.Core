@@ -7,7 +7,7 @@ public class TestEventWithPayload
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
     public string EventName { get; set; } = "Complex Event";
     public Payload Data { get; set; } = new Payload();
-    
+
     public class Payload
     {
         public int Number { get; set; }

@@ -2,7 +2,6 @@ using FluentCMS.Core.Repositories.Abstractions;
 using FluentCMS.TodoApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections;
-using System.Reflection;
 
 namespace FluentCMS.TodoApi.Controllers;
 
@@ -14,7 +13,7 @@ public class EntityHistoryController : ControllerBase
     private readonly ILogger<EntityHistoryController> _logger;
 
     public EntityHistoryController(
-        IServiceProvider serviceProvider, 
+        IServiceProvider serviceProvider,
         ILogger<EntityHistoryController> logger)
     {
         _serviceProvider = serviceProvider;
@@ -38,10 +37,10 @@ public class EntityHistoryController : ControllerBase
 
             // Get the generic repository type
             Type historyRepoType = typeof(IEntityHistoryRepository<>).MakeGenericType(type);
-            
+
             // Resolve the repository from the service provider
             var historyRepo = _serviceProvider.GetService(historyRepoType);
-            
+
             if (historyRepo == null)
             {
                 return NotFound($"History repository for '{entityType}' not registered");
@@ -50,7 +49,7 @@ public class EntityHistoryController : ControllerBase
             // Use reflection to call the GetAll method
             var method = historyRepoType.GetMethod("GetAll");
             var task = method?.Invoke(historyRepo, new object[] { entityId, default(CancellationToken) });
-            
+
             if (task == null)
             {
                 return StatusCode(500, "Failed to execute history query");
@@ -58,7 +57,7 @@ public class EntityHistoryController : ControllerBase
 
             // Wait for the task to complete
             await (Task)task;
-            
+
             // Get the result property from the Task
             var resultProperty = task.GetType().GetProperty("Result");
             var historyItems = resultProperty?.GetValue(task) as IEnumerable;
@@ -104,8 +103,8 @@ public class EntityHistoryController : ControllerBase
 
     [HttpGet("date-range/{entityType}")]
     public async Task<ActionResult<IEnumerable<EntityHistoryDto>>> GetHistoryByDateRange(
-        string entityType, 
-        [FromQuery] DateTime startDate, 
+        string entityType,
+        [FromQuery] DateTime startDate,
         [FromQuery] DateTime endDate)
     {
         try
@@ -122,10 +121,10 @@ public class EntityHistoryController : ControllerBase
 
             // Get the generic repository type
             Type historyRepoType = typeof(IEntityHistoryRepository<>).MakeGenericType(type);
-            
+
             // Resolve the repository from the service provider
             var historyRepo = _serviceProvider.GetService(historyRepoType);
-            
+
             if (historyRepo == null)
             {
                 return NotFound($"History repository for '{entityType}' not registered");
@@ -134,7 +133,7 @@ public class EntityHistoryController : ControllerBase
             // Use reflection to call the GetHistoryByDateRange method
             var method = historyRepoType.GetMethod("GetHistoryByDateRange");
             var task = method?.Invoke(historyRepo, new object[] { startDate, endDate, default(CancellationToken) });
-            
+
             if (task == null)
             {
                 return StatusCode(500, "Failed to execute history query");
@@ -142,7 +141,7 @@ public class EntityHistoryController : ControllerBase
 
             // Wait for the task to complete
             await (Task)task;
-            
+
             // Get the result property from the Task
             var resultProperty = task.GetType().GetProperty("Result");
             var historyItems = resultProperty?.GetValue(task) as IEnumerable;
@@ -203,10 +202,10 @@ public class EntityHistoryController : ControllerBase
 
             // Get the generic repository type
             Type historyRepoType = typeof(IEntityHistoryRepository<>).MakeGenericType(type);
-            
+
             // Resolve the repository from the service provider
             var historyRepo = _serviceProvider.GetService(historyRepoType);
-            
+
             if (historyRepo == null)
             {
                 return NotFound($"History repository for '{entityType}' not registered");
@@ -215,7 +214,7 @@ public class EntityHistoryController : ControllerBase
             // Use reflection to call the GetLatestHistoryForEntity method
             var method = historyRepoType.GetMethod("GetLatestHistoryForEntity");
             var task = method?.Invoke(historyRepo, new object[] { entityId, default(CancellationToken) });
-            
+
             if (task == null)
             {
                 return StatusCode(500, "Failed to execute history query");
@@ -223,7 +222,7 @@ public class EntityHistoryController : ControllerBase
 
             // Wait for the task to complete
             await (Task)task;
-            
+
             // Get the result property from the Task
             var resultProperty = task.GetType().GetProperty("Result");
             var historyItem = resultProperty?.GetValue(task);

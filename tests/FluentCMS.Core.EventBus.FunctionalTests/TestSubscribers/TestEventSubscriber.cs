@@ -17,19 +17,19 @@ public class TestEventSubscriber : IEventSubscriber<TestEvent>
     public Task Handle(DomainEvent<TestEvent> domainEvent, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        
-        _logger.LogInformation("Received event: {EventType} with message: {Message}", 
+
+        _logger.LogInformation("Received event: {EventType} with message: {Message}",
             domainEvent.EventType, domainEvent.Data.Message);
-        
+
         _receivedEvents.Add(domainEvent.Data);
-        
+
         return Task.CompletedTask;
     }
 
     // Helper methods for tests
     public IReadOnlyList<TestEvent> GetReceivedEvents() => _receivedEvents.AsReadOnly();
-    
+
     public void ClearEvents() => _receivedEvents.Clear();
-    
+
     public bool HasReceivedEvent(Guid id) => _receivedEvents.Any(e => e.Id == id);
 }

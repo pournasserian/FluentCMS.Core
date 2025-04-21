@@ -13,7 +13,7 @@ public class TestEventFailingSubscriber : IEventSubscriber<TestEvent>
     private int _failedCount = 0;
 
     public TestEventFailingSubscriber(
-        ILogger<TestEventFailingSubscriber> logger, 
+        ILogger<TestEventFailingSubscriber> logger,
         bool alwaysFail = false,
         string failureMessage = "Simulated failure in event handler")
     {
@@ -25,11 +25,11 @@ public class TestEventFailingSubscriber : IEventSubscriber<TestEvent>
     public Task Handle(DomainEvent<TestEvent> domainEvent, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        
+
         _logger.LogInformation("Failing subscriber received event: {EventType}", domainEvent.EventType);
-        
+
         Interlocked.Increment(ref _processedCount);
-        
+
         // Fail on odd count or if configured to always fail
         if (_alwaysFail || _processedCount % 2 != 0)
         {
@@ -37,15 +37,15 @@ public class TestEventFailingSubscriber : IEventSubscriber<TestEvent>
             Interlocked.Increment(ref _failedCount);
             throw new InvalidOperationException(_failureMessage);
         }
-        
+
         return Task.CompletedTask;
     }
 
     // Helper methods for tests
     public int GetProcessedCount() => _processedCount;
-    
+
     public int GetFailedCount() => _failedCount;
-    
+
     public void Reset()
     {
         _processedCount = 0;

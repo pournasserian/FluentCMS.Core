@@ -6,9 +6,9 @@ namespace FluentCMS.Core.Repositories.Tests;
 public class LiteDBContextFixture : IDisposable
 {
     private bool _disposed;
-    
+
     public LiteDBContext Context { get; }
-    
+
     public LiteDBContextFixture()
     {
         // Create a unique in-memory database for each test
@@ -17,7 +17,7 @@ public class LiteDBContextFixture : IDisposable
         {
             ConnectionString = dbName
         };
-        
+
         Context = new LiteDBContext(options);
     }
 
@@ -26,18 +26,18 @@ public class LiteDBContextFixture : IDisposable
         Dispose(true);
         GC.SuppressFinalize(this);
     }
-    
+
     protected virtual void Dispose(bool disposing)
     {
         if (_disposed)
             return;
-            
+
         if (disposing)
         {
             // Dispose context to close the database connection
             Context.Dispose();
         }
-        
+
         _disposed = true;
     }
 }

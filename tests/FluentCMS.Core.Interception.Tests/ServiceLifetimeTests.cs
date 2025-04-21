@@ -1,5 +1,5 @@
-using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace FluentCMS.Core.Interception.Tests;
 
@@ -114,18 +114,18 @@ public class ServiceLifetimeTests
         // Act
         var service1 = serviceProvider.GetRequiredService<ILifetimeService>();
         var service2 = serviceProvider.GetRequiredService<ILifetimeService>();
-        
+
         service1.Increment();
 
         // Get from a different scope
         using (var scope = serviceProvider.CreateScope())
         {
             var service3 = scope.ServiceProvider.GetRequiredService<ILifetimeService>();
-            
+
             // Assert
             service1.Should().BeSameAs(service2);
             service1.GetId().Should().Be(service2.GetId());
-            
+
             // Should be the same instance even in a different scope
             service1.Should().BeSameAs(service3);
             service3.GetCount().Should().Be(1); // Should maintain the incremented count
@@ -137,14 +137,14 @@ public class ServiceLifetimeTests
     {
         // Arrange
         var services = new ServiceCollection();
-        
+
         // Register the interceptor in the service collection
         services.AddSingleton<LifetimeInterceptor>();
-        
+
         // Create and use the registered interceptor
         var interceptor = new LifetimeInterceptor();
         services.AddSingleton(interceptor);
-        
+
         services.AddInterceptedTransient<ILifetimeService, LifetimeService>()
             .AddInterceptor(interceptor)
             .Build();
@@ -154,7 +154,7 @@ public class ServiceLifetimeTests
         // Act
         var service = serviceProvider.GetRequiredService<ILifetimeService>();
         service.GetId(); // Call a method to trigger the interceptor
-        
+
         // Also get the interceptor directly from the service provider
         var resolvedInterceptor = serviceProvider.GetRequiredService<LifetimeInterceptor>();
 
@@ -192,11 +192,11 @@ public class ServiceLifetimeTests
     {
         // Arrange
         var services = new ServiceCollection();
-        
+
         // Create and register the interceptor
         var interceptor = new LifetimeInterceptor();
         services.AddSingleton(interceptor);
-        
+
         services.AddInterceptedTransient<ILifetimeService, LifetimeService>()
             .AddInterceptor(interceptor)
             .Build();
@@ -210,7 +210,7 @@ public class ServiceLifetimeTests
         // Call methods to trigger the interceptor
         transient1.GetId();
         transient2.GetId();
-        
+
         // Assert
         transient1.Should().NotBeSameAs(transient2);
         interceptor.CallCount.Should().Be(2); // Both calls to GetId should increment the counter

@@ -8,7 +8,7 @@ public static class ServiceCollectionExtensions
     {
         // Register core event system
         services.AddScoped<IEventPublisher, EventPublisher>();
-        
+
         return services;
     }
 }

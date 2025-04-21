@@ -1,9 +1,9 @@
+using FluentCMS.Core.EventBus;
 using FluentCMS.Core.Repositories.Abstractions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using FluentCMS.Core.EventBus;
 
 namespace FluentCMS.Core.Repositories.LiteDB;
 

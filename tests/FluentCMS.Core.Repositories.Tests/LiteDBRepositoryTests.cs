@@ -232,12 +232,12 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
     {
         // Arrange
         await ClearCollection();
-        
+
         // Add entities with different IsActive values but some with the same Counter
         var entity1 = new TestEntity { Name = "Entity 1", Counter = 5, IsActive = true };
         var entity2 = new TestEntity { Name = "Entity 2", Counter = 5, IsActive = false };
         var entity3 = new TestEntity { Name = "Entity 3", Counter = 10, IsActive = true };
-        
+
         await _repository.Add(entity1);
         await _repository.Add(entity2);
         await _repository.Add(entity3);
@@ -261,14 +261,14 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
         resultsList.Count.Should().Be(3);
         resultsList[0].Counter.Should().Be(5);
         resultsList[1].Counter.Should().Be(5);
-        
+
         // For the entries with Counter = 5, IsActive = true should come first
         if (resultsList[0].Counter == 5 && resultsList[1].Counter == 5)
         {
             resultsList[0].IsActive.Should().BeTrue();
             resultsList[1].IsActive.Should().BeFalse();
         }
-        
+
         // Last entry should have Counter = 10
         resultsList[2].Counter.Should().Be(10);
     }

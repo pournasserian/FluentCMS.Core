@@ -1,5 +1,5 @@
-using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace FluentCMS.Core.Interception.Tests;
 
@@ -63,7 +63,7 @@ public class BasicInterceptionTests
             // For testing return value modification
             if (method?.Name == "GetData")
                 return "Modified Data";
-            
+
             if (method?.Name == "GetDataAsync" && returnValue is Task<string> task)
                 return Task.FromResult("Modified Async Data");
 
@@ -176,7 +176,7 @@ public class BasicInterceptionTests
         // Act & Assert
         var exception = Assert.Throws<InvalidOperationException>(() => service.GetData());
         exception.Message.Should().Be(expectedMessage);
-        
+
         interceptor.BeforeCalled.Should().BeTrue();
         interceptor.ExceptionCalled.Should().BeTrue();
         interceptor.AfterCalled.Should().BeFalse();

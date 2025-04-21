@@ -19,7 +19,7 @@ public class EventPublisher(IServiceProvider serviceProvider, ILogger<EventPubli
 
             // Get all subscribers for this event type
             var subscribers = serviceProvider.GetServices<IEventSubscriber<T>>();
-            
+
             if (!subscribers.Any())
             {
                 logger.LogWarning("No subscribers found for event type {EventType}", domainEvent.EventType);
@@ -27,12 +27,12 @@ public class EventPublisher(IServiceProvider serviceProvider, ILogger<EventPubli
             }
 
             // Execute all handlers in parallel
-            var tasks = subscribers.Select(subscriber => 
+            var tasks = subscribers.Select(subscriber =>
                 subscriber.Handle(domainEvent, cancellationToken));
 
             await Task.WhenAll(tasks);
 
-            logger.LogInformation("Event {EventType} published successfully with {SubscriberCount} subscribers", 
+            logger.LogInformation("Event {EventType} published successfully with {SubscriberCount} subscribers",
                 domainEvent.EventType, subscribers.Count());
         }
         catch (OperationCanceledException)

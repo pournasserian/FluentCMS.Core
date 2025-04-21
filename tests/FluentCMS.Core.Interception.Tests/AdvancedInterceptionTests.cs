@@ -1,5 +1,5 @@
-using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace FluentCMS.Core.Interception.Tests;
 
@@ -25,7 +25,7 @@ public class AdvancedInterceptionTests
         public int Calculate(int a, int b) => a + b;
         public Task<string> GetDataAsync() => Task.FromResult("Original Async Data");
         public void LogMessage(string message) { /* Just a test method */ }
-        
+
         [NoIntercept] // Place attribute on implementation method instead of interface method
         public string GetUninterceptedData() => "Unintercepted Data";
     }
@@ -49,11 +49,11 @@ public class AdvancedInterceptionTests
         public override object? OnReturn(MethodInfo? method, object?[]? arguments, object instance, object? returnValue)
         {
             CallLog.Add($"First:Return:{method?.Name}");
-            
+
             // Modify string return values
             if (returnValue is string strValue)
                 return $"First:{strValue}";
-            
+
             return returnValue;
         }
     }
@@ -76,11 +76,11 @@ public class AdvancedInterceptionTests
         public override object? OnReturn(MethodInfo? method, object?[]? arguments, object instance, object? returnValue)
         {
             CallLog.Add($"Second:Return:{method?.Name}");
-            
+
             // Modify string return values
             if (returnValue is string strValue)
                 return $"Second:{strValue}";
-            
+
             return returnValue;
         }
     }
@@ -96,7 +96,7 @@ public class AdvancedInterceptionTests
             {
                 if (!MethodCalls.ContainsKey(method.Name))
                     MethodCalls[method.Name] = 0;
-                
+
                 MethodCalls[method.Name]++;
             }
         }
@@ -123,19 +123,19 @@ public class AdvancedInterceptionTests
 
         // Assert
         result.Should().Be("Second:First:Original Data");
-        
+
         // Verify execution order
         first.CallLog.Should().HaveCount(3);
         second.CallLog.Should().HaveCount(3);
-        
+
         // Before methods should be called in ascending order (1 then 2)
         first.CallLog[0].Should().Be("First:Before:GetData");
         second.CallLog[0].Should().Be("Second:Before:GetData");
-        
+
         // Return methods should be called in ascending order (1 then 2)
         first.CallLog[1].Should().Be("First:Return:GetData");
         second.CallLog[1].Should().Be("Second:Return:GetData");
-        
+
         // After methods should be called in ascending order (1 then 2)
         first.CallLog[2].Should().Be("First:After:GetData");
         second.CallLog[2].Should().Be("Second:After:GetData");

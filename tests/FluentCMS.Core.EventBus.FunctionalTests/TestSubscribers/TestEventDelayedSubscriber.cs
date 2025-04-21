@@ -18,20 +18,20 @@ public class TestEventDelayedSubscriber : IEventSubscriber<TestEvent>
 
     public async Task Handle(DomainEvent<TestEvent> domainEvent, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Delayed subscriber beginning processing for event: {EventType}", 
+        _logger.LogInformation("Delayed subscriber beginning processing for event: {EventType}",
             domainEvent.EventType);
-            
+
         // Simulate a long-running process
         await Task.Delay(_delayMilliseconds, cancellationToken);
-        
+
         cancellationToken.ThrowIfCancellationRequested();
-        
+
         lock (_receivedEvents)
         {
             _receivedEvents.Add(domainEvent.Data);
         }
-        
-        _logger.LogInformation("Delayed subscriber finished processing for event: {EventType}", 
+
+        _logger.LogInformation("Delayed subscriber finished processing for event: {EventType}",
             domainEvent.EventType);
     }
 
@@ -43,7 +43,7 @@ public class TestEventDelayedSubscriber : IEventSubscriber<TestEvent>
             return _receivedEvents.ToList().AsReadOnly();
         }
     }
-    
+
     public void ClearEvents()
     {
         lock (_receivedEvents)

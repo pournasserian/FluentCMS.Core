@@ -19,7 +19,7 @@ public class BasicPublishTests : IClassFixture<EventBusTestFixture>
         _publisher = fixture.EventPublisher;
         _subscriber = fixture.GetSubscriber<TestEventSubscriber>();
         _countingSubscriber = fixture.GetSubscriber<TestEventCountingSubscriber>();
-        
+
         // Clear any previously received events
         _subscriber.ClearEvents();
         _countingSubscriber.Reset();
@@ -73,33 +73,33 @@ public class BasicPublishTests : IClassFixture<EventBusTestFixture>
         _subscriber.GetReceivedEvents().Should().HaveCount(1);
         _countingSubscriber.GetEventCount().Should().Be(1);
     }
-    
+
     [Fact]
     public async Task Publish_MultipleEvents_ShouldUpdateCountCorrectly()
     {
         // Arrange
         var eventCount = 5;
-        
+
         // Act
         for (int i = 0; i < eventCount; i++)
         {
             await _publisher.Publish(_fixture.CreateTestEvent($"Message {i}"), "TestEvent");
         }
-        
+
         // Assert
         _countingSubscriber.GetEventCount().Should().Be(eventCount);
     }
-    
+
     [Fact]
     public async Task Publish_UsingDomainEvent_ShouldBeReceivedBySubscriber()
     {
         // Arrange
         var testEvent = _fixture.CreateTestEvent("Domain Event Test");
         var domainEvent = new DomainEvent<TestEvent>(testEvent, "DomainTestEvent");
-        
+
         // Act
         await _publisher.Publish(domainEvent);
-        
+
         // Assert
         _subscriber.GetReceivedEvents().Should().HaveCount(1);
         _subscriber.GetReceivedEvents().First().Message.Should().Be("Domain Event Test");
