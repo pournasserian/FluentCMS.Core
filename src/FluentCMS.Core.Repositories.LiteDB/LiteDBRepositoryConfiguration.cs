@@ -11,7 +11,9 @@ public static class LiteDBRepositoryConfiguration
 {
     public static IServiceCollection AddLiteDBRepositories(this IServiceCollection services, LiteDBOptions options)
     {
-        services.AddScoped(typeof(IEventSubscriber<>), typeof(EntityHistoryEventHandler<>));
+
+        services.AddTransient(typeof(IEventSubscriber<>), typeof(EntityHistoryEventHandler<>));
+        services.AddScoped<IEventPublisher, EventPublisher>();
 
         services.AddScoped(typeof(IEntityHistoryRepository<>), typeof(EntityHistoryRepository<>));
 
@@ -41,7 +43,9 @@ public static class LiteDBRepositoryConfiguration
 
     public static IServiceCollection AddLiteDBRepositories(this IServiceCollection services, IConfiguration configuration, string sectionName = "LiteDB")
     {
-        services.AddScoped(typeof(IEventSubscriber<>), typeof(EntityHistoryEventHandler<>));
+        services.AddTransient(typeof(IEventSubscriber<>), typeof(EntityHistoryEventHandler<>));
+
+        services.AddScoped<IEventPublisher, EventPublisher>();
 
         services.AddScoped(typeof(IEntityHistoryRepository<>), typeof(EntityHistoryRepository<>));
 
