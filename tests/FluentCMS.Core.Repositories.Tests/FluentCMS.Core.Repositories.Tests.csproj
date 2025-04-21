@@ -26,7 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\FluentCMS.Core.Repositories.Abstractions\FluentCMS.Core.Repositories.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\FluentCMS.Core.Repositories.LiteDB\FluentCMS.Core.Repositories.LiteDB.csproj" />
   </ItemGroup>
 

@@ -1,5 +1,3 @@
-using System.Linq.Expressions;
-
 namespace FluentCMS.Core.Repositories.Abstractions;
 
 public interface IBaseEntityRepository<T> where T : IBaseEntity

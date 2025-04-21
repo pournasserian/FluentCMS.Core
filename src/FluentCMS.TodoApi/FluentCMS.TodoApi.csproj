@@ -12,9 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FluentCMS.Core.Repositories.Abstractions\FluentCMS.Core.Repositories.Abstractions.csproj" />
     <ProjectReference Include="..\FluentCMS.Core.Repositories.LiteDB\FluentCMS.Core.Repositories.LiteDB.csproj" />
     <ProjectReference Include="..\FluentCMS.Core.EventBus\FluentCMS.Core.EventBus.csproj" />
+    <ProjectReference Include="..\FluentCMS.Services\FluentCMS.Services.csproj" />
   </ItemGroup>
 
 </Project>

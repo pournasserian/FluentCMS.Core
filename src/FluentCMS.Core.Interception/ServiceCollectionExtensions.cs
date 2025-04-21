@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-namespace FluentCMS.Core.Interception;
+﻿namespace FluentCMS.Core.Interception;
 
 public static class ServiceCollectionExtensions
 {

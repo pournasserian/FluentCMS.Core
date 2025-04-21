@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
-
-namespace FluentCMS.Core.Interception;
+﻿namespace FluentCMS.Core.Interception;
 
 public class AspectInterceptorBuilder<TService, TImplementation> where TService : class where TImplementation : class, TService
 {

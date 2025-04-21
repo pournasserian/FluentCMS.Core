@@ -1,5 +1,3 @@
-using FluentCMS.Core.Repositories.Abstractions;
-
 namespace FluentCMS.Core.Repositories.Tests;
 
 // Simple entity class for testing repository operations

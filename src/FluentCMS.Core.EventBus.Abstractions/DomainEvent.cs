@@ -1,4 +1,4 @@
-namespace FluentCMS.Core.EventBus;
+namespace FluentCMS.Core.EventBus.Abstractions;
 
 // Generic domain event
 public class DomainEvent<T>(T data, string eventType) : IEvent

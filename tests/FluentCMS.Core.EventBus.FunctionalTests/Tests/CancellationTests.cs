@@ -1,10 +1,3 @@
-using FluentAssertions;
-using FluentCMS.Core.EventBus.FunctionalTests.Infrastructure;
-using FluentCMS.Core.EventBus.FunctionalTests.TestEvents;
-using FluentCMS.Core.EventBus.FunctionalTests.TestSubscribers;
-using Microsoft.Extensions.DependencyInjection;
-using Xunit;
-
 namespace FluentCMS.Core.EventBus.FunctionalTests.Tests;
 
 public class CancellationTests

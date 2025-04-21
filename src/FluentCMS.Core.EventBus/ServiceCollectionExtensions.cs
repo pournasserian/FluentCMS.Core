@@ -1,5 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
-
 namespace FluentCMS.Core.EventBus;
 
 public static class ServiceCollectionExtensions

@@ -1,4 +1,4 @@
-namespace FluentCMS.Core.EventBus;
+namespace FluentCMS.Core.EventBus.Abstractions;
 
 // Generic event subscriber interface
 public interface IEventSubscriber<T>

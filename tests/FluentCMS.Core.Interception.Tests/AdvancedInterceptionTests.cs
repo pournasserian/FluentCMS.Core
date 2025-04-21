@@ -1,6 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
-
 namespace FluentCMS.Core.Interception.Tests;
 
 public class AdvancedInterceptionTests

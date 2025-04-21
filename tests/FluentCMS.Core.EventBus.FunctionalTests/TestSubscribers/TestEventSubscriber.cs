@@ -1,6 +1,3 @@
-using FluentCMS.Core.EventBus.FunctionalTests.TestEvents;
-using Microsoft.Extensions.Logging;
-
 namespace FluentCMS.Core.EventBus.FunctionalTests.TestSubscribers;
 
 // Simple subscriber for TestEvent

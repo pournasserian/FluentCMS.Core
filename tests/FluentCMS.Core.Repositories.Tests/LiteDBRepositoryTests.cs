@@ -1,12 +1,3 @@
-using FluentAssertions;
-using FluentCMS.Core.EventBus;
-using FluentCMS.Core.Repositories.Abstractions;
-using FluentCMS.Core.Repositories.LiteDB;
-using Microsoft.Extensions.Logging.Abstractions;
-using Moq;
-using System.Linq.Expressions;
-using Xunit;
-
 namespace FluentCMS.Core.Repositories.Tests;
 
 public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>

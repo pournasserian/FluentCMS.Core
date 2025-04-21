@@ -1,9 +1,3 @@
-using FluentAssertions;
-using FluentCMS.Core.EventBus.FunctionalTests.Infrastructure;
-using FluentCMS.Core.EventBus.FunctionalTests.TestEvents;
-using FluentCMS.Core.EventBus.FunctionalTests.TestSubscribers;
-using Xunit;
-
 namespace FluentCMS.Core.EventBus.FunctionalTests.Tests;
 
 public class BasicPublishTests : IClassFixture<EventBusTestFixture>

@@ -1,8 +1,3 @@
-using FluentCMS.Core.EventBus.FunctionalTests.TestEvents;
-using FluentCMS.Core.EventBus.FunctionalTests.TestSubscribers;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-
 namespace FluentCMS.Core.EventBus.FunctionalTests.Infrastructure;
 
 // Test fixture that provides a configured event bus for testing

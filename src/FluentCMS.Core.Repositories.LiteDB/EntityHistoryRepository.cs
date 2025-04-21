@@ -1,7 +1,3 @@
-using FluentCMS.Core.Repositories.Abstractions;
-using LiteDB;
-using Microsoft.Extensions.Logging;
-
 namespace FluentCMS.Core.Repositories.LiteDB;
 
 public class EntityHistoryRepository<T> : IEntityHistoryRepository<T> where T : IBaseEntity

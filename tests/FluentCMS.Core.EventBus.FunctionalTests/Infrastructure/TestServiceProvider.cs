@@ -1,5 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
-
 namespace FluentCMS.Core.EventBus.FunctionalTests.Infrastructure;
 
 // Custom service provider for fine-grained control over test configurations

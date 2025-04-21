@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace FluentCMS.Core.Interception;
+﻿namespace FluentCMS.Core.Interception;
 
 public class InterceptorGroup<TService, TImplementation> where TService : class where TImplementation : class, TService
 {

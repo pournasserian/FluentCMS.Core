@@ -1,0 +1,10 @@
+﻿global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.DependencyInjection;
+global using FluentCMS.Core.EventBus.Abstractions;
+global using System.Linq.Expressions;
+global using FluentCMS.Core.Repositories.Abstractions;
+global using FluentCMS.Core.EventBus;
+global using LiteDB;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection.Extensions;
+global using Microsoft.Extensions.Options;

@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace FluentCMS.Core.Interception;
+﻿namespace FluentCMS.Core.Interception;
 
 public class AspectProxy : DispatchProxy
 {

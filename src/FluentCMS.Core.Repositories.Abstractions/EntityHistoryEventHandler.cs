@@ -1,6 +1,3 @@
-using FluentCMS.Core.EventBus;
-using Microsoft.Extensions.Logging;
-
 namespace FluentCMS.Core.Repositories.Abstractions;
 
 public class EntityHistoryEventHandler<T>(IEntityHistoryRepository<T> historyRepository, ILogger<EntityHistoryEventHandler<T>> logger) : IEventSubscriber<T> where T : IBaseEntity

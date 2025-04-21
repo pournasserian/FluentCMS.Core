@@ -7,7 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FluentCMS.Core.EventBus\FluentCMS.Core.EventBus.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FluentCMS.Core.EventBus.Abstractions\FluentCMS.Core.EventBus.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>
