@@ -1,11 +1,12 @@
 using FluentCMS.Core.Api;
 using FluentCMS.Core.Repositories.LiteDB;
+using FluentCMS.TodoApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddFluentCmsApi();
-
+builder.Services.AddScoped<ITodoService, TodoService>();
 builder.Services.AddLiteDBRepositories(builder.Configuration);
 
 var app = builder.Build();
