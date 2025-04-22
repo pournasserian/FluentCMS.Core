@@ -1,28 +1,18 @@
 using FluentCMS.Core.Api.Controllers;
 using FluentCMS.Core.Api;
-using FluentCMS.Core.Plugins.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Mime;
-using System.Text;
 
 namespace FluentCMS.Core.Plugins.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class PluginsController : BaseController
+public class PluginsController(IPluginManager pluginManager) : BaseController
 {
-    private readonly IPluginManager _pluginManager;
-
-    public PluginsController(IPluginManager pluginManager)
-    {
-        _pluginManager = pluginManager;
-    }
-
     [HttpGet]
     public ApiResult<IEnumerable<PluginInfoDto>> GetAll()
     {
-        var plugins = _pluginManager.GetPlugins().Select(p => new PluginInfoDto
+        var plugins = pluginManager.GetPlugins().Select(p => new PluginInfoDto
         {
             Name = p.Name,
             Version = p.Version,
@@ -36,7 +26,7 @@ public class PluginsController : BaseController
     [HttpGet("{name}")]
     public ApiResult<PluginInfoDto> GetByName(string name)
     {
-        var plugin = _pluginManager.GetPlugin(name);
+        var plugin = pluginManager.GetPlugin(name);
         
         if (plugin == null)
         {
@@ -75,7 +65,7 @@ public class PluginsController : BaseController
         }
 
         using var stream = file.OpenReadStream();
-        var metadata = await _pluginManager.InstallPluginAsync(stream, file.FileName);
+        var metadata = await pluginManager.InstallPluginAsync(stream, file.FileName);
 
         if (metadata == null)
         {
@@ -98,7 +88,7 @@ public class PluginsController : BaseController
     [HttpPut("{name}/enable")]
     public async Task<ApiResult<PluginInfoDto>> EnablePlugin(string name)
     {
-        var success = await _pluginManager.EnablePluginAsync(name);
+        var success = await pluginManager.EnablePluginAsync(name);
         
         if (!success)
         {
@@ -107,7 +97,7 @@ public class PluginsController : BaseController
             return result;
         }
 
-        var plugin = _pluginManager.GetPlugin(name);
+        var plugin = pluginManager.GetPlugin(name);
         
         if (plugin == null)
         {
@@ -130,7 +120,7 @@ public class PluginsController : BaseController
     [HttpPut("{name}/disable")]
     public async Task<ApiResult<PluginInfoDto>> DisablePlugin(string name)
     {
-        var success = await _pluginManager.DisablePluginAsync(name);
+        var success = await pluginManager.DisablePluginAsync(name);
         
         if (!success)
         {
@@ -139,7 +129,7 @@ public class PluginsController : BaseController
             return result;
         }
 
-        var plugin = _pluginManager.GetPlugin(name);
+        var plugin = pluginManager.GetPlugin(name);
         
         if (plugin == null)
         {
@@ -162,7 +152,7 @@ public class PluginsController : BaseController
     [HttpDelete("{name}")]
     public async Task<ApiResult> UninstallPlugin(string name)
     {
-        var success = await _pluginManager.UninstallPluginAsync(name);
+        var success = await pluginManager.UninstallPluginAsync(name);
         
         if (!success)
         {
