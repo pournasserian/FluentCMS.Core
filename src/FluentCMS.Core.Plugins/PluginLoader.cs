@@ -1,6 +1,5 @@
 using FluentCMS.Core.Plugins.Abstractions;
 using Microsoft.Extensions.Logging;
-using System.Reflection;
 using System.Runtime.Loader;
 
 namespace FluentCMS.Core.Plugins;
@@ -11,22 +10,15 @@ public interface IPluginLoader
     Task<PluginMetadata?> LoadPluginAsync(string path);
 }
 
-public class PluginLoader : IPluginLoader
+public class PluginLoader(ILogger<PluginLoader> logger) : IPluginLoader
 {
-    private readonly ILogger<PluginLoader> _logger;
-
-    public PluginLoader(ILogger<PluginLoader> logger)
-    {
-        _logger = logger;
-    }
-
     public Task<IEnumerable<PluginMetadata>> LoadPluginsAsync(string directory)
     {
-        _logger.LogInformation("Loading plugins from directory: {Directory}", directory);
+        logger.LogInformation("Loading plugins from directory: {Directory}", directory);
 
         if (!Directory.Exists(directory))
         {
-            _logger.LogWarning("Plugin directory does not exist: {Directory}", directory);
+            logger.LogWarning("Plugin directory does not exist: {Directory}", directory);
             Directory.CreateDirectory(directory);
             return Task.FromResult(Enumerable.Empty<PluginMetadata>());
         }
@@ -50,7 +42,7 @@ public class PluginLoader : IPluginLoader
     {
         try
         {
-            _logger.LogInformation("Loading plugin from: {Path}", path);
+            logger.LogInformation("Loading plugin from: {Path}", path);
 
             // Load the assembly
             var assemblyName = Path.GetFileNameWithoutExtension(path);
@@ -63,7 +55,7 @@ public class PluginLoader : IPluginLoader
 
             if (!pluginTypes.Any())
             {
-                _logger.LogWarning("No plugin types found in assembly: {Assembly}", assembly.FullName);
+                logger.LogWarning("No plugin types found in assembly: {Assembly}", assembly.FullName);
                 return Task.FromResult<PluginMetadata?>(null);
             }
 
@@ -98,7 +90,7 @@ public class PluginLoader : IPluginLoader
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to load plugin from path: {Path}", path);
+            logger.LogError(ex, "Failed to load plugin from path: {Path}", path);
             return Task.FromResult<PluginMetadata?>(null);
         }
     }
