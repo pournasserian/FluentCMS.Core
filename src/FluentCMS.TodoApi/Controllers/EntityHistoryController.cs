@@ -1,6 +1,7 @@
 using FluentCMS.Core.Repositories.Abstractions;
 using FluentCMS.TodoApi.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System.Collections;
 
 namespace FluentCMS.TodoApi.Controllers;
@@ -12,9 +13,7 @@ public class EntityHistoryController : ControllerBase
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<EntityHistoryController> _logger;
 
-    public EntityHistoryController(
-        IServiceProvider serviceProvider,
-        ILogger<EntityHistoryController> logger)
+    public EntityHistoryController(IServiceProvider serviceProvider, ILogger<EntityHistoryController> logger)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
