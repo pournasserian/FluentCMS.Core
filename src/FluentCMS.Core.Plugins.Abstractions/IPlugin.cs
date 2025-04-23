@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FluentCMS.Core.Plugins.Abstractions;
@@ -15,3 +16,4 @@ public interface IPlugin
     Task<bool> Start();
     Task<bool> Stop();
 }
+
