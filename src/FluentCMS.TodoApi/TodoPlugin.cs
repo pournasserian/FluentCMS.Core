@@ -1,33 +1,20 @@
 using FluentCMS.Core.Plugins.Abstractions;
 using FluentCMS.TodoApi.Services;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FluentCMS.TodoApi;
 
 public class TodoPlugin : IPlugin
 {
-    public string Name => "Todo API Plugin";
-    public string Version => "1.0.0";
-    public string Description => "Provides Todo functionality with CRUD operations";
-    public bool IsEnabled { get; set; } = true;
-
-    public bool Initialize(IServiceCollection services)
+    public IServiceCollection ConfigureServices(IServiceCollection services)
     {
-        // Register the service
         services.AddScoped<ITodoService, TodoService>();
-        
-        return true;
+        return services;
     }
 
-    public Task<bool> Start()
+    public IApplicationBuilder Configure(IApplicationBuilder app)
     {
-        // No special startup needed
-        return Task.FromResult(true);
-    }
-
-    public Task<bool> Stop()
-    {
-        // No special cleanup needed
-        return Task.FromResult(true);
+        return app;
     }
 }

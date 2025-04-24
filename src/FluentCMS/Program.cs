@@ -10,13 +10,13 @@ builder.Services.AddFluentCmsApi();
 builder.Services.AddLiteDBRepositories(builder.Configuration);
 
 // Add plugin system
-builder.Services.AddFluentCmsPlugins();
+builder.Services.AddPlugins();
 
 var app = builder.Build();
 
 app.UseFluentCmsApi();
 
 // Use plugin system
-app.UseFluentCmsPlugins();
+app.UsePlugins();
 
 app.Run();

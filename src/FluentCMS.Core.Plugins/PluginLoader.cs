@@ -1,97 +1,130 @@
-using FluentCMS.Core.Plugins.Abstractions;
-using Microsoft.Extensions.Logging;
-using System.Runtime.Loader;
+﻿namespace FluentCMS.Core.Plugins;
 
-namespace FluentCMS.Core.Plugins;
-
-public interface IPluginLoader
+public class PluginLoader : IPluginLoader
 {
-    Task<IEnumerable<PluginMetadata>> LoadPluginsAsync(string directory);
-    Task<PluginMetadata?> LoadPluginAsync(string path);
-}
+    private readonly IEnumerable<IPluginMetadata> _pluginsMetaData;
+    private readonly List<IPlugin> _pluginInstances = [];
 
-public class PluginLoader(ILogger<PluginLoader> logger) : IPluginLoader
-{
-    public Task<IEnumerable<PluginMetadata>> LoadPluginsAsync(string directory)
+    public PluginLoader()
     {
-        logger.LogInformation("Loading plugins from directory: {Directory}", directory);
+        var executablePath = Assembly.GetExecutingAssembly().Location;
+        
+        var executanbleFolder = Path.GetDirectoryName(executablePath) ??
+            throw new InvalidOperationException("Could not determine the executable folder path.");
 
-        if (!Directory.Exists(directory))
-        {
-            logger.LogWarning("Plugin directory does not exist: {Directory}", directory);
-            Directory.CreateDirectory(directory);
-            return Task.FromResult(Enumerable.Empty<PluginMetadata>());
-        }
-
-        var pluginPaths = Directory.GetFiles(directory, "*.dll");
-        var plugins = new List<PluginMetadata>();
-
-        foreach (var pluginPath in pluginPaths)
-        {
-            var metadata = LoadPluginAsync(pluginPath).Result;
-            if (metadata != null)
-            {
-                plugins.Add(metadata);
-            }
-        }
-
-        return Task.FromResult<IEnumerable<PluginMetadata>>(plugins);
+        _pluginsMetaData = ScanAssemblies(executanbleFolder);
     }
 
-    public Task<PluginMetadata?> LoadPluginAsync(string path)
+    public IServiceCollection ConfigureServices(IServiceCollection services)
     {
-        try
+        foreach (var pluginMetaData in _pluginsMetaData)
         {
-            logger.LogInformation("Loading plugin from: {Path}", path);
-
-            // Load the assembly
-            var assemblyName = Path.GetFileNameWithoutExtension(path);
-            var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
-
-            // Find plugin types that implement IPlugin
-            var pluginTypes = assembly.GetExportedTypes()
-                .Where(type => typeof(IPlugin).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract)
-                .ToList();
-
-            if (!pluginTypes.Any())
+            try
             {
-                logger.LogWarning("No plugin types found in assembly: {Assembly}", assembly.FullName);
-                return Task.FromResult<PluginMetadata?>(null);
+                // Get the plugin type which implements IPlugin
+                var pluginType = pluginMetaData.Type ??
+                    throw new InvalidOperationException($"Plugin type not found for {pluginMetaData.Name}");
+
+                // Create an instance of the plugin
+                var plugin = Activator.CreateInstance(pluginType) as IPlugin ??
+                    throw new InvalidOperationException($"Failed to create instance of plugin {pluginMetaData.Name}");
+
+                services.AddSingleton(typeof(IPlugin), plugin);
+                _pluginInstances.Add(plugin);
+
+                // Call the ConfigureServices method on the plugin
+                plugin.ConfigureServices(services);
+
             }
-
-            // For simplicity, we'll just use the first plugin type found
-            var pluginType = pluginTypes.First();
-            
-            // Create metadata
-            var metadata = new PluginMetadata
+            catch (Exception)
             {
-                Assembly = assembly,
-                PluginType = pluginType,
-                AssemblyPath = path
-            };
-
-            // Try to instantiate the plugin to get metadata
-            if (Activator.CreateInstance(pluginType) is IPlugin plugin)
-            {
-                metadata.Name = plugin.Name;
-                metadata.Version = plugin.Version;
-                metadata.Description = plugin.Description;
-                metadata.IsEnabled = plugin.IsEnabled;
             }
-            else
-            {
-                // Fallback to assembly name if instantiation fails
-                metadata.Name = assemblyName;
-                metadata.Version = "1.0.0";
-                metadata.Description = $"Plugin from {assemblyName}";
-            }
-
-            return Task.FromResult<PluginMetadata?>(metadata);
         }
-        catch (Exception ex)
+        return services;
+    }
+
+    public IApplicationBuilder Configure(IApplicationBuilder app)
+    {
+        foreach (var pluginInstance in _pluginInstances)
         {
-            logger.LogError(ex, "Failed to load plugin from path: {Path}", path);
-            return Task.FromResult<PluginMetadata?>(null);
+            // Call the Configure method on the plugin
+            pluginInstance.Configure(app);
         }
+        return app;
+    }
+
+    public IEnumerable<IPlugin> GetPlugins()
+    {
+        return _pluginInstances;
+    }
+
+    public IEnumerable<IPluginMetadata> GetPluginMetadata()
+    {
+        return _pluginsMetaData;
+    }
+
+    private static IEnumerable<IPluginMetadata> ScanAssemblies(string folderPath)
+    {
+        // Get all DLL files in the specified directory
+        var dllFiles = Directory.GetFiles(folderPath, "*.dll", SearchOption.TopDirectoryOnly)
+            .Where(file => !Path.GetFileName(file).StartsWith("System.") &&
+                          !Path.GetFileName(file).StartsWith("Microsoft."))
+            .ToArray();
+
+        // Use a thread-safe collection for parallel processing
+        var pluginsMetaData = new ConcurrentBag<IPluginMetadata>();
+
+        // Process assemblies in parallel
+        Array.ForEach(dllFiles, dllPath =>
+        {
+            try
+            {
+                // Load the assembly
+                var assembly = Assembly.LoadFrom(dllPath);
+                var assemblyName = assembly.GetName();
+
+                // Get all types first to avoid multiple calls to GetTypes()
+                Type?[] allTypes = [];
+                try
+                {
+                    allTypes = assembly.GetExportedTypes();
+                }
+                catch (ReflectionTypeLoadException ex)
+                {
+                    // Extract valid types from the exception
+                    allTypes = [.. ex.Types.Where(t => t != null)];
+                }
+
+                foreach (var type in allTypes)
+                {
+                    if (type != null && type.IsClass && !type.IsAbstract && typeof(IPlugin).IsAssignableFrom(type))
+                    {
+                        var descriptionAttribute = assembly.GetCustomAttribute<AssemblyDescriptionAttribute>();
+
+
+                        var pluginMetaData = new PluginMetadata
+                        {
+                            Name = assemblyName?.Name ?? type.Name,
+                            Description = descriptionAttribute?.Description ?? "Not specified",
+                            Version = assemblyName?.Version?.ToString() ?? string.Empty,
+                            FileName = Path.GetFileName(dllPath),
+                            Assembly = assembly,
+                            Type = type
+                        };
+
+                        pluginsMetaData.Add(pluginMetaData);
+                    }
+                }
+            }
+            catch (Exception ex) when (
+                ex is BadImageFormatException ||
+                ex is FileLoadException ||
+                ex is FileNotFoundException)
+            {
+                // Skip assemblies that cannot be loaded or are not .NET assemblies
+            }
+        });
+
+        return pluginsMetaData.AsEnumerable();
     }
 }
