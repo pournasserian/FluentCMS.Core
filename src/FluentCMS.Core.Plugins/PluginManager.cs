@@ -1,11 +1,11 @@
 ﻿namespace FluentCMS.Core.Plugins;
 
-public class PluginLoader : IPluginLoader
+public class PluginManager : IPluginManager
 {
     private readonly IEnumerable<IPluginMetadata> _pluginsMetaData;
     private readonly List<IPlugin> _pluginInstances = [];
 
-    public PluginLoader()
+    public PluginManager()
     {
         var executablePath = Assembly.GetExecutingAssembly().Location;
         

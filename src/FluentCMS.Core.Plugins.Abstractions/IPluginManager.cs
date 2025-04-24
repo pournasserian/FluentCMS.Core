@@ -1,6 +1,6 @@
 ﻿namespace FluentCMS.Core.Plugins.Abstractions;
 
-public interface IPluginLoader
+public interface IPluginManager
 {
     IServiceCollection ConfigureServices(IServiceCollection services);
     IApplicationBuilder Configure(IApplicationBuilder app);
