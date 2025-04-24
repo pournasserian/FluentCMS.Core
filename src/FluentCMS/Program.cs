@@ -1,8 +1,23 @@
 using FluentCMS.Core.Api;
 using FluentCMS.Core.Plugins;
 using FluentCMS.Core.Repositories.LiteDB;
+using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File("logs/myapp-.log", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+// Add Serilog to the application
+builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddFluentCmsApi();
@@ -19,4 +34,18 @@ app.UseFluentCmsApi();
 // Use plugin system
 app.UsePlugins();
 
-app.Run();
+try
+{
+    Log.Information("Starting web application");
+    app.Run();
+    return 0;
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+    return 1;
+}
+finally
+{
+    Log.CloseAndFlush();
+}

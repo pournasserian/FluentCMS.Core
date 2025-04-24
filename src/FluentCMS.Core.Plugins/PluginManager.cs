@@ -8,7 +8,7 @@ public class PluginManager : IPluginManager
     public PluginManager()
     {
         var executablePath = Assembly.GetExecutingAssembly().Location;
-        
+
         var executanbleFolder = Path.GetDirectoryName(executablePath) ??
             throw new InvalidOperationException("Could not determine the executable folder path.");
 
@@ -21,6 +21,8 @@ public class PluginManager : IPluginManager
         {
             try
             {
+                //_logger.LogInformation("Configuring services for plugin: {PluginName} ({PluginVersion})", pluginMetaData.Name, pluginMetaData.Version);
+
                 // Get the plugin type which implements IPlugin
                 var pluginType = pluginMetaData.Type ??
                     throw new InvalidOperationException($"Plugin type not found for {pluginMetaData.Name}");
@@ -29,15 +31,17 @@ public class PluginManager : IPluginManager
                 var plugin = Activator.CreateInstance(pluginType) as IPlugin ??
                     throw new InvalidOperationException($"Failed to create instance of plugin {pluginMetaData.Name}");
 
-                services.AddSingleton(typeof(IPlugin), plugin);
                 _pluginInstances.Add(plugin);
 
                 // Call the ConfigureServices method on the plugin
                 plugin.ConfigureServices(services);
 
+                //_logger.LogInformation("Successfully configured services for plugin: {PluginName}", pluginMetaData.Name);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                // Log the exception with detailed information
+                //_logger.LogError(ex, "Failed to configure services for plugin {PluginName} ({PluginFileName}): {ErrorMessage}", pluginMetaData.Name, pluginMetaData.FileName, ex.Message);
             }
         }
         return services;
@@ -47,8 +51,19 @@ public class PluginManager : IPluginManager
     {
         foreach (var pluginInstance in _pluginInstances)
         {
-            // Call the Configure method on the plugin
-            pluginInstance.Configure(app);
+            try
+            {
+                //_logger.LogInformation("Configuring plugin: {PluginType}", pluginInstance.GetType().FullName);
+
+                // Call the Configure method on the plugin
+                pluginInstance.Configure(app);
+
+                //_logger.LogInformation("Successfully configured plugin: {PluginType}", pluginInstance.GetType().FullName);
+            }
+            catch (Exception ex)
+            {
+                //_logger.LogError(ex, "Failed to configure plugin {PluginType}: {ErrorMessage}", pluginInstance.GetType().FullName, ex.Message);
+            }
         }
         return app;
     }
@@ -63,13 +78,15 @@ public class PluginManager : IPluginManager
         return _pluginsMetaData;
     }
 
-    private static IEnumerable<IPluginMetadata> ScanAssemblies(string folderPath)
+    private IEnumerable<IPluginMetadata> ScanAssemblies(string folderPath)
     {
         // Get all DLL files in the specified directory
         var dllFiles = Directory.GetFiles(folderPath, "*.dll", SearchOption.TopDirectoryOnly)
             .Where(file => !Path.GetFileName(file).StartsWith("System.") &&
                           !Path.GetFileName(file).StartsWith("Microsoft."))
             .ToArray();
+
+        //_logger.LogInformation("Found {DllCount} potential plugin DLL files", dllFiles.Length);
 
         // Use a thread-safe collection for parallel processing
         var pluginsMetaData = new ConcurrentBag<IPluginMetadata>();
@@ -91,6 +108,20 @@ public class PluginManager : IPluginManager
                 }
                 catch (ReflectionTypeLoadException ex)
                 {
+                    //_logger.LogWarning(ex, "ReflectionTypeLoadException while loading types from {DllPath}. Using available types.", dllPath);
+
+                    // Log the specific loader exceptions for better diagnostics
+                    if (ex.LoaderExceptions != null)
+                    {
+                        foreach (var loaderEx in ex.LoaderExceptions)
+                        {
+                            if (loaderEx != null)
+                            {
+                                //_logger.LogWarning(loaderEx, "Loader exception details for {DllPath}", dllPath);
+                            }
+                        }
+                    }
+
                     // Extract valid types from the exception
                     allTypes = [.. ex.Types.Where(t => t != null)];
                 }
@@ -101,6 +132,7 @@ public class PluginManager : IPluginManager
                     {
                         var descriptionAttribute = assembly.GetCustomAttribute<AssemblyDescriptionAttribute>();
 
+                        //_logger.LogInformation("Found plugin: {PluginName} in assembly {AssemblyName}", type.FullName, assemblyName?.Name);
 
                         var pluginMetaData = new PluginMetadata
                         {
@@ -121,10 +153,15 @@ public class PluginManager : IPluginManager
                 ex is FileLoadException ||
                 ex is FileNotFoundException)
             {
-                // Skip assemblies that cannot be loaded or are not .NET assemblies
+                //_logger.LogWarning(ex, "Failed to load assembly: {DllPath}", dllPath);
+            }
+            catch (Exception ex)
+            {
+                //_logger.LogError(ex, "Unexpected error loading assembly: {DllPath}", dllPath);
             }
         });
 
+        //_logger.LogInformation("Successfully identified {PluginCount} plugins", pluginsMetaData.Count);
         return pluginsMetaData.AsEnumerable();
     }
 }
