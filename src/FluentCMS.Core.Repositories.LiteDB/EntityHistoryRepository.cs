@@ -34,8 +34,7 @@ public class EntityHistoryRepository<T> : IEntityHistoryRepository<T> where T : 
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogError(ex, "Error retrieving history for {EntityType} with ID {EntityId}",
-                typeof(T).Name, entityId);
+            _logger.LogError(ex, "Error retrieving history for {EntityType} with ID {EntityId}", typeof(T).Name, entityId);
             throw new RepositoryOperationException(nameof(GetAll), ex);
         }
     }
@@ -56,15 +55,13 @@ public class EntityHistoryRepository<T> : IEntityHistoryRepository<T> where T : 
 
             _collection.Insert(history);
 
-            _logger.LogInformation("Recorded history for {EntityType} with ID {EntityId}, Action: {Action}",
-                typeof(T).Name, entity.Id, action);
+            _logger.LogInformation("Recorded history for {EntityType} with ID {EntityId}, Action: {Action}", typeof(T).Name, entity.Id, action);
 
             return await Task.FromResult(history);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogError(ex, "Error adding history record for {EntityType} with ID {EntityId}",
-                typeof(T).Name, entity.Id);
+            _logger.LogError(ex, "Error adding history record for {EntityType} with ID {EntityId}", typeof(T).Name, entity.Id);
             throw new RepositoryOperationException(nameof(Add), ex);
         }
     }
@@ -102,8 +99,7 @@ public class EntityHistoryRepository<T> : IEntityHistoryRepository<T> where T : 
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogError(ex, "Error retrieving latest history for {EntityType} with ID {EntityId}",
-                typeof(T).Name, entityId);
+            _logger.LogError(ex, "Error retrieving latest history for {EntityType} with ID {EntityId}", typeof(T).Name, entityId);
             throw new RepositoryOperationException(nameof(GetLatestHistoryForEntity), ex);
         }
     }
