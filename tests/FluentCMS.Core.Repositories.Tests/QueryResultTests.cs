@@ -7,13 +7,13 @@ public class QueryResultTests
     {
         // Act
         var result = new QueryResult<TestEntity>();
-        
+
         // Assert
         result.Items.Should().NotBeNull();
         result.Items.Should().BeEmpty();
         result.TotalCount.Should().Be(0);
     }
-    
+
     [Fact]
     public void QueryResult_WithItems_ShouldStoreItemsCorrectly()
     {
@@ -23,20 +23,20 @@ public class QueryResultTests
             new TestEntity { Name = "Test 1" },
             new TestEntity { Name = "Test 2" }
         };
-        
+
         // Act
         var result = new QueryResult<TestEntity>
         {
             Items = entities,
             TotalCount = 10 // Simulating a larger dataset with pagination
         };
-        
+
         // Assert
         result.Items.Should().HaveCount(2);
         result.Items.Should().BeEquivalentTo(entities);
         result.TotalCount.Should().Be(10);
     }
-    
+
     [Fact]
     public void QueryResult_WithZeroItems_ShouldHaveCorrectTotalCount()
     {
@@ -46,12 +46,12 @@ public class QueryResultTests
             Items = new List<TestEntity>(),
             TotalCount = 5 // No items on current page, but 5 total in dataset
         };
-        
+
         // Assert
         result.Items.Should().BeEmpty();
         result.TotalCount.Should().Be(5);
     }
-    
+
     [Theory]
     [InlineData(0, 10, 0)]   // Empty result
     [InlineData(5, 10, 1)]   // 5 items, page size 10 = 1 page
@@ -63,10 +63,10 @@ public class QueryResultTests
     {
         // Arrange
         var result = new QueryResult<TestEntity> { TotalCount = totalCount };
-        
+
         // Act
         var pageCount = (int)Math.Ceiling((double)result.TotalCount / pageSize);
-        
+
         // Assert
         pageCount.Should().Be(expectedPages);
     }

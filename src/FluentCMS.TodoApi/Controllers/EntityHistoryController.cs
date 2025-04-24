@@ -1,4 +1,4 @@
-using FluentCMS.Core.Repositories.Abstractions;
+using FluentCMS.Core.Repositories.History;
 using FluentCMS.TodoApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
