@@ -1,4 +1,4 @@
-namespace FluentCMS.Core.Repositories.History;
+namespace FluentCMS.Core.Plugins.History;
 
 public class EntityHistoryEventHandler<T>(IEntityHistoryRepository<T> historyRepository, ILogger<EntityHistoryEventHandler<T>> logger) : IEventSubscriber<T> where T : IBaseEntity
 {

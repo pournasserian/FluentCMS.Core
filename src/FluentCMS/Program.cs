@@ -1,4 +1,5 @@
 using FluentCMS.Core.Api;
+using FluentCMS.Core.EventBus;
 using FluentCMS.Core.Plugins;
 using FluentCMS.Core.Repositories.LiteDB;
 using Serilog;
@@ -18,6 +19,8 @@ Log.Logger = new LoggerConfiguration()
 
 // Add Serilog to the application
 builder.Host.UseSerilog();
+
+builder.Services.AddEventBus();
 
 // Add services to the container.
 builder.Services.AddFluentCmsApi();

@@ -1,7 +1,5 @@
-﻿global using FluentCMS.Core.EventBus;
-global using FluentCMS.Core.EventBus.Abstractions;
+﻿global using FluentCMS.Core.EventBus.Abstractions;
 global using FluentCMS.Core.Repositories.Abstractions;
-global using FluentCMS.Core.Repositories.History;
 global using LiteDB;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;

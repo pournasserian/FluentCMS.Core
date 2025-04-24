@@ -1,4 +1,4 @@
-namespace FluentCMS.Core.Repositories.History;
+namespace FluentCMS.Core.Repositories.Abstractions;
 
 public interface IEntityHistoryRepository<T> where T : IBaseEntity
 {

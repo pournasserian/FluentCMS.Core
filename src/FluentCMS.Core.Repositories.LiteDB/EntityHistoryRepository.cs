@@ -35,7 +35,7 @@ public class EntityHistoryRepository<T> : IEntityHistoryRepository<T> where T : 
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Error retrieving history for {EntityType} with ID {EntityId}", typeof(T).Name, entityId);
-            throw new RepositoryOperationException(nameof(GetAll), ex);
+            throw;
         }
     }
 
@@ -62,7 +62,7 @@ public class EntityHistoryRepository<T> : IEntityHistoryRepository<T> where T : 
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Error adding history record for {EntityType} with ID {EntityId}", typeof(T).Name, entity.Id);
-            throw new RepositoryOperationException(nameof(Add), ex);
+            throw;
         }
     }
 
@@ -81,7 +81,7 @@ public class EntityHistoryRepository<T> : IEntityHistoryRepository<T> where T : 
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Error retrieving history by date range for {EntityType}", typeof(T).Name);
-            throw new RepositoryOperationException(nameof(GetHistoryByDateRange), ex);
+            throw;
         }
     }
 
@@ -100,7 +100,7 @@ public class EntityHistoryRepository<T> : IEntityHistoryRepository<T> where T : 
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Error retrieving latest history for {EntityType} with ID {EntityId}", typeof(T).Name, entityId);
-            throw new RepositoryOperationException(nameof(GetLatestHistoryForEntity), ex);
+            throw;
         }
     }
 }

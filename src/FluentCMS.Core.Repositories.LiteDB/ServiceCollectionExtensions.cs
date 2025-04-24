@@ -4,10 +4,6 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddLiteDBRepositories(this IServiceCollection services, LiteDBOptions options)
     {
-
-        services.AddTransient(typeof(IEventSubscriber<>), typeof(EntityHistoryEventHandler<>));
-        services.AddScoped<IEventPublisher, EventPublisher>();
-
         services.AddScoped(typeof(IEntityHistoryRepository<>), typeof(EntityHistoryRepository<>));
 
         // Register the options
@@ -36,10 +32,6 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddLiteDBRepositories(this IServiceCollection services, IConfiguration configuration, string sectionName = "LiteDB")
     {
-        services.AddTransient(typeof(IEventSubscriber<>), typeof(EntityHistoryEventHandler<>));
-
-        services.AddScoped<IEventPublisher, EventPublisher>();
-
         services.AddScoped(typeof(IEntityHistoryRepository<>), typeof(EntityHistoryRepository<>));
 
         // Configure options from settings
