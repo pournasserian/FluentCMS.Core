@@ -6,7 +6,7 @@ namespace FluentCMS.Core.Api.Controllers;
 [Produces("application/json")]
 //[TypeFilter(typeof(ApiTokenAuthorizeFilter))]
 [Route("api/[controller]/[action]")]
-public abstract class BaseController 
+public abstract class BaseController
 {
     public static ApiResult<T> Ok<T>(T item)
     {
