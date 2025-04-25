@@ -32,15 +32,20 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
             if (entity == null)
             {
                 _logger.LogCritical("Critical error in {MethodName}: {EntityType} with ID {EntityId} not found", nameof(GetById), _entityName, id);
-                throw new ApplicationException($"Entity with ID {id} not found in {_entityName} collection.");
+                throw new EntityNotFoundException(id, _entityName);
             }
 
             return await Task.FromResult(entity);
         }
+        catch (EntityNotFoundException)
+        {
+            // Re-throw EntityNotFoundException without wrapping
+            throw;
+        }
         catch (Exception ex)
         {
             _logger.LogCritical(ex, "Critical error in {MethodName}: Error while retrieving {EntityType} with ID {EntityId}", nameof(GetById), _entityName, id);
-            throw;
+            throw new RepositoryOperationException(nameof(GetById), ex);
         }
     }
 
@@ -57,7 +62,7 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
         catch (Exception ex)
         {
             _logger.LogCritical(ex, "Critical error in {MethodName}: Error while retrieving all {EntityType} entities", nameof(GetAll), _entityName);
-            throw;
+            throw new RepositoryOperationException(nameof(GetAll), ex);
         }
     }
 
@@ -126,7 +131,7 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
         catch (Exception ex)
         {
             _logger.LogCritical(ex, "Critical error in {MethodName}: Error while querying {EntityType} entities", nameof(Query), _entityName);
-            throw;
+            throw new RepositoryOperationException(nameof(Query), ex);
         }
     }
 
@@ -149,7 +154,7 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
         catch (Exception ex)
         {
             _logger.LogCritical(ex, "Critical error in {MethodName}: Error while counting {EntityType} entities", nameof(Count), _entityName);
-            throw;
+            throw new RepositoryOperationException(nameof(Count), ex);
         }
     }
 
@@ -165,9 +170,8 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
             var inserted = _collection.Insert(entity);
             if (inserted == null)
             {
-                var message = "Critical error in {MethodName}: Failed to add {EntityType} with ID {EntityId}";
-                _logger.LogCritical(message, nameof(Add), _entityName, entity.Id);
-                throw new ApplicationException(message);
+                _logger.LogCritical("Critical error in {MethodName}: Failed to add {EntityType} with ID {EntityId}", nameof(Add), _entityName, entity.Id);
+                throw new RepositoryOperationException(nameof(Add), $"Failed to add entity with ID {entity.Id}");
             }
 
             // Publish event after successful addition
@@ -191,9 +195,8 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
             // Verify entity exists before update
             if (!_collection.Exists(e => e.Id == entity.Id))
             {
-                var message = "Critical error in {MethodName}: {EntityType} with ID {EntityId} not found for update";
-                _logger.LogCritical(message, nameof(Update), _entityName, entity.Id);
-                throw new ApplicationException("Entity not found!");
+                _logger.LogCritical("Critical error in {MethodName}: {EntityType} with ID {EntityId} not found for update", nameof(Update), _entityName, entity.Id);
+                throw new EntityNotFoundException(entity.Id, _entityName);
             }
 
             // Get the original entity for history
@@ -205,9 +208,8 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
             var updated = _collection.Update(entity);
             if (!updated)
             {
-                var message = "Critical error in {MethodName}: Failed to update {EntityType} with ID {EntityId}";
-                _logger.LogCritical(message, nameof(Update), _entityName, entity.Id);
-                throw new ApplicationException(message);
+                _logger.LogCritical("Critical error in {MethodName}: Failed to update {EntityType} with ID {EntityId}", nameof(Update), _entityName, entity.Id);
+                throw new RepositoryOperationException(nameof(Update), $"Failed to update entity with ID {entity.Id}");
             }
 
             return entity;
@@ -228,9 +230,8 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
             // Verify entity exists before deletion
             if (!_collection.Exists(e => e.Id == id))
             {
-                var message = "Critical error in {MethodName}: {EntityType} with ID {EntityId} not found for removal";
-                _logger.LogCritical(message, nameof(Remove), _entityName, id);
-                throw new ApplicationException(message);
+                _logger.LogCritical("Critical error in {MethodName}: {EntityType} with ID {EntityId} not found for removal", nameof(Remove), _entityName, id);
+                throw new EntityNotFoundException(id, _entityName);
             }
 
             // Get the entity for history
@@ -242,9 +243,8 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
             var deleted = _collection.Delete(id);
             if (!deleted)
             {
-                var message = "Critical error in {MethodName}: Failed to remove {EntityType} with ID {EntityId}";
-                _logger.LogCritical(message, nameof(Remove), _entityName, id);
-                throw new ApplicationException(message);
+                _logger.LogCritical("Critical error in {MethodName}: Failed to remove {EntityType} with ID {EntityId}", nameof(Remove), _entityName, id);
+                throw new RepositoryOperationException(nameof(Remove), $"Failed to remove entity with ID {id}");
             }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
