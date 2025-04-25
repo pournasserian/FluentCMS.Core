@@ -1,14 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FluentCMS.Core.Api.Filters;
 
-public class ApiResultExceptionFilter(ApiExecutionContext executionContext) : IExceptionFilter
+public class ApiResultExceptionFilter : IExceptionFilter
 {
     public void OnException(ExceptionContext context)
     {
         if (!context.ActionDescriptor.IsApiResultType())
             return;
+
+        var executionContext = context.HttpContext.RequestServices.GetService<ApiExecutionContext>() ??
+            throw new InvalidOperationException("ApiExecutionContext is not registered in the service collection.");
 
         var apiResult = new ApiResult
         {

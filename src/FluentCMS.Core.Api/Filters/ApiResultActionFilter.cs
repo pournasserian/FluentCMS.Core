@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FluentCMS.Core.Api.Filters;
 
-public class ApiResultActionFilter(ApiExecutionContext execContext) : IAsyncActionFilter
+public class ApiResultActionFilter : IAsyncActionFilter
 {
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
@@ -19,11 +20,14 @@ public class ApiResultActionFilter(ApiExecutionContext execContext) : IAsyncActi
             if (value == null)
                 return;
 
+            var executionContext = context.HttpContext.RequestServices.GetService<ApiExecutionContext>() ??
+                throw new InvalidOperationException("ApiExecutionContext is not registered in the service collection.");
+
             var apiResult = (IApiResult)value;
-            apiResult.Duration = (DateTime.UtcNow - execContext.StartDate).TotalMilliseconds;
-            apiResult.SessionId = execContext.SessionId;
-            apiResult.TraceId = execContext.TraceId;
-            apiResult.UniqueId = execContext.UniqueId;
+            apiResult.Duration = (DateTime.UtcNow - executionContext.StartDate).TotalMilliseconds;
+            apiResult.SessionId = executionContext.SessionId;
+            apiResult.TraceId = executionContext.TraceId;
+            apiResult.UniqueId = executionContext.UniqueId;
             apiResult.Status = 200;
             apiResult.IsSuccess = true;
         }

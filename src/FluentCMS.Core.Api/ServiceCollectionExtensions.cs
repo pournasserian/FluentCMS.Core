@@ -3,7 +3,6 @@ using FluentCMS.Core.Api.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -24,6 +23,14 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddFluentCmsApi(this IServiceCollection services)
     {
+        services.AddEndpointsApiExplorer();
+
+        services.AddAuthorization();
+
+        services.AddHttpContextAccessor();
+
+        services.AddExecutionContext();
+
         //services.AddApplicationServices();
         services.AddOptions<JwtOptions>()
             .BindConfiguration("JwtOptions");
@@ -31,8 +38,9 @@ public static class ServiceCollectionExtensions
         services
             .AddControllers(config =>
             {
-                config.Filters.Add<ApiResultActionFilter>();
+                config.Filters.Add<ApiResultValidateModelFilter>();
                 config.Filters.Add<ApiResultExceptionFilter>();
+                config.Filters.Add<ApiResultActionFilter>();
             })
             .AddJsonOptions(options =>
             {
@@ -41,33 +49,8 @@ public static class ServiceCollectionExtensions
             })
             .ConfigureApiBehaviorOptions(options =>
             {
-                options.InvalidModelStateResponseFactory = (context) =>
-                {
-                    var apiExecutionContext = services.BuildServiceProvider().GetRequiredService<ApiExecutionContext>();
-                    var apiResult = new ApiResult<object>
-                    {
-                        Duration = (DateTime.UtcNow - apiExecutionContext.StartDate).TotalMilliseconds,
-                        SessionId = apiExecutionContext.SessionId,
-                        TraceId = apiExecutionContext.TraceId,
-                        UniqueId = apiExecutionContext.UniqueId,
-                        Status = 400,
-                        IsSuccess = false
-                    };
-
-                    foreach (var item in context.ModelState)
-                    {
-                        var errors = item.Value.Errors;
-                        if (errors?.Count > 0)
-                        {
-                            foreach (var error in errors)
-                            {
-                                apiResult.Errors.Add(new ApiError { Code = item.Key, Description = error.ErrorMessage });
-                            }
-                        }
-                    }
-
-                    return new BadRequestObjectResult(apiResult);
-                };
+                // This is already enabled by default with [ApiController]
+                options.SuppressModelStateInvalidFilter = true;
             });
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -89,45 +72,6 @@ public static class ServiceCollectionExtensions
                     ValidIssuer = options.Issuer
                 };
             });
-
-        services.AddAuthorization();
-
-        services.AddHttpContextAccessor();
-
-        services.AddScoped(sp =>
-        {
-            // Constants for HTTP header keys used to retrieve session and unique user identifiers
-            var accessor = sp.GetRequiredService<IHttpContextAccessor>();
-            HttpContext context = accessor?.HttpContext ??
-                throw new ArgumentNullException(nameof(accessor.HttpContext));
-
-            var instance = new ApiExecutionContext
-            {
-                // Initialize properties based on the current HTTP context
-                TraceId = context.TraceIdentifier,
-                UniqueId = context.Request?.Headers?.FirstOrDefault(_ => _.Key.Equals(UNIQUE_USER_ID_HEADER_KEY, StringComparison.OrdinalIgnoreCase)).Value.ToString() ?? string.Empty,
-                SessionId = context.Request?.Headers?.FirstOrDefault(_ => _.Key.Equals(SESSION_ID_HEADER_KEY, StringComparison.OrdinalIgnoreCase)).Value.ToString() ?? string.Empty,
-                UserIp = context.Connection?.RemoteIpAddress?.ToString() ?? string.Empty,
-                Language = context.Request?.GetTypedHeaders().AcceptLanguage.FirstOrDefault()?.Value.Value ?? DEFAULT_LANGUAGE,
-            };
-
-            // Retrieve the user claims principal from the context
-            var user = accessor.HttpContext?.User;
-
-            if (user != null)
-            {
-                // Extract and parse the user ID from claims (ClaimTypes.Sid)
-                var idClaimValue = user.FindFirstValue(ClaimTypes.Sid);
-                instance.UserId = idClaimValue == null ? Guid.Empty : Guid.Parse(idClaimValue);
-
-                // Extract the username from claims (ClaimTypes.NameIdentifier)
-                instance.Username = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
-
-                // Determine if the user is authenticated
-                instance.IsAuthenticated = user.Identity?.IsAuthenticated ?? false;
-            }
-            return instance;
-        });
 
         //services.AddAutoMapper(typeof(ApiServiceExtensions));
 
@@ -162,7 +106,6 @@ public static class ServiceCollectionExtensions
         _applicationName = applicationName;
         _applicationVersion = version;
 
-        services.AddEndpointsApiExplorer();
 
         services.AddSwaggerGen(c =>
         {
@@ -200,5 +143,45 @@ public static class ServiceCollectionExtensions
         });
 
         return app;
+    }
+
+    private static IServiceCollection AddExecutionContext(this IServiceCollection services)
+    {
+        services.AddScoped(sp =>
+        {
+            // Constants for HTTP header keys used to retrieve session and unique user identifiers
+            var accessor = sp.GetRequiredService<IHttpContextAccessor>();
+            HttpContext context = accessor?.HttpContext ??
+                throw new ArgumentNullException(nameof(accessor.HttpContext));
+
+            var instance = new ApiExecutionContext
+            {
+                // Initialize properties based on the current HTTP context
+                TraceId = context.TraceIdentifier,
+                UniqueId = context.Request?.Headers?.FirstOrDefault(_ => _.Key.Equals(UNIQUE_USER_ID_HEADER_KEY, StringComparison.OrdinalIgnoreCase)).Value.ToString() ?? string.Empty,
+                SessionId = context.Request?.Headers?.FirstOrDefault(_ => _.Key.Equals(SESSION_ID_HEADER_KEY, StringComparison.OrdinalIgnoreCase)).Value.ToString() ?? string.Empty,
+                UserIp = context.Connection?.RemoteIpAddress?.ToString() ?? string.Empty,
+                Language = context.Request?.GetTypedHeaders().AcceptLanguage.FirstOrDefault()?.Value.Value ?? DEFAULT_LANGUAGE,
+            };
+
+            // Retrieve the user claims principal from the context
+            var user = accessor.HttpContext?.User;
+
+            if (user != null)
+            {
+                // Extract and parse the user ID from claims (ClaimTypes.Sid)
+                var idClaimValue = user.FindFirstValue(ClaimTypes.Sid);
+                instance.UserId = idClaimValue == null ? Guid.Empty : Guid.Parse(idClaimValue);
+
+                // Extract the username from claims (ClaimTypes.NameIdentifier)
+                instance.Username = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+
+                // Determine if the user is authenticated
+                instance.IsAuthenticated = user.Identity?.IsAuthenticated ?? false;
+            }
+            return instance;
+        });
+
+        return services;
     }
 }

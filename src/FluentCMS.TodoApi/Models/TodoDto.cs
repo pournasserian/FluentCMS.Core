@@ -1,7 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace FluentCMS.TodoApi.Models;
 
 public class TodoCreateDto
 {
+    [Required]
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public bool IsCompleted { get; set; }
@@ -10,6 +13,7 @@ public class TodoCreateDto
 
 public class TodoUpdateDto
 {
+    [Required]
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public bool IsCompleted { get; set; }
