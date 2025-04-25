@@ -1,14 +1,15 @@
 namespace FluentCMS.Core.Repositories.LiteDB;
 
-public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntity
+public class LiteDBRepository<T> : IEntityRepository<T> where T : IEntity
 {
     private readonly ILiteCollection<T> _collection;
     private readonly ILiteDatabase _database;
     private readonly string _entityName;
     private readonly ILogger<LiteDBRepository<T>> _logger;
     private readonly IEventPublisher _eventPublisher;
+    private readonly ApiExecutionContext _executionContext;
 
-    public LiteDBRepository(ILiteDBContext dbContext, ILogger<LiteDBRepository<T>> logger, IEventPublisher eventPublisher)
+    public LiteDBRepository(ILiteDBContext dbContext, ILogger<LiteDBRepository<T>> logger, IEventPublisher eventPublisher, ApiExecutionContext executionContext)
     {
         _database = dbContext.Database;
         _entityName = typeof(T).Name;
@@ -18,6 +19,7 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
         _collection.EnsureIndex(x => x.Id);
         _logger = logger;
         _eventPublisher = eventPublisher;
+        _executionContext = executionContext;
     }
 
     public async Task<T> GetById(Guid id, CancellationToken cancellationToken = default)
@@ -167,6 +169,15 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
             if (entity.Id == Guid.Empty)
                 entity.Id = Guid.NewGuid();
 
+            // check if T is IAuditableEntity
+            if (entity is IAuditableEntity auditableEntity)
+            {
+                auditableEntity.CreatedAt = DateTime.UtcNow;
+                auditableEntity.CreatedBy = _executionContext.Username;
+                auditableEntity.ModifiedBy = null;
+                auditableEntity.ModifiedAt = null;
+            }
+
             var inserted = _collection.Insert(entity);
             if (inserted == null)
             {
@@ -192,18 +203,24 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
 
         try
         {
+            // Get the original entity for history
+            var originalEntity = _collection.FindById(entity.Id);
+
             // Verify entity exists before update
-            if (!_collection.Exists(e => e.Id == entity.Id))
+            if (originalEntity is null)
             {
                 _logger.LogCritical("Critical error in {MethodName}: {EntityType} with ID {EntityId} not found for update", nameof(Update), _entityName, entity.Id);
                 throw new EntityNotFoundException(entity.Id, _entityName);
             }
 
-            // Get the original entity for history
-            var originalEntity = _collection.FindById(entity.Id);
-
-            // Publish event with original entity before update
-            await _eventPublisher.Publish(originalEntity, $"{typeof(T).Name}.Updated", cancellationToken);
+            // check if T is IAuditableEntity
+            if (entity is IAuditableEntity auditableEntity)
+            {
+                auditableEntity.CreatedAt = ((IAuditableEntity)originalEntity).CreatedAt;
+                auditableEntity.CreatedBy = ((IAuditableEntity)originalEntity).CreatedBy;
+                auditableEntity.ModifiedBy = _executionContext.Username;
+                auditableEntity.ModifiedAt = DateTime.UtcNow;
+            }
 
             var updated = _collection.Update(entity);
             if (!updated)
@@ -211,6 +228,9 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
                 _logger.LogCritical("Critical error in {MethodName}: Failed to update {EntityType} with ID {EntityId}", nameof(Update), _entityName, entity.Id);
                 throw new RepositoryOperationException(nameof(Update), $"Failed to update entity with ID {entity.Id}");
             }
+
+            // Publish event with updated entity after update
+            await _eventPublisher.Publish(updated, $"{typeof(T).Name}.Updated", cancellationToken);
 
             return entity;
         }
@@ -227,18 +247,15 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
 
         try
         {
+            // Get the entity for history
+            var entity = _collection.FindById(id);
+
             // Verify entity exists before deletion
-            if (!_collection.Exists(e => e.Id == id))
+            if (entity is null)
             {
                 _logger.LogCritical("Critical error in {MethodName}: {EntityType} with ID {EntityId} not found for removal", nameof(Remove), _entityName, id);
                 throw new EntityNotFoundException(id, _entityName);
             }
-
-            // Get the entity for history
-            var entity = _collection.FindById(id);
-
-            // Publish event before deletion
-            await _eventPublisher.Publish(entity, $"{typeof(T).Name}.Deleted", cancellationToken);
 
             var deleted = _collection.Delete(id);
             if (!deleted)
@@ -246,6 +263,10 @@ public class LiteDBRepository<T> : IBaseEntityRepository<T> where T : IBaseEntit
                 _logger.LogCritical("Critical error in {MethodName}: Failed to remove {EntityType} with ID {EntityId}", nameof(Remove), _entityName, id);
                 throw new RepositoryOperationException(nameof(Remove), $"Failed to remove entity with ID {id}");
             }
+
+            // Publish event after deletion
+            await _eventPublisher.Publish(entity, $"{typeof(T).Name}.Deleted", cancellationToken);
+
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

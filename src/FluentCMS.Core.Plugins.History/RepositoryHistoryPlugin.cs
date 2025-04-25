@@ -13,5 +13,5 @@ public class RepositoryHistoryPlugin : IPlugin
     public IApplicationBuilder Configure(IApplicationBuilder app)
     {
         return app;
-    }    
+    }
 }

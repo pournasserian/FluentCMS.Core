@@ -1,6 +1,6 @@
 namespace FluentCMS.Core.Plugins.History;
 
-public class EntityHistoryEventHandler<T>(IEntityHistoryRepository<T> historyRepository, ILogger<EntityHistoryEventHandler<T>> logger) : IEventSubscriber<T> where T : IBaseEntity
+public class EntityHistoryEventHandler<T>(IEntityHistoryRepository<T> historyRepository, ILogger<EntityHistoryEventHandler<T>> logger) : IEventSubscriber<T> where T : IEntity
 {
     public async Task Handle(DomainEvent<T> domainEvent, CancellationToken cancellationToken = default)
     {

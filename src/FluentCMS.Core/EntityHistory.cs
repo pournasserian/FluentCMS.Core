@@ -1,6 +1,6 @@
 namespace FluentCMS.Core;
 
-public class EntityHistory<T> : IBaseEntity where T : IBaseEntity
+public class EntityHistory<T> : IEntity where T : IEntity
 {
     public Guid Id { get; set; }
     public Guid EntityId { get; set; }
@@ -8,5 +8,5 @@ public class EntityHistory<T> : IBaseEntity where T : IBaseEntity
     public string Action { get; set; } = default!;
     public DateTime Timestamp { get; set; }
     public T Entity { get; set; } = default!;
-    public IApplicationExecutionContext Context { get; set; } = default!;
+    public ApiExecutionContext Context { get; set; } = default!;
 }

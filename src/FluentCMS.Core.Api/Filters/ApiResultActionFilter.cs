@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace FluentCMS.Core.Api.Filters;
 
-public class ApiResultActionFilter(IApplicationExecutionContext execContext) : IAsyncActionFilter
+public class ApiResultActionFilter(ApiExecutionContext execContext) : IAsyncActionFilter
 {
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {

@@ -18,7 +18,7 @@ public class EntityHistoryDto
         ? JsonDocument.Parse(JsonSerializer.Serialize(Entity))
         : null;
 
-    public static EntityHistoryDto FromEntityHistory<T>(EntityHistory<T> history) where T : IBaseEntity
+    public static EntityHistoryDto FromEntityHistory<T>(EntityHistory<T> history) where T : IEntity
     {
         return new EntityHistoryDto
         {

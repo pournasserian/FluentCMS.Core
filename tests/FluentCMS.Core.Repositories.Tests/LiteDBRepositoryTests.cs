@@ -5,13 +5,16 @@ public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
     private readonly LiteDBContextFixture _fixture;
     private readonly LiteDBRepository<TestEntity> _repository;
     private readonly Mock<IEventPublisher> _eventPublisherMock;
+    private readonly Mock<ApiExecutionContext> _exectionContextMock;
 
     public LiteDBRepositoryTests(LiteDBContextFixture fixture)
     {
         _fixture = fixture;
         var logger = new NullLogger<LiteDBRepository<TestEntity>>();
         _eventPublisherMock = new Mock<IEventPublisher>();
-        _repository = new LiteDBRepository<TestEntity>(_fixture.Context, logger, _eventPublisherMock.Object);
+        _exectionContextMock = new Mock<ApiExecutionContext>();
+
+        _repository = new LiteDBRepository<TestEntity>(_fixture.Context, logger, _eventPublisherMock.Object, _exectionContextMock.Object);
     }
 
     #region GetById Tests

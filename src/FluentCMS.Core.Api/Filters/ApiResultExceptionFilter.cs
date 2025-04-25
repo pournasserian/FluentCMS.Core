@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace FluentCMS.Core.Api.Filters;
 
-public class ApiResultExceptionFilter(IApplicationExecutionContext executionContext) : IExceptionFilter
+public class ApiResultExceptionFilter(ApiExecutionContext executionContext) : IExceptionFilter
 {
     public void OnException(ExceptionContext context)
     {

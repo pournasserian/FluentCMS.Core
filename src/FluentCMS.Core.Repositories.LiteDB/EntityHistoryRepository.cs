@@ -1,13 +1,14 @@
 namespace FluentCMS.Core.Repositories.LiteDB;
 
-public class EntityHistoryRepository<T> : IEntityHistoryRepository<T> where T : IBaseEntity
+public class EntityHistoryRepository<T> : IEntityHistoryRepository<T> where T : IEntity
 {
     private readonly ILiteCollection<EntityHistory<T>> _collection;
     private readonly ILiteDatabase _database;
     private readonly string _collectionName;
     private readonly ILogger<EntityHistoryRepository<T>> _logger;
+    private readonly ApiExecutionContext _executionContext;
 
-    public EntityHistoryRepository(ILiteDBContext dbContext, ILogger<EntityHistoryRepository<T>> logger)
+    public EntityHistoryRepository(ILiteDBContext dbContext, ILogger<EntityHistoryRepository<T>> logger, ApiExecutionContext executionContext)
     {
         _database = dbContext.Database;
         _collectionName = $"{typeof(T).Name}History";
@@ -18,6 +19,7 @@ public class EntityHistoryRepository<T> : IEntityHistoryRepository<T> where T : 
         _collection.EnsureIndex(x => x.EntityType);
 
         _logger = logger;
+        _executionContext = executionContext;
     }
 
     public async Task<IEnumerable<EntityHistory<T>>> GetAll(Guid entityId, CancellationToken cancellationToken = default)
@@ -50,7 +52,8 @@ public class EntityHistoryRepository<T> : IEntityHistoryRepository<T> where T : 
                 EntityId = entity.Id,
                 EntityType = typeof(T).Name,
                 Action = action,
-                Entity = entity
+                Entity = entity,
+                Context = _executionContext
             };
 
             _collection.Insert(history);

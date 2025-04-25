@@ -1,6 +1,6 @@
 namespace FluentCMS.Core.Repositories.Abstractions;
 
-public interface IEntityHistoryRepository<T> where T : IBaseEntity
+public interface IEntityHistoryRepository<T> where T : IEntity
 {
     Task<IEnumerable<EntityHistory<T>>> GetAll(Guid entityId, CancellationToken cancellationToken = default);
     Task<EntityHistory<T>> Add(T entity, string action, CancellationToken cancellationToken = default);

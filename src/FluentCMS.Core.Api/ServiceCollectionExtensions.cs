@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerUI;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -17,6 +18,10 @@ namespace FluentCMS.Core.Api;
 
 public static class ServiceCollectionExtensions
 {
+    public const string SESSION_ID_HEADER_KEY = "X_Session_Id";
+    public const string UNIQUE_USER_ID_HEADER_KEY = "X-Unique-Id";
+    public const string DEFAULT_LANGUAGE = "en-US";
+
     public static IServiceCollection AddFluentCmsApi(this IServiceCollection services)
     {
         //services.AddApplicationServices();
@@ -38,7 +43,7 @@ public static class ServiceCollectionExtensions
             {
                 options.InvalidModelStateResponseFactory = (context) =>
                 {
-                    var apiExecutionContext = services.BuildServiceProvider().GetRequiredService<IApplicationExecutionContext>();
+                    var apiExecutionContext = services.BuildServiceProvider().GetRequiredService<ApiExecutionContext>();
                     var apiResult = new ApiResult<object>
                     {
                         Duration = (DateTime.UtcNow - apiExecutionContext.StartDate).TotalMilliseconds,
@@ -89,7 +94,40 @@ public static class ServiceCollectionExtensions
 
         services.AddHttpContextAccessor();
 
-        services.AddScoped<IApplicationExecutionContext>(sp => new ApplicationExecutionContext(sp.GetRequiredService<IHttpContextAccessor>()));
+        services.AddScoped(sp =>
+        {
+            // Constants for HTTP header keys used to retrieve session and unique user identifiers
+            var accessor = sp.GetRequiredService<IHttpContextAccessor>();
+            HttpContext context = accessor?.HttpContext ??
+                throw new ArgumentNullException(nameof(accessor.HttpContext));
+
+            var instance = new ApiExecutionContext
+            {
+                // Initialize properties based on the current HTTP context
+                TraceId = context.TraceIdentifier,
+                UniqueId = context.Request?.Headers?.FirstOrDefault(_ => _.Key.Equals(UNIQUE_USER_ID_HEADER_KEY, StringComparison.OrdinalIgnoreCase)).Value.ToString() ?? string.Empty,
+                SessionId = context.Request?.Headers?.FirstOrDefault(_ => _.Key.Equals(SESSION_ID_HEADER_KEY, StringComparison.OrdinalIgnoreCase)).Value.ToString() ?? string.Empty,
+                UserIp = context.Connection?.RemoteIpAddress?.ToString() ?? string.Empty,
+                Language = context.Request?.GetTypedHeaders().AcceptLanguage.FirstOrDefault()?.Value.Value ?? DEFAULT_LANGUAGE,
+            };
+
+            // Retrieve the user claims principal from the context
+            var user = accessor.HttpContext?.User;
+
+            if (user != null)
+            {
+                // Extract and parse the user ID from claims (ClaimTypes.Sid)
+                var idClaimValue = user.FindFirstValue(ClaimTypes.Sid);
+                instance.UserId = idClaimValue == null ? Guid.Empty : Guid.Parse(idClaimValue);
+
+                // Extract the username from claims (ClaimTypes.NameIdentifier)
+                instance.Username = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+
+                // Determine if the user is authenticated
+                instance.IsAuthenticated = user.Identity?.IsAuthenticated ?? false;
+            }
+            return instance;
+        });
 
         //services.AddAutoMapper(typeof(ApiServiceExtensions));
 

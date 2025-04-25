@@ -17,7 +17,7 @@ public static class ServiceCollectionExtensions
         });
 
         // Register the generic repository
-        services.TryAddScoped(typeof(IBaseEntityRepository<>), typeof(LiteDBRepository<>));
+        services.TryAddScoped(typeof(IEntityRepository<>), typeof(LiteDBRepository<>));
 
         return services;
     }
@@ -45,7 +45,7 @@ public static class ServiceCollectionExtensions
         });
 
         // Register the generic repository
-        services.TryAddScoped(typeof(IBaseEntityRepository<>), typeof(LiteDBRepository<>));
+        services.TryAddScoped(typeof(IEntityRepository<>), typeof(LiteDBRepository<>));
 
         return services;
     }

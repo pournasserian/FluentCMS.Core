@@ -1,9 +1,8 @@
 namespace FluentCMS.Core.Repositories.Tests;
 
 // Simple entity class for testing repository operations
-public class TestEntity : IBaseEntity
+public class TestEntity : Entity
 {
-    public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public int Counter { get; set; }

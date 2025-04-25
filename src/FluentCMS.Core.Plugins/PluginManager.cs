@@ -38,7 +38,7 @@ public class PluginManager : IPluginManager
 
                 //_logger.LogInformation("Successfully configured services for plugin: {PluginName}", pluginMetaData.Name);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Log the exception with detailed information
                 //_logger.LogError(ex, "Failed to configure services for plugin {PluginName} ({PluginFileName}): {ErrorMessage}", pluginMetaData.Name, pluginMetaData.FileName, ex.Message);
@@ -60,7 +60,7 @@ public class PluginManager : IPluginManager
 
                 //_logger.LogInformation("Successfully configured plugin: {PluginType}", pluginInstance.GetType().FullName);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //_logger.LogError(ex, "Failed to configure plugin {PluginType}: {ErrorMessage}", pluginInstance.GetType().FullName, ex.Message);
             }
@@ -155,7 +155,7 @@ public class PluginManager : IPluginManager
             {
                 //_logger.LogWarning(ex, "Failed to load assembly: {DllPath}", dllPath);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //_logger.LogError(ex, "Unexpected error loading assembly: {DllPath}", dllPath);
             }

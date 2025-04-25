@@ -12,7 +12,7 @@ public interface ITodoService
     Task<Todo> Update(Todo entity, CancellationToken cancellationToken = default);
 }
 
-public class TodoService(IBaseEntityRepository<Todo> repository) : ITodoService
+public class TodoService(IEntityRepository<Todo> repository) : ITodoService
 {
     public Task<Todo> Add(Todo entity, CancellationToken cancellationToken = default)
     {
