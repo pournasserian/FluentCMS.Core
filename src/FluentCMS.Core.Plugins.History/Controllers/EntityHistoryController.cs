@@ -6,17 +6,8 @@ namespace FluentCMS.Core.Plugins.History.Controllers;
 
 [ApiController]
 [Route("api/history")]
-public class EntityHistoryController : ControllerBase
+public class EntityHistoryController(IServiceProvider serviceProvider, ILogger<EntityHistoryController> logger) : ControllerBase
 {
-    private readonly IServiceProvider _serviceProvider;
-    private readonly ILogger<EntityHistoryController> _logger;
-
-    public EntityHistoryController(IServiceProvider serviceProvider, ILogger<EntityHistoryController> logger)
-    {
-        _serviceProvider = serviceProvider;
-        _logger = logger;
-    }
-
     [HttpGet("{entityType}/{entityId}")]
     public async Task<ActionResult<IEnumerable<EntityHistoryDto>>> GetHistory(string entityType, Guid entityId)
     {
@@ -36,7 +27,7 @@ public class EntityHistoryController : ControllerBase
             Type historyRepoType = typeof(IEntityHistoryRepository<>).MakeGenericType(type);
 
             // Resolve the repository from the service provider
-            var historyRepo = _serviceProvider.GetService(historyRepoType);
+            var historyRepo = serviceProvider.GetService(historyRepoType);
 
             if (historyRepo == null)
             {
@@ -93,16 +84,13 @@ public class EntityHistoryController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving history for {EntityType} with ID {EntityId}", entityType, entityId);
+            logger.LogError(ex, "Error retrieving history for {EntityType} with ID {EntityId}", entityType, entityId);
             return StatusCode(500, "An error occurred while retrieving entity history");
         }
     }
 
     [HttpGet("date-range/{entityType}")]
-    public async Task<ActionResult<IEnumerable<EntityHistoryDto>>> GetHistoryByDateRange(
-        string entityType,
-        [FromQuery] DateTime startDate,
-        [FromQuery] DateTime endDate)
+    public async Task<ActionResult<IEnumerable<EntityHistoryDto>>> GetHistoryByDateRange(string entityType, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
     {
         try
         {
@@ -120,7 +108,7 @@ public class EntityHistoryController : ControllerBase
             Type historyRepoType = typeof(IEntityHistoryRepository<>).MakeGenericType(type);
 
             // Resolve the repository from the service provider
-            var historyRepo = _serviceProvider.GetService(historyRepoType);
+            var historyRepo = serviceProvider.GetService(historyRepoType);
 
             if (historyRepo == null)
             {
@@ -177,7 +165,7 @@ public class EntityHistoryController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving history by date range for {EntityType}", entityType);
+            logger.LogError(ex, "Error retrieving history by date range for {EntityType}", entityType);
             return StatusCode(500, "An error occurred while retrieving entity history");
         }
     }
@@ -201,7 +189,7 @@ public class EntityHistoryController : ControllerBase
             Type historyRepoType = typeof(IEntityHistoryRepository<>).MakeGenericType(type);
 
             // Resolve the repository from the service provider
-            var historyRepo = _serviceProvider.GetService(historyRepoType);
+            var historyRepo = serviceProvider.GetService(historyRepoType);
 
             if (historyRepo == null)
             {
@@ -251,7 +239,7 @@ public class EntityHistoryController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving latest history for {EntityType} with ID {EntityId}", entityType, entityId);
+            logger.LogError(ex, "Error retrieving latest history for {EntityType} with ID {EntityId}", entityType, entityId);
             return StatusCode(500, "An error occurred while retrieving entity history");
         }
     }
