@@ -1,12 +1,10 @@
-using FluentCMS.Core.Api;
-using FluentCMS.Core.Api.Controllers;
+using FluentCMS.Core;
 using FluentCMS.TodoApi.Models;
 using FluentCMS.TodoApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FluentCMS.TodoApi.Controllers;
 
-[Route("api/[controller]")]
 public class TodosController(ITodoService service) : BaseController
 {
     private static TodoResponseDto MapToResponseDto(Todo todo)

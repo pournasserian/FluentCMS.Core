@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FluentCMS.Core.Api\FluentCMS.Core.Api.csproj" />
+    <ProjectReference Include="..\FluentCMS.Core.EventBus\FluentCMS.Core.EventBus.csproj" />
     <ProjectReference Include="..\FluentCMS.Core.Plugins.History\FluentCMS.Core.Plugins.History.csproj" />
     <ProjectReference Include="..\FluentCMS.Core.Repositories.LiteDB\FluentCMS.Core.Repositories.LiteDB.csproj" />
     <ProjectReference Include="..\FluentCMS.Core.Plugins\FluentCMS.Core.Plugins.csproj" />

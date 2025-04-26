@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentCMS.Core;
+using Microsoft.AspNetCore.Mvc;
 
-namespace FluentCMS.Core.Api.Controllers;
+namespace FluentCMS.TodoApi.Controllers;
 
 [ApiController]
 [Produces("application/json")]

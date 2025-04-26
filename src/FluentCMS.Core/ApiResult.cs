@@ -1,4 +1,4 @@
-﻿namespace FluentCMS.Core.Api;
+﻿namespace FluentCMS.Core;
 
 public interface IApiResult
 {
