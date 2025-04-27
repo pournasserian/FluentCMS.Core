@@ -2,6 +2,7 @@
 using FluentCMS.Plugins.Authentication.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -14,11 +15,22 @@ namespace FluentCMS.Plugins.Authentication;
 
 public class AuthenticationPlugin : IPlugin
 {
-    public const string JWT_OPTIONS_SECTION_NAME = "JwtOptions";
-
     public void ConfigureServices(IHostApplicationBuilder builder)
     {
-        var jwtSettingsSection = builder.Configuration.GetSection(JWT_OPTIONS_SECTION_NAME);
+
+        // Configure Identity options from appsettings.json
+        builder.Services.Configure<IdentityOptions>(options =>
+            builder.Configuration.GetSection("IdentityOptions").Bind(options));
+
+        // Optionally, access specific sections directly if needed
+        builder.Services.Configure<PasswordOptions>(options =>
+            builder.Configuration.GetSection("IdentityOptions:Password").Bind(options));
+        builder.Services.Configure<LockoutOptions>(options =>
+            builder.Configuration.GetSection("IdentityOptions:Lockout").Bind(options));
+        builder.Services.Configure<UserOptions>(options =>
+            builder.Configuration.GetSection("IdentityOptions:User").Bind(options));
+
+        var jwtSettingsSection = builder.Configuration.GetSection("JwtOptions");
         if (!jwtSettingsSection.Exists())
             throw new InvalidOperationException("JwtSettings section is missing from appsettings.json");
 
