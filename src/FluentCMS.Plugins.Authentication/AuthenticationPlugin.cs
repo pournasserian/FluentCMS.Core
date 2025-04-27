@@ -36,18 +36,21 @@ public class AuthenticationPlugin : IPlugin
         })
         .AddJwtBearer(options =>
         {
+            // Get JwtOptions from IOptions
             var serviceProvider = builder.Services.BuildServiceProvider();
             var jwtOptions = serviceProvider.GetRequiredService<IOptions<JwtOptions>>().Value;
 
+            var validationParams = jwtOptions.ValidationParameters;
+
             options.TokenValidationParameters = new TokenValidationParameters
             {
-                ValidateIssuer = jwtOptions.ValidationParameters.ValidateIssuer,
-                ValidateAudience = jwtOptions.ValidationParameters.ValidateAudience,
-                ValidateLifetime = jwtOptions.ValidationParameters.ValidateLifetime,
-                ValidateIssuerSigningKey = jwtOptions.ValidationParameters.ValidateIssuerSigningKey,
-                RequireExpirationTime = jwtOptions.ValidationParameters.RequireExpirationTime,
-                RequireSignedTokens = jwtOptions.ValidationParameters.RequireSignedTokens,
-                ClockSkew = jwtOptions.ValidationParameters.ClockSkew,
+                ValidateIssuer = validationParams.ValidateIssuer,
+                ValidateAudience = validationParams.ValidateAudience,
+                ValidateLifetime = validationParams.ValidateLifetime,
+                ValidateIssuerSigningKey = validationParams.ValidateIssuerSigningKey,
+                RequireExpirationTime = validationParams.RequireExpirationTime,
+                RequireSignedTokens = validationParams.RequireSignedTokens,
+                ClockSkew = validationParams.ClockSkew,
 
                 ValidIssuer = jwtOptions.Issuer,
                 ValidAudience = jwtOptions.Audience,
