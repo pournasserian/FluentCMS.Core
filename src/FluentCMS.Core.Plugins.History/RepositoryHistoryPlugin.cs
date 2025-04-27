@@ -1,17 +1,16 @@
 ﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace FluentCMS.Core.Plugins.History;
 
 public class RepositoryHistoryPlugin : IPlugin
 {
-    public IServiceCollection ConfigureServices(IServiceCollection services)
+    public void ConfigureServices(IHostApplicationBuilder builder)
     {
-        services.TryAddTransient(typeof(IEventSubscriber<>), typeof(EntityHistoryEventHandler<>));
-        return services;
+        builder.Services.TryAddTransient(typeof(IEventSubscriber<>), typeof(EntityHistoryEventHandler<>));
     }
 
-    public IApplicationBuilder Configure(IApplicationBuilder app)
+    public void Configure(IApplicationBuilder app)
     {
-        return app;
     }
 }

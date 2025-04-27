@@ -2,8 +2,8 @@
 
 public interface IPluginManager
 {
-    IServiceCollection ConfigureServices(IServiceCollection services);
-    IApplicationBuilder Configure(IApplicationBuilder app);
+    void ConfigureServices(IHostApplicationBuilder builder);
+    void Configure(IApplicationBuilder app);
     IEnumerable<IPlugin> GetPlugins();
     IEnumerable<IPluginMetadata> GetPluginMetadata();
 }

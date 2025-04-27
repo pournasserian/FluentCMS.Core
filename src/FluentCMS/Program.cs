@@ -28,7 +28,7 @@ builder.Services.AddFluentCmsApi();
 builder.Services.AddLiteDBRepositories(builder.Configuration);
 
 // Add plugin system
-builder.Services.AddPlugins();
+builder.AddPlugins();
 
 var app = builder.Build();
 

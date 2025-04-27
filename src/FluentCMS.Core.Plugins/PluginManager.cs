@@ -1,4 +1,6 @@
-﻿namespace FluentCMS.Core.Plugins;
+﻿using Microsoft.Extensions.Hosting;
+
+namespace FluentCMS.Core.Plugins;
 
 public class PluginManager : IPluginManager
 {
@@ -15,7 +17,7 @@ public class PluginManager : IPluginManager
         _pluginsMetaData = ScanAssemblies(executanbleFolder);
     }
 
-    public IServiceCollection ConfigureServices(IServiceCollection services)
+    public void ConfigureServices(IHostApplicationBuilder builder)
     {
         foreach (var pluginMetaData in _pluginsMetaData)
         {
@@ -34,7 +36,7 @@ public class PluginManager : IPluginManager
                 _pluginInstances.Add(plugin);
 
                 // Call the ConfigureServices method on the plugin
-                plugin.ConfigureServices(services);
+                plugin.ConfigureServices(builder);
 
                 //_logger.LogInformation("Successfully configured services for plugin: {PluginName}", pluginMetaData.Name);
             }
@@ -44,10 +46,9 @@ public class PluginManager : IPluginManager
                 //_logger.LogError(ex, "Failed to configure services for plugin {PluginName} ({PluginFileName}): {ErrorMessage}", pluginMetaData.Name, pluginMetaData.FileName, ex.Message);
             }
         }
-        return services;
     }
 
-    public IApplicationBuilder Configure(IApplicationBuilder app)
+    public void Configure(IApplicationBuilder app)
     {
         foreach (var pluginInstance in _pluginInstances)
         {
@@ -65,7 +66,6 @@ public class PluginManager : IPluginManager
                 //_logger.LogError(ex, "Failed to configure plugin {PluginType}: {ErrorMessage}", pluginInstance.GetType().FullName, ex.Message);
             }
         }
-        return app;
     }
 
     public IEnumerable<IPlugin> GetPlugins()

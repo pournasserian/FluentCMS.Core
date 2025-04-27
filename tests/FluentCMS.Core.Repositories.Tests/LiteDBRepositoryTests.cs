@@ -3,18 +3,18 @@ namespace FluentCMS.Core.Repositories.Tests;
 public class LiteDBRepositoryTests : IClassFixture<LiteDBContextFixture>
 {
     private readonly LiteDBContextFixture _fixture;
-    private readonly LiteDBRepository<TestEntity> _repository;
+    private readonly EntityRepository<TestEntity> _repository;
     private readonly Mock<IEventPublisher> _eventPublisherMock;
     private readonly Mock<ApiExecutionContext> _exectionContextMock;
 
     public LiteDBRepositoryTests(LiteDBContextFixture fixture)
     {
         _fixture = fixture;
-        var logger = new NullLogger<LiteDBRepository<TestEntity>>();
+        var logger = new NullLogger<EntityRepository<TestEntity>>();
         _eventPublisherMock = new Mock<IEventPublisher>();
         _exectionContextMock = new Mock<ApiExecutionContext>();
 
-        _repository = new LiteDBRepository<TestEntity>(_fixture.Context, logger, _eventPublisherMock.Object, _exectionContextMock.Object);
+        _repository = new EntityRepository<TestEntity>(_fixture.Context, logger, _eventPublisherMock.Object, _exectionContextMock.Object);
     }
 
     #region GetById Tests

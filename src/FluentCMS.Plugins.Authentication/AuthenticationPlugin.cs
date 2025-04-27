@@ -1,16 +1,32 @@
 ﻿using FluentCMS.Core.Plugins.Abstractions;
+using FluentCMS.Plugins.Authentication.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace FluentCMS.Plugins.Authentication;
 
-public class AuthenticationPlugin : IPlugin
+public class AuthenticationPlugin(IConfiguration configuration) : IPlugin
 {
-
-    public IServiceCollection ConfigureServices(IServiceCollection services)
+    public void ConfigureServices(IHostApplicationBuilder builder)
     {
-        services.AddAuthentication(options =>
+        var jwtSettingsSection = configuration.GetSection("JwtSettings");
+        if (!jwtSettingsSection.Exists())
+        {
+            throw new InvalidOperationException("JwtSettings section is missing from appsettings.json");
+        }
+
+        builder.Services.Configure<JwtOptions>(jwtSettingsSection);
+
+        // Validate JwtOptions after binding
+        builder.Services.AddOptions<JwtOptions>()
+            .Bind(jwtSettingsSection)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        builder.Services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -35,12 +51,10 @@ public class AuthenticationPlugin : IPlugin
         //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key))
         //    };
         //});
-        return services;
 
     }
 
-    public IApplicationBuilder Configure(IApplicationBuilder app)
+    public void Configure(IApplicationBuilder app)
     {
-        return app;
     }
 }

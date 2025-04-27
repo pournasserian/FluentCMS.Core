@@ -1,12 +1,14 @@
+using Microsoft.Extensions.Hosting;
+
 namespace FluentCMS.Core.Plugins;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddPlugins(this IServiceCollection services)
+    public static void AddPlugins(this IHostApplicationBuilder builder)
     {
         var pluginManager = new PluginManager();
-        services.AddSingleton<IPluginManager>(pluginManager);
-        return pluginManager.ConfigureServices(services);
+        builder.Services.AddSingleton<IPluginManager>(pluginManager);
+        pluginManager.ConfigureServices(builder);
     }
 
     public static IApplicationBuilder UsePlugins(this IApplicationBuilder app)
