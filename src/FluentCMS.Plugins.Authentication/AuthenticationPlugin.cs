@@ -7,21 +7,20 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace FluentCMS.Plugins.Authentication;
 
 public class AuthenticationPlugin : IPlugin
 {
+    public const string JWT_OPTIONS_SECTION_NAME = "JwtOptions";
+
     public void ConfigureServices(IHostApplicationBuilder builder)
     {
-        var jwtSettingsSection = builder.Configuration.GetSection("JwtSettings");
+        var jwtSettingsSection = builder.Configuration.GetSection(JWT_OPTIONS_SECTION_NAME);
         if (!jwtSettingsSection.Exists())
-        {
             throw new InvalidOperationException("JwtSettings section is missing from appsettings.json");
-        }
-
-        builder.Services.Configure<JwtOptions>(jwtSettingsSection);
 
         // Validate JwtOptions after binding
         builder.Services.AddOptions<JwtOptions>()
@@ -54,7 +53,7 @@ public class AuthenticationPlugin : IPlugin
 
                 ValidIssuer = jwtOptions.Issuer,
                 ValidAudience = jwtOptions.Audience,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret))
+                IssuerSigningKey = new SymmetricSecurityKey(SHA512.HashData(Encoding.UTF8.GetBytes(jwtOptions.Secret)))
             };
         });
 

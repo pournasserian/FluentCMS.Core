@@ -7,7 +7,6 @@ using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
