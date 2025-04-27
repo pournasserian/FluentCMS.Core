@@ -1,15 +1,15 @@
 namespace FluentCMS.Core.Repositories.LiteDB;
 
-public class LiteDBRepository<T> : IEntityRepository<T> where T : IEntity
+public class EntityRepository<T> : IEntityRepository<T> where T : IEntity
 {
     private readonly ILiteCollection<T> _collection;
     private readonly ILiteDatabase _database;
     private readonly string _entityName;
-    private readonly ILogger<LiteDBRepository<T>> _logger;
+    private readonly ILogger<EntityRepository<T>> _logger;
     private readonly IEventPublisher _eventPublisher;
     private readonly ApiExecutionContext _executionContext;
 
-    public LiteDBRepository(ILiteDBContext dbContext, ILogger<LiteDBRepository<T>> logger, IEventPublisher eventPublisher, ApiExecutionContext executionContext)
+    public EntityRepository(ILiteDBContext dbContext, ILogger<EntityRepository<T>> logger, IEventPublisher eventPublisher, ApiExecutionContext executionContext)
     {
         _database = dbContext.Database;
         _entityName = typeof(T).Name;

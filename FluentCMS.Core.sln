@@ -49,6 +49,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{1228
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Core.Plugins.History", "src\FluentCMS.Core.Plugins.History\FluentCMS.Core.Plugins.History.csproj", "{6A4B64F0-A11A-434D-B180-3298568029BC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Plugins.Authentication", "src\FluentCMS.Plugins.Authentication\FluentCMS.Plugins.Authentication.csproj", "{FBC65B6D-97D6-49B9-82ED-955CE8F50FAA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -251,6 +253,18 @@ Global
 		{6A4B64F0-A11A-434D-B180-3298568029BC}.Release|x64.Build.0 = Release|Any CPU
 		{6A4B64F0-A11A-434D-B180-3298568029BC}.Release|x86.ActiveCfg = Release|Any CPU
 		{6A4B64F0-A11A-434D-B180-3298568029BC}.Release|x86.Build.0 = Release|Any CPU
+		{FBC65B6D-97D6-49B9-82ED-955CE8F50FAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBC65B6D-97D6-49B9-82ED-955CE8F50FAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBC65B6D-97D6-49B9-82ED-955CE8F50FAA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FBC65B6D-97D6-49B9-82ED-955CE8F50FAA}.Debug|x64.Build.0 = Debug|Any CPU
+		{FBC65B6D-97D6-49B9-82ED-955CE8F50FAA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FBC65B6D-97D6-49B9-82ED-955CE8F50FAA}.Debug|x86.Build.0 = Debug|Any CPU
+		{FBC65B6D-97D6-49B9-82ED-955CE8F50FAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBC65B6D-97D6-49B9-82ED-955CE8F50FAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBC65B6D-97D6-49B9-82ED-955CE8F50FAA}.Release|x64.ActiveCfg = Release|Any CPU
+		{FBC65B6D-97D6-49B9-82ED-955CE8F50FAA}.Release|x64.Build.0 = Release|Any CPU
+		{FBC65B6D-97D6-49B9-82ED-955CE8F50FAA}.Release|x86.ActiveCfg = Release|Any CPU
+		{FBC65B6D-97D6-49B9-82ED-955CE8F50FAA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -268,6 +282,7 @@ Global
 		{7836B03D-DA43-4FEB-93B4-19902C6CAB98} = {F5901223-83FB-4379-B5EF-450B6F845743}
 		{D86DA6BC-848C-4F07-9635-91B2CBB50AEC} = {12288030-F57A-4F6C-A7F4-CD6126134C3E}
 		{8D4A7272-D340-47E1-BF60-EAE3B124CE2D} = {12288030-F57A-4F6C-A7F4-CD6126134C3E}
+		{FBC65B6D-97D6-49B9-82ED-955CE8F50FAA} = {12288030-F57A-4F6C-A7F4-CD6126134C3E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4A20D9D5-B268-4753-8057-813B6394829F}
