@@ -20,8 +20,8 @@ public class ApiResultActionFilter : IAsyncActionFilter
             if (value == null)
                 return;
 
-            var executionContext = context.HttpContext.RequestServices.GetService<ApiExecutionContext>() ??
-                throw new InvalidOperationException("ApiExecutionContext is not registered in the service collection.");
+            var executionContext = context.HttpContext.RequestServices.GetService<IApplicationExecutionContext>() ??
+                throw new InvalidOperationException("ApplicationExecutionContext is not registered in the service collection.");
 
             var apiResult = (IApiResult)value;
             apiResult.Duration = (DateTime.UtcNow - executionContext.StartDate).TotalMilliseconds;

@@ -147,7 +147,7 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddExecutionContext(this IServiceCollection services)
     {
-        services.AddScoped(sp =>
+        services.AddScoped<IApplicationExecutionContext>(sp =>
         {
             // Constants for HTTP header keys used to retrieve session and unique user identifiers
             var accessor = sp.GetRequiredService<IHttpContextAccessor>();

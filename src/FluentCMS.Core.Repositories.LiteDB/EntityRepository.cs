@@ -7,9 +7,9 @@ public class EntityRepository<T> : IEntityRepository<T> where T : class, IEntity
     protected readonly string EntityName;
     protected readonly ILogger<EntityRepository<T>> _logger;
     protected readonly IEventPublisher EventPublisher;
-    protected readonly ApiExecutionContext ExecutionContext;
+    protected readonly IApplicationExecutionContext ExecutionContext;
 
-    public EntityRepository(ILiteDBContext dbContext, ILogger<EntityRepository<T>> logger, IEventPublisher eventPublisher, ApiExecutionContext executionContext)
+    public EntityRepository(ILiteDBContext dbContext, ILogger<EntityRepository<T>> logger, IEventPublisher eventPublisher, IApplicationExecutionContext executionContext)
     {
         Database = dbContext.Database;
         EntityName = typeof(T).Name;

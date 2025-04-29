@@ -1,6 +1,6 @@
 ﻿namespace FluentCMS.Core.Repositories.LiteDB;
 
-public class AuditableEntityRepository<T>(ILiteDBContext dbContext, ILogger<AuditableEntityRepository<T>> logger, IEventPublisher eventPublisher, ApiExecutionContext executionContext) : EntityRepository<T>(dbContext, logger, eventPublisher, executionContext), IAuditableEntityRepository<T> where T : class, IAuditableEntity
+public class AuditableEntityRepository<T>(ILiteDBContext dbContext, ILogger<AuditableEntityRepository<T>> logger, IEventPublisher eventPublisher, IApplicationExecutionContext executionContext) : EntityRepository<T>(dbContext, logger, eventPublisher, executionContext), IAuditableEntityRepository<T> where T : class, IAuditableEntity
 {
     public override async Task<T> Add(T entity, CancellationToken cancellationToken = default)
     {

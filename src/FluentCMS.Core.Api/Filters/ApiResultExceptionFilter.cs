@@ -11,7 +11,7 @@ public class ApiResultExceptionFilter : IExceptionFilter
         if (!context.ActionDescriptor.IsApiResultType())
             return;
 
-        var executionContext = context.HttpContext.RequestServices.GetService<ApiExecutionContext>() ??
+        var executionContext = context.HttpContext.RequestServices.GetService<IApplicationExecutionContext>() ??
             throw new InvalidOperationException("ApiExecutionContext is not registered in the service collection.");
 
         var apiResult = new ApiResult

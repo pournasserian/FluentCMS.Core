@@ -13,7 +13,7 @@ public class ApiResultValidateModelFilter : ActionFilterAttribute
             // Check if the action returns a value
             if (context.ActionDescriptor.IsApiResultType())
             {
-                var executionContext = context.HttpContext.RequestServices.GetService<ApiExecutionContext>() ??
+                var executionContext = context.HttpContext.RequestServices.GetService<IApplicationExecutionContext>() ??
                     throw new InvalidOperationException("ApiExecutionContext is not registered in the service collection.");
 
                 var apiResult = new ApiResult

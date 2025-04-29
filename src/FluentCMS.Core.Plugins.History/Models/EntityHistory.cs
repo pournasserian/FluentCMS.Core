@@ -7,5 +7,5 @@ public class EntityHistory : Entity
     public string EventType { get; set; } = default!;
     public DateTime Timestamp { get; set; }
     public object Entity { get; set; } = default!;
-    public ApiExecutionContext Context { get; set; } = default!;
+    public IApplicationExecutionContext Context { get; set; } = default!;
 }

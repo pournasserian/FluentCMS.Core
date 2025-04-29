@@ -1,6 +1,6 @@
 ﻿namespace FluentCMS.Core.Plugins.History.Repositories;
 
-public class EntityHistoryRepository(IEntityRepository<EntityHistory> entityRepository, ApiExecutionContext executionContext): IEntityHistoryRepository
+public class EntityHistoryRepository(IEntityRepository<EntityHistory> entityRepository, IApplicationExecutionContext executionContext): IEntityHistoryRepository
 {
     public async Task<EntityHistory> Add<T>(T entity, string eventType, CancellationToken cancellationToken = default) where T : class, IAuditableEntity
     {
