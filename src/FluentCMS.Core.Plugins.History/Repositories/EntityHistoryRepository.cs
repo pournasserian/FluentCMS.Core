@@ -1,6 +1,6 @@
 ﻿namespace FluentCMS.Core.Plugins.History.Repositories;
 
-public class EntityHistoryRepository(IEntityRepository<EntityHistory> entityRepository, IApplicationExecutionContext executionContext): IEntityHistoryRepository
+public class EntityHistoryRepository(IEntityRepository<EntityHistory> entityRepository, IApplicationExecutionContext executionContext) : IEntityHistoryRepository
 {
     public async Task<EntityHistory> Add<T>(T entity, string eventType, CancellationToken cancellationToken = default) where T : class, IAuditableEntity
     {
@@ -25,7 +25,7 @@ public class EntityHistoryRepository(IEntityRepository<EntityHistory> entityRepo
     {
         var queryOptions = new QueryOptions<EntityHistory>()
         {
-            Filter = (x) => x.EntityId == entityId 
+            Filter = (x) => x.EntityId == entityId
         };
         return await entityRepository.Query(queryOptions, cancellationToken);
     }

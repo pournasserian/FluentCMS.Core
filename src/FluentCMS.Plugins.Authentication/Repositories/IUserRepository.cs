@@ -4,7 +4,7 @@ using System.Security.Claims;
 
 namespace FluentCMS.Plugins.Authentication.Repositories;
 
-public interface IUserRepository : IEntityRepository<User> 
+public interface IUserRepository : IEntityRepository<User>
 {
     IQueryable<User> AsQueryable();
     Task<IList<User>> GetUsersForClaim(Claim claim, CancellationToken cancellationToken = default);

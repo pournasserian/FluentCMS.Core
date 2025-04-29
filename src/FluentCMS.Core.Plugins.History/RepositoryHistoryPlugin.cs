@@ -6,7 +6,7 @@ public class RepositoryHistoryPlugin : IPlugin
     {
         var services = builder.Services;
         services.TryAddTransient(typeof(IEventSubscriber<>), typeof(EntityHistoryEventHandler<>));
-        services.TryAddScoped<IEntityHistoryService,EntityHistoryService>();
+        services.TryAddScoped<IEntityHistoryService, EntityHistoryService>();
         services.TryAddScoped<IEntityHistoryRepository, EntityHistoryRepository>();
         services.AddAutoMapper(typeof(MappingProfile));
     }

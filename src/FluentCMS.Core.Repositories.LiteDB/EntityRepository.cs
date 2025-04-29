@@ -154,7 +154,7 @@ public class EntityRepository<T> : IEntityRepository<T> where T : class, IEntity
         {
             if (entity.Id == Guid.Empty)
                 entity.Id = Guid.NewGuid();
-          
+
             var inserted = Collection.Insert(entity);
             if (inserted == null)
             {
