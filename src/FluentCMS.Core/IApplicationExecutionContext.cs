@@ -14,7 +14,7 @@ public interface IApplicationExecutionContext
     DateTime StartDate { get; set; }    // Timestamp when the request was initiated
     string TraceId { get; set; }        // Unique identifier for the current request
     string UniqueId { get; set; }       // Unique identifier for the user, often set by the client
-    Guid UserId { get; set; }           // User ID extracted from the user's claims, default is Guid.Empty
+    Guid? UserId { get; set; }           // User ID extracted from the user's claims, default is Guid.Empty
     string UserIp { get; set; }         // IP address of the user making the request
     string Username { get; set; }       // Username extracted from the user's claims, default is empty string
 }

@@ -145,7 +145,7 @@ public static class ServiceCollectionExtensions
             {
                 // Extract and parse the user ID from claims (ClaimTypes.Sid)
                 var idClaimValue = user.FindFirstValue(ClaimTypes.Sid);
-                instance.UserId = idClaimValue == null ? Guid.Empty : Guid.Parse(idClaimValue);
+                instance.UserId = idClaimValue == null ? null : Guid.Parse(idClaimValue);
 
                 // Extract the username from claims (ClaimTypes.NameIdentifier)
                 instance.Username = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;

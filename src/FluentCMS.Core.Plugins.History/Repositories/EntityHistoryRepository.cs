@@ -11,13 +11,22 @@ public class EntityHistoryRepository(IEntityRepository<EntityHistory> entityRepo
         var entityHistory = new EntityHistory
         {
             Id = Guid.NewGuid(),
-            Context = executionContext,
             EntityId = entity.Id,
             EntityType = typeof(T).Name,
             EventType = eventType,
             Timestamp = DateTime.UtcNow,
-            Entity = entity
+            Entity = entity,
+            IsAuthenticated = executionContext.IsAuthenticated,
+            Language = executionContext.Language,
+            SessionId = executionContext.SessionId,
+            StartDate = DateTime.UtcNow,
+            TraceId = executionContext.TraceId,
+            UniqueId = executionContext.UniqueId,
+            UserId = executionContext.UserId,
+            UserIp = executionContext.UserIp,
+            Username = executionContext.Username
         };
+
         return await entityRepository.Add(entityHistory, cancellationToken);
     }
 
