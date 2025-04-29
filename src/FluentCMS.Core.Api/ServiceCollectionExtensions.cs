@@ -48,27 +48,6 @@ public static class ServiceCollectionExtensions
                 options.SuppressModelStateInvalidFilter = true;
             });
 
-        //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        //    .AddJwtBearer((c) =>
-        //    {
-        //        var serviceProvider = services.BuildServiceProvider();
-        //        var options = serviceProvider.GetRequiredService<IOptions<JwtOptions>>().Value;
-        //        var key = SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes(options.Secret));
-        //        c.TokenValidationParameters = new TokenValidationParameters
-        //        {
-        //            ValidateIssuerSigningKey = true,
-        //            IssuerSigningKey = new SymmetricSecurityKey(key),
-        //            ValidateIssuer = true,
-        //            ValidateAudience = true,
-        //            RequireExpirationTime = true,
-        //            ValidateLifetime = true,
-        //            SaveSigninToken = true,
-        //            ValidAudience = options.Audience,
-        //            ValidIssuer = options.Issuer
-        //        };
-        //    });
-
-        //services.AddAutoMapper(typeof(ApiServiceExtensions));
 
         services.AddApiDocumentation();
         return services;
