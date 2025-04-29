@@ -1,5 +1,13 @@
 ﻿global using FluentCMS.Core.EventBus.Abstractions;
 global using FluentCMS.Core.Plugins.Abstractions;
-global using FluentCMS.Core.Repositories.Abstractions;
 global using Microsoft.AspNetCore.Builder;
 global using Microsoft.Extensions.Logging;
+global using FluentCMS.Core.Plugins.History.Models;
+global using FluentCMS.Core.Repositories.Abstractions;
+global using FluentCMS.Core.Plugins.History.Repositories;
+global using FluentCMS.Core.Plugins.History.Services;
+global using Microsoft.Extensions.DependencyInjection.Extensions;
+global using Microsoft.Extensions.Hosting;
+global using AutoMapper;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.AspNetCore.Mvc;

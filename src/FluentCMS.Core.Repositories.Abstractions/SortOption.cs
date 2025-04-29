@@ -1,4 +1,4 @@
-namespace FluentCMS.Core;
+namespace FluentCMS.Core.Repositories.Abstractions;
 
 // Represents a sorting criterion for queries
 public class SortOption<T>

@@ -1,40 +1,40 @@
 namespace FluentCMS.Core.Repositories.LiteDB;
 
-public class EntityRepository<T> : IEntityRepository<T> where T : IEntity
+public class EntityRepository<T> : IEntityRepository<T> where T : class, IEntity
 {
-    private readonly ILiteCollection<T> _collection;
-    private readonly ILiteDatabase _database;
-    private readonly string _entityName;
-    private readonly ILogger<EntityRepository<T>> _logger;
-    private readonly IEventPublisher _eventPublisher;
-    private readonly ApiExecutionContext _executionContext;
+    protected readonly ILiteCollection<T> Collection;
+    protected readonly ILiteDatabase Database;
+    protected readonly string EntityName;
+    protected readonly ILogger<EntityRepository<T>> _logger;
+    protected readonly IEventPublisher EventPublisher;
+    protected readonly ApiExecutionContext ExecutionContext;
 
     public EntityRepository(ILiteDBContext dbContext, ILogger<EntityRepository<T>> logger, IEventPublisher eventPublisher, ApiExecutionContext executionContext)
     {
-        _database = dbContext.Database;
-        _entityName = typeof(T).Name;
-        _collection = _database.GetCollection<T>(_entityName);
+        Database = dbContext.Database;
+        EntityName = typeof(T).Name;
+        Collection = Database.GetCollection<T>(EntityName);
 
         // Ensure we have an index on Id field
-        _collection.EnsureIndex(x => x.Id);
+        Collection.EnsureIndex(x => x.Id);
         _logger = logger;
-        _eventPublisher = eventPublisher;
-        _executionContext = executionContext;
+        EventPublisher = eventPublisher;
+        ExecutionContext = executionContext;
     }
 
-    public async Task<T> GetById(Guid id, CancellationToken cancellationToken = default)
+    public virtual async Task<T> GetById(Guid id, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
         try
         {
             // LiteDB is synchronous, but we'll wrap in Task to comply with interface
-            var entity = _collection.FindById(id);
+            var entity = Collection.FindById(id);
 
             if (entity == null)
             {
-                _logger.LogCritical("Critical error in {MethodName}: {EntityType} with ID {EntityId} not found", nameof(GetById), _entityName, id);
-                throw new EntityNotFoundException(id, _entityName);
+                _logger.LogCritical("Critical error in {MethodName}: {EntityType} with ID {EntityId} not found", nameof(GetById), EntityName, id);
+                throw new EntityNotFoundException(id, EntityName);
             }
 
             return await Task.FromResult(entity);
@@ -46,50 +46,36 @@ public class EntityRepository<T> : IEntityRepository<T> where T : IEntity
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex, "Critical error in {MethodName}: Error while retrieving {EntityType} with ID {EntityId}", nameof(GetById), _entityName, id);
+            _logger.LogCritical(ex, "Critical error in {MethodName}: Error while retrieving {EntityType} with ID {EntityId}", nameof(GetById), EntityName, id);
             throw new RepositoryOperationException(nameof(GetById), ex);
         }
     }
 
-    public async Task<IEnumerable<T>> GetAll(CancellationToken cancellationToken = default)
+    public virtual async Task<IEnumerable<T>> GetAll(CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
         try
         {
             // Use Query API for consistency with other methods
-            var entities = _collection.Query().ToList();
+            var entities = Collection.Query().ToList();
             return await Task.FromResult(entities);
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex, "Critical error in {MethodName}: Error while retrieving all {EntityType} entities", nameof(GetAll), _entityName);
+            _logger.LogCritical(ex, "Critical error in {MethodName}: Error while retrieving all {EntityType} entities", nameof(GetAll), EntityName);
             throw new RepositoryOperationException(nameof(GetAll), ex);
         }
     }
 
-    public async Task<QueryResult<T>> Query(Expression<Func<T, bool>>? filter = default, PaginationOptions? paginationOptions = default, IList<SortOption<T>>? sortOptions = default, CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        var options = new QueryOptions<T>
-        {
-            Filter = filter,
-            Pagination = paginationOptions,
-            Sorting = sortOptions
-        };
-
-        return await Query(options, cancellationToken);
-    }
-
-    public async Task<QueryResult<T>> Query(QueryOptions<T> options, CancellationToken cancellationToken = default)
+    public virtual async Task<QueryResult<T>> Query(QueryOptions<T> options, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
         try
         {
             // Build the LiteDB query
-            ILiteQueryable<T> query = _collection.Query();
+            ILiteQueryable<T> query = Collection.Query();
 
             // Apply filter if provided
             if (options.Filter != null)
@@ -132,12 +118,12 @@ public class EntityRepository<T> : IEntityRepository<T> where T : IEntity
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex, "Critical error in {MethodName}: Error while querying {EntityType} entities", nameof(Query), _entityName);
+            _logger.LogCritical(ex, "Critical error in {MethodName}: Error while querying {EntityType} entities", nameof(Query), EntityName);
             throw new RepositoryOperationException(nameof(Query), ex);
         }
     }
 
-    public async Task<int> Count(Expression<Func<T, bool>>? filter = null, CancellationToken cancellationToken = default)
+    public virtual async Task<int> Count(Expression<Func<T, bool>>? filter = null, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -146,21 +132,21 @@ public class EntityRepository<T> : IEntityRepository<T> where T : IEntity
             // Use LiteDB's Query API for counting to fully leverage database capabilities
             if (filter == null)
             {
-                return await Task.FromResult(_collection.Count());
+                return await Task.FromResult(Collection.Count());
             }
             else
             {
-                return await Task.FromResult(_collection.Query().Where(filter).Count());
+                return await Task.FromResult(Collection.Query().Where(filter).Count());
             }
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex, "Critical error in {MethodName}: Error while counting {EntityType} entities", nameof(Count), _entityName);
+            _logger.LogCritical(ex, "Critical error in {MethodName}: Error while counting {EntityType} entities", nameof(Count), EntityName);
             throw new RepositoryOperationException(nameof(Count), ex);
         }
     }
 
-    public async Task<T> Add(T entity, CancellationToken cancellationToken = default)
+    public virtual async Task<T> Add(T entity, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -168,49 +154,40 @@ public class EntityRepository<T> : IEntityRepository<T> where T : IEntity
         {
             if (entity.Id == Guid.Empty)
                 entity.Id = Guid.NewGuid();
-
-            // check if T is IAuditableEntity
-            if (entity is IAuditableEntity auditableEntity)
-            {
-                auditableEntity.CreatedAt = DateTime.UtcNow;
-                auditableEntity.CreatedBy = _executionContext.Username;
-                auditableEntity.ModifiedBy = null;
-                auditableEntity.ModifiedAt = null;
-            }
-
-            var inserted = _collection.Insert(entity);
+          
+            var inserted = Collection.Insert(entity);
             if (inserted == null)
             {
-                _logger.LogCritical("Critical error in {MethodName}: Failed to add {EntityType} with ID {EntityId}", nameof(Add), _entityName, entity.Id);
+                _logger.LogCritical("Critical error in {MethodName}: Failed to add {EntityType} with ID {EntityId}", nameof(Add), EntityName, entity.Id);
                 throw new RepositoryOperationException(nameof(Add), $"Failed to add entity with ID {entity.Id}");
             }
 
             // Publish event after successful addition
-            await _eventPublisher.Publish(entity, $"{typeof(T).Name}.Created", cancellationToken);
+            await EventPublisher.Publish(entity, $"{typeof(T).Name}.Created", cancellationToken);
 
             return entity;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogCritical(ex, "Critical error in {MethodName}: {EntityType} with ID {EntityId}", nameof(Add), _entityName, entity.Id);
+            _logger.LogCritical(ex, "Critical error in {MethodName}: {EntityType} with ID {EntityId}", nameof(Add), EntityName, entity.Id);
             throw;
         }
     }
 
-    public async Task<T> Update(T entity, CancellationToken cancellationToken = default)
+    public virtual async Task<T> Update(T entity, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
         try
         {
             // Get the original entity for history
-            var originalEntity = _collection.FindById(entity.Id);
+            var originalEntity = Collection.FindById(entity.Id);
 
             // Verify entity exists before update
             if (originalEntity is null)
             {
-                _logger.LogCritical("Critical error in {MethodName}: {EntityType} with ID {EntityId} not found for update", nameof(Update), _entityName, entity.Id);
-                throw new EntityNotFoundException(entity.Id, _entityName);
+                _logger.LogCritical("Critical error in {MethodName}: {EntityType} with ID {EntityId} not found for update", nameof(Update), EntityName, entity.Id);
+                throw new EntityNotFoundException(entity.Id, EntityName);
             }
 
             // check if T is IAuditableEntity
@@ -218,60 +195,67 @@ public class EntityRepository<T> : IEntityRepository<T> where T : IEntity
             {
                 auditableEntity.CreatedAt = ((IAuditableEntity)originalEntity).CreatedAt;
                 auditableEntity.CreatedBy = ((IAuditableEntity)originalEntity).CreatedBy;
-                auditableEntity.ModifiedBy = _executionContext.Username;
+                auditableEntity.ModifiedBy = ExecutionContext.Username;
                 auditableEntity.ModifiedAt = DateTime.UtcNow;
             }
 
-            var updated = _collection.Update(entity);
+            var updated = Collection.Update(entity);
             if (!updated)
             {
-                _logger.LogCritical("Critical error in {MethodName}: Failed to update {EntityType} with ID {EntityId}", nameof(Update), _entityName, entity.Id);
+                _logger.LogCritical("Critical error in {MethodName}: Failed to update {EntityType} with ID {EntityId}", nameof(Update), EntityName, entity.Id);
                 throw new RepositoryOperationException(nameof(Update), $"Failed to update entity with ID {entity.Id}");
             }
 
             // Publish event with updated entity after update
-            await _eventPublisher.Publish(updated, $"{typeof(T).Name}.Updated", cancellationToken);
+            await EventPublisher.Publish(updated, $"{typeof(T).Name}.Updated", cancellationToken);
 
             return entity;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogCritical(ex, "Critical error in {MethodName}: {EntityType} with ID {EntityId}", nameof(Update), _entityName, entity.Id);
+            _logger.LogCritical(ex, "Critical error in {MethodName}: {EntityType} with ID {EntityId}", nameof(Update), EntityName, entity.Id);
             throw;
         }
     }
 
-    public async Task Remove(Guid id, CancellationToken cancellationToken = default)
+    public virtual async Task<T> Remove(Guid id, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
         try
         {
             // Get the entity for history
-            var entity = _collection.FindById(id);
+            var entity = Collection.FindById(id);
 
             // Verify entity exists before deletion
             if (entity is null)
             {
-                _logger.LogCritical("Critical error in {MethodName}: {EntityType} with ID {EntityId} not found for removal", nameof(Remove), _entityName, id);
-                throw new EntityNotFoundException(id, _entityName);
+                _logger.LogCritical("Critical error in {MethodName}: {EntityType} with ID {EntityId} not found for removal", nameof(Remove), EntityName, id);
+                throw new EntityNotFoundException(id, EntityName);
             }
 
-            var deleted = _collection.Delete(id);
+            var deleted = Collection.Delete(id);
             if (!deleted)
             {
-                _logger.LogCritical("Critical error in {MethodName}: Failed to remove {EntityType} with ID {EntityId}", nameof(Remove), _entityName, id);
+                _logger.LogCritical("Critical error in {MethodName}: Failed to remove {EntityType} with ID {EntityId}", nameof(Remove), EntityName, id);
                 throw new RepositoryOperationException(nameof(Remove), $"Failed to remove entity with ID {id}");
             }
 
             // Publish event after deletion
-            await _eventPublisher.Publish(entity, $"{typeof(T).Name}.Deleted", cancellationToken);
+            await EventPublisher.Publish(entity, $"{typeof(T).Name}.Deleted", cancellationToken);
+
+            return entity;
 
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogCritical(ex, "Critical error in {MethodName}: {EntityType} with ID {EntityId}", nameof(Remove), _entityName, id);
+            _logger.LogCritical(ex, "Critical error in {MethodName}: {EntityType} with ID {EntityId}", nameof(Remove), EntityName, id);
             throw;
         }
+    }
+
+    public virtual Task<T> Remove(T entity, CancellationToken cancellationToken = default)
+    {
+        return Remove(entity.Id, cancellationToken);
     }
 }

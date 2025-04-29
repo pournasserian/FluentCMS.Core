@@ -1,4 +1,4 @@
-namespace FluentCMS.Core;
+namespace FluentCMS.Core.Repositories.Abstractions;
 
 public class QueryResult<T>
 {

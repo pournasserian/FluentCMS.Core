@@ -4,8 +4,6 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddLiteDBRepositories(this IServiceCollection services, IConfiguration configuration, string sectionName = "LiteDB")
     {
-        services.AddScoped(typeof(IEntityHistoryRepository<>), typeof(EntityHistoryRepository<>));
-
         // Configure options from settings
         services.Configure<LiteDBOptions>(configuration.GetSection(sectionName));
 
@@ -17,6 +15,7 @@ public static class ServiceCollectionExtensions
         });
 
         // Register the generic repository
+        services.TryAddScoped(typeof(IAuditableEntityRepository<>), typeof(AuditableEntityRepository<>));
         services.TryAddScoped(typeof(IEntityRepository<>), typeof(EntityRepository<>));
 
         return services;
