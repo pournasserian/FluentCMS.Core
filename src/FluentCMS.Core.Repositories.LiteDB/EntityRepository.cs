@@ -1,3 +1,4 @@
+
 namespace FluentCMS.Core.Repositories.LiteDB;
 
 public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntity : class, IEntity
@@ -239,5 +240,18 @@ public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntit
     public virtual Task<TEntity> Remove(TEntity entity, CancellationToken cancellationToken = default)
     {
         return Remove(entity.Id, cancellationToken);
+    }
+
+    public IQueryable<TEntity> AsQueryable()
+    {
+        try
+        {
+            return Collection.FindAll().AsQueryable();
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Critical error in {MethodName}", nameof(AsQueryable));
+            throw;
+        }
     }
 }

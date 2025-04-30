@@ -92,8 +92,7 @@ public abstract class EntityRepository<TEntity> : IEntityRepository<TEntity> whe
             // Apply sorting if provided
             if (options.Sorting != null && options.Sorting.Any())
             {
-
-
+                // todo implement sorting
             }
 
             // Execute query and return results
@@ -230,5 +229,18 @@ public abstract class EntityRepository<TEntity> : IEntityRepository<TEntity> whe
     public virtual Task<TEntity> Remove(TEntity entity, CancellationToken cancellationToken = default)
     {
         return Remove(entity.Id, cancellationToken);
+    }
+
+    public IQueryable<TEntity> AsQueryable()
+    {
+        try
+        {
+            return Collection.AsQueryable();
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Critical error in {MethodName}", nameof(AsQueryable));
+            throw;
+        }
     }
 }
