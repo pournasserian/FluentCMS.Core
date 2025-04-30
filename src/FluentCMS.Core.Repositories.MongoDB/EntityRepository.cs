@@ -1,4 +1,8 @@
-﻿namespace FluentCMS.Core.Repositories.MongoDB;
+﻿using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using SharpCompress.Common;
+
+namespace FluentCMS.Core.Repositories.MongoDB;
 
 public abstract class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntity : class, IEntity
 {
@@ -73,6 +77,23 @@ public abstract class EntityRepository<TEntity> : IEntityRepository<TEntity> whe
         }
     }
 
+
+    public virtual async Task<IEnumerable<TEntity>> Find(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default) 
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        try
+        {
+            var asyncCursor = await Collection.FindAsync(predicate, null, cancellationToken);
+            return asyncCursor.ToEnumerable(cancellationToken: cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Critical error in {MethodName}: Error while querying {EntityType} entities", nameof(Find), EntityName);
+            throw new RepositoryOperationException(nameof(Query), ex);
+        }
+    }
+
     public virtual async Task<QueryResult<TEntity>> Query(QueryOptions<TEntity> options, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -142,6 +163,7 @@ public abstract class EntityRepository<TEntity> : IEntityRepository<TEntity> whe
     public virtual async Task<TEntity> Add(TEntity entity, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(entity);
 
         try
         {
@@ -170,6 +192,7 @@ public abstract class EntityRepository<TEntity> : IEntityRepository<TEntity> whe
     public virtual async Task<TEntity> Update(TEntity entity, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(entity);
 
         try
         {

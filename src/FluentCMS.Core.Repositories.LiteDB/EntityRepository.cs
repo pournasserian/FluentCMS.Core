@@ -67,6 +67,22 @@ public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntit
         }
     }
 
+    public virtual Task<IEnumerable<TEntity>> Find(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        try
+        {
+            var entities = Collection.Query().Where(predicate).ToEnumerable() ?? [];
+            return Task.FromResult(entities);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Critical error in {MethodName}: Error while querying {EntityType} entities", nameof(Find), EntityName);
+            throw new RepositoryOperationException(nameof(Query), ex);
+        }
+    }
+
     public virtual async Task<QueryResult<TEntity>> Query(QueryOptions<TEntity> options, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -148,6 +164,7 @@ public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntit
     public virtual async Task<TEntity> Add(TEntity entity, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(entity);
 
         try
         {
@@ -176,6 +193,7 @@ public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntit
     public virtual async Task<TEntity> Update(TEntity entity, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(entity);
 
         try
         {
@@ -239,6 +257,7 @@ public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntit
 
     public virtual Task<TEntity> Remove(TEntity entity, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(entity);
         return Remove(entity.Id, cancellationToken);
     }
 
