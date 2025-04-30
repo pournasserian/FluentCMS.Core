@@ -10,7 +10,6 @@ public class EntityHistoryRepository(IEntityRepository<EntityHistory> entityRepo
 
         var entityHistory = new EntityHistory
         {
-            Id = Guid.NewGuid(),
             EntityId = entity.Id,
             EntityType = typeof(T).Name,
             EventType = eventType,
