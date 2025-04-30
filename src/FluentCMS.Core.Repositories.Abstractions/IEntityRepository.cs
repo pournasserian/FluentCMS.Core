@@ -1,6 +1,6 @@
 namespace FluentCMS.Core.Repositories.Abstractions;
 
-public interface IEntityRepository<T> where T : class, IEntity
+public interface IEntityRepository<T> : IRepository where T : class, IEntity
 {
     Task<IEnumerable<T>> GetAll(CancellationToken cancellationToken = default);
     Task<QueryResult<T>> Query(QueryOptions<T> options, CancellationToken cancellationToken = default);
