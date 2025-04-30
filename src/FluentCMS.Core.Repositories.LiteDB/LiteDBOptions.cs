@@ -1,7 +1,5 @@
 namespace FluentCMS.Core.Repositories.LiteDB;
 
-public class LiteDBOptions
+public class LiteDBOptions : BaseDbOptions
 {
-    public string ConnectionString { get; set; } = default!;
-    public Action<BsonMapper>? MapperConfiguration { get; set; }
 }

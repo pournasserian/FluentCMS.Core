@@ -1,6 +1,6 @@
-﻿namespace FluentCMS.Core.Repositories.LiteDB;
+﻿namespace FluentCMS.Core.Repositories.MongoDB;
 
-public class AuditableEntityRepository<TEntity>(ILiteDBContext dbContext, ILogger<AuditableEntityRepository<TEntity>> logger, IEventPublisher eventPublisher, IApplicationExecutionContext executionContext) : EntityRepository<TEntity>(dbContext, logger, eventPublisher), IAuditableEntityRepository<TEntity> where TEntity : class, IAuditableEntity
+public abstract class AuditableEntityRepository<TEntity>(IMongoDBContext dbContext, ILogger<AuditableEntityRepository<TEntity>> logger, IEventPublisher eventPublisher, IApplicationExecutionContext executionContext) : EntityRepository<TEntity>(dbContext, logger, eventPublisher), IAuditableEntityRepository<TEntity> where TEntity : class, IAuditableEntity
 {
     protected readonly IApplicationExecutionContext ExecutionContext = executionContext;
 
@@ -24,14 +24,7 @@ public class AuditableEntityRepository<TEntity>(ILiteDBContext dbContext, ILogge
         try
         {
             // Get the original entity for history
-            var originalEntity = Collection.FindById(entity.Id);
-
-            // Verify entity exists before update
-            if (originalEntity is null)
-            {
-                _logger.LogError("Critical error in {MethodName}: {EntityType} with ID {EntityId} not found for update", nameof(Update), EntityName, entity.Id);
-                throw new EntityNotFoundException(entity.Id, EntityName);
-            }
+            var originalEntity = await GetById(entity.Id, cancellationToken);
 
             entity.CreatedAt = originalEntity.CreatedAt;
             entity.CreatedBy = originalEntity.CreatedBy;
@@ -39,15 +32,17 @@ public class AuditableEntityRepository<TEntity>(ILiteDBContext dbContext, ILogge
             entity.ModifiedAt = DateTime.UtcNow;
             entity.Version = originalEntity.Version + 1;
 
-            var updated = Collection.Update(entity);
-            if (!updated)
+            var idFilter = Builders<TEntity>.Filter.Eq(x => x.Id, entity.Id);
+            var replaceResult = await Collection.ReplaceOneAsync(idFilter, entity, cancellationToken: cancellationToken);
+
+            if (replaceResult?.ModifiedCount != 1)
             {
                 _logger.LogError("Critical error in {MethodName}: Failed to update {EntityType} with ID {EntityId}", nameof(Update), EntityName, entity.Id);
                 throw new RepositoryOperationException(nameof(Update), $"Failed to update entity with ID {entity.Id}");
             }
 
             // Publish event with updated entity after update
-            await EventPublisher.Publish(updated, $"{typeof(TEntity).Name}.Updated", cancellationToken);
+            await EventPublisher.Publish(entity, $"{typeof(TEntity).Name}.Updated", cancellationToken);
 
             return entity;
         }

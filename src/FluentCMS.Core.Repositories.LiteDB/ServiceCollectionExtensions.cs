@@ -2,17 +2,16 @@ namespace FluentCMS.Core.Repositories.LiteDB;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddLiteDBRepositories(this IServiceCollection services, IConfiguration configuration, string sectionName = "LiteDB")
+    public static IServiceCollection AddLiteDBRepositories(this IServiceCollection services, IConfiguration configuration)
     {
-        // Configure options from settings
-        services.Configure<LiteDBOptions>(configuration.GetSection(sectionName));
+        // Validate LiteDBOptions after binding
+        services.AddOptions<LiteDBOptions>()
+            .Bind(configuration.GetSection(nameof(LiteDBOptions)))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
         // Register the LiteDB context as a singleton
-        services.TryAddSingleton<ILiteDBContext>(provider =>
-        {
-            var options = provider.GetRequiredService<IOptions<LiteDBOptions>>().Value;
-            return new LiteDBContext(options);
-        });
+        services.TryAddSingleton<ILiteDBContext, LiteDBContext>(); ;
 
         // Register the generic repository
         services.TryAddScoped(typeof(IAuditableEntityRepository<>), typeof(AuditableEntityRepository<>));

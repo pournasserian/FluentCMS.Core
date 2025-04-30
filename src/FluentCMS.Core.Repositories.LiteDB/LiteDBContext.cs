@@ -1,24 +1,26 @@
 namespace FluentCMS.Core.Repositories.LiteDB;
 
+public interface ILiteDBContext
+{
+    ILiteDatabase Database { get; }
+}
+
 public class LiteDBContext : ILiteDBContext, IDisposable
 {
-    private readonly LiteDatabase _database;
     private bool _disposed = false;
 
-    public LiteDBContext(LiteDBOptions options)
+    public LiteDBContext(IOptions<LiteDBOptions> options)
     {
-        ArgumentException.ThrowIfNullOrEmpty(options.ConnectionString, nameof(options.ConnectionString));
-
         // Configure connection parameters
-        var connectionString = options.ConnectionString;
+        var connectionString = options.Value.ConnectionString;
 
         // Configure mapper if provided
         var mapper = new BsonMapper();
-        options.MapperConfiguration?.Invoke(mapper);
-        _database = new LiteDatabase(connectionString, mapper);
+        //options.MapperConfiguration?.Invoke(mapper);
+        Database = new LiteDatabase(connectionString, mapper);
     }
 
-    public ILiteDatabase Database => _database;
+    public ILiteDatabase Database { get; private set; }
 
     public void Dispose()
     {
@@ -32,7 +34,7 @@ public class LiteDBContext : ILiteDBContext, IDisposable
         {
             if (disposing)
             {
-                _database?.Dispose();
+                Database?.Dispose();
             }
 
             _disposed = true;

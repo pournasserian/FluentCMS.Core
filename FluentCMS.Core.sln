@@ -43,6 +43,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Core.Plugins.Hist
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Plugins.Authentication", "src\FluentCMS.Plugins.Authentication\FluentCMS.Plugins.Authentication.csproj", "{FBC65B6D-97D6-49B9-82ED-955CE8F50FAA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Core.Repositories.MongoDB", "src\FluentCMS.Core.Repositories.MongoDB\FluentCMS.Core.Repositories.MongoDB.csproj", "{57E207E6-1DFB-404F-AA87-639FFBA5CB01}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -221,6 +223,18 @@ Global
 		{FBC65B6D-97D6-49B9-82ED-955CE8F50FAA}.Release|x64.Build.0 = Release|Any CPU
 		{FBC65B6D-97D6-49B9-82ED-955CE8F50FAA}.Release|x86.ActiveCfg = Release|Any CPU
 		{FBC65B6D-97D6-49B9-82ED-955CE8F50FAA}.Release|x86.Build.0 = Release|Any CPU
+		{57E207E6-1DFB-404F-AA87-639FFBA5CB01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57E207E6-1DFB-404F-AA87-639FFBA5CB01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57E207E6-1DFB-404F-AA87-639FFBA5CB01}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{57E207E6-1DFB-404F-AA87-639FFBA5CB01}.Debug|x64.Build.0 = Debug|Any CPU
+		{57E207E6-1DFB-404F-AA87-639FFBA5CB01}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{57E207E6-1DFB-404F-AA87-639FFBA5CB01}.Debug|x86.Build.0 = Debug|Any CPU
+		{57E207E6-1DFB-404F-AA87-639FFBA5CB01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57E207E6-1DFB-404F-AA87-639FFBA5CB01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57E207E6-1DFB-404F-AA87-639FFBA5CB01}.Release|x64.ActiveCfg = Release|Any CPU
+		{57E207E6-1DFB-404F-AA87-639FFBA5CB01}.Release|x64.Build.0 = Release|Any CPU
+		{57E207E6-1DFB-404F-AA87-639FFBA5CB01}.Release|x86.ActiveCfg = Release|Any CPU
+		{57E207E6-1DFB-404F-AA87-639FFBA5CB01}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -237,6 +251,7 @@ Global
 		{8D4A7272-D340-47E1-BF60-EAE3B124CE2D} = {12288030-F57A-4F6C-A7F4-CD6126134C3E}
 		{6A4B64F0-A11A-434D-B180-3298568029BC} = {12288030-F57A-4F6C-A7F4-CD6126134C3E}
 		{FBC65B6D-97D6-49B9-82ED-955CE8F50FAA} = {12288030-F57A-4F6C-A7F4-CD6126134C3E}
+		{57E207E6-1DFB-404F-AA87-639FFBA5CB01} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4A20D9D5-B268-4753-8057-813B6394829F}

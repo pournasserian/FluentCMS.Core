@@ -2,6 +2,7 @@ using FluentCMS.Core.Api;
 using FluentCMS.Core.EventBus;
 using FluentCMS.Core.Plugins;
 using FluentCMS.Core.Repositories.LiteDB;
+using FluentCMS.Core.Repositories.MongoDB;
 using Serilog;
 using Serilog.Events;
 
@@ -16,6 +17,10 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.File("logs/myapp-.log", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
+builder.Services.AddLiteDBRepositories(builder.Configuration);
+//builder.Services.AddMongoDbRepositories(builder.Configuration);
+
+
 // Add Serilog to the application
 builder.Host.UseSerilog();
 
@@ -23,8 +28,6 @@ builder.Services.AddEventBus();
 
 // Add services to the container.
 builder.Services.AddFluentCmsApi();
-//builder.Services.AddScoped<ITodoService, TodoService>();
-builder.Services.AddLiteDBRepositories(builder.Configuration);
 
 // Add plugin system
 builder.AddPlugins();

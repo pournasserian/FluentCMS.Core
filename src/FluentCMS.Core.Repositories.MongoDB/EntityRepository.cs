@@ -1,21 +1,25 @@
-namespace FluentCMS.Core.Repositories.LiteDB;
+﻿namespace FluentCMS.Core.Repositories.MongoDB;
 
-public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntity : class, IEntity
+public abstract class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntity : class, IEntity
 {
-    protected readonly ILiteCollection<TEntity> Collection;
-    protected readonly ILiteDatabase Database;
-    protected readonly string EntityName;
+    protected readonly IMongoCollection<TEntity> Collection;
+    protected readonly IMongoDatabase MongoDatabase;
+    protected readonly IMongoDBContext MongoDbContext;
     protected readonly ILogger<EntityRepository<TEntity>> _logger;
     protected readonly IEventPublisher EventPublisher;
+    protected readonly string EntityName;
 
-    public EntityRepository(ILiteDBContext dbContext, ILogger<EntityRepository<TEntity>> logger, IEventPublisher eventPublisher)
+    public EntityRepository(IMongoDBContext dbContext, ILogger<EntityRepository<TEntity>> logger, IEventPublisher eventPublisher)
     {
-        Database = dbContext.Database;
         EntityName = typeof(TEntity).Name;
-        Collection = Database.GetCollection<TEntity>(EntityName);
+        MongoDatabase = dbContext.Database;
+        Collection = dbContext.Database.GetCollection<TEntity>(EntityName);
+        MongoDbContext = dbContext;
 
-        // Ensure we have an index on Id field
-        Collection.EnsureIndex(x => x.Id);
+        // Ensure index on Id field
+        var indexKeysDefinition = Builders<TEntity>.IndexKeys.Ascending(x => x.Id);
+        Collection.Indexes.CreateOne(new CreateIndexModel<TEntity>(indexKeysDefinition));
+
         _logger = logger;
         EventPublisher = eventPublisher;
     }
@@ -27,7 +31,10 @@ public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntit
         try
         {
             // LiteDB is synchronous, but we'll wrap in Task to comply with interface
-            var entity = Collection.FindById(id);
+            //var entity = Collection.FindById(id);
+            var idFilter = Builders<TEntity>.Filter.Eq(x => x.Id, id);
+            var findResult = await Collection.FindAsync(idFilter, null, cancellationToken);
+            var entity = await findResult.SingleOrDefaultAsync(cancellationToken);
 
             if (entity == null)
             {
@@ -55,9 +62,9 @@ public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntit
 
         try
         {
-            // Use Query API for consistency with other methods
-            var entities = Collection.Query().ToList();
-            return await Task.FromResult(entities);
+            var filter = Builders<TEntity>.Filter.Empty;
+            var findResult = await Collection.FindAsync(filter, null, cancellationToken);
+            return await findResult.ToListAsync(cancellationToken);
         }
         catch (Exception ex)
         {
@@ -73,7 +80,7 @@ public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntit
         try
         {
             // Build the LiteDB query
-            ILiteQueryable<TEntity> query = Collection.Query();
+            IQueryable<TEntity> query = Collection.AsQueryable();
 
             // Apply filter if provided
             if (options.Filter != null)
@@ -85,19 +92,8 @@ public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntit
             // Apply sorting if provided
             if (options.Sorting != null && options.Sorting.Any())
             {
-                // LiteDB only supports sorting on one field at a time with their Query API
-                // We'll use the first sort option (most important one)
-                var firstSort = options.Sorting.First();
 
-                // Extract the property name from the expression
-                string propertyName = ExpressionHelpers.ExtractPropertyNameFromExpression(firstSort.KeySelector);
 
-                // Apply the sort
-                query = firstSort.Direction == SortDirection.Ascending
-                    ? query.OrderBy(propertyName)
-                    : query.OrderByDescending(propertyName);
-                // Note: Additional sort options are not supported directly by LiteDB's query API
-                // For multiple sorting fields, we would need to use a custom approach
             }
 
             // Execute query and return results
@@ -108,9 +104,9 @@ public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntit
 
             // Apply pagination if provided
             if (options.Pagination == null)
-                result.Items = query.ToEnumerable();
+                result.Items = query;
             else
-                result.Items = query.Skip(options.Pagination.Skip).Limit(options.Pagination.PageSize).ToEnumerable();
+                result.Items = query.Skip(options.Pagination.Skip).Take(options.Pagination.PageSize);
 
             return await Task.FromResult(result);
         }
@@ -130,11 +126,11 @@ public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntit
             // Use LiteDB's Query API for counting to fully leverage database capabilities
             if (filter == null)
             {
-                return await Task.FromResult(Collection.Count());
+                return await Collection.EstimatedDocumentCountAsync(null, cancellationToken);
             }
             else
             {
-                return await Task.FromResult(Collection.Query().Where(filter).Count());
+                return await Task.FromResult(Collection.AsQueryable().Where(filter).Count());
             }
         }
         catch (Exception ex)
@@ -153,7 +149,7 @@ public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntit
             if (entity.Id == Guid.Empty)
                 entity.Id = Guid.NewGuid();
 
-            var inserted = Collection.Insert(entity);
+            var inserted = Collection.InsertOneAsync(entity, null, cancellationToken);
             if (inserted == null)
             {
                 _logger.LogError("Critical error in {MethodName}: Failed to add {EntityType} with ID {EntityId}", nameof(Add), EntityName, entity.Id);
@@ -179,24 +175,19 @@ public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntit
         try
         {
             // Get the original entity for history
-            var originalEntity = Collection.FindById(entity.Id);
+            var originalEntity = await GetById(entity.Id, cancellationToken);
 
-            // Verify entity exists before update
-            if (originalEntity is null)
-            {
-                _logger.LogError("Critical error in {MethodName}: {EntityType} with ID {EntityId} not found for update", nameof(Update), EntityName, entity.Id);
-                throw new EntityNotFoundException(entity.Id, EntityName);
-            }
+            var idFilter = Builders<TEntity>.Filter.Eq(x => x.Id, entity.Id);
+            var replaceResult = await Collection.ReplaceOneAsync(idFilter, entity, cancellationToken: cancellationToken);
 
-            var updated = Collection.Update(entity);
-            if (!updated)
+            if (replaceResult?.ModifiedCount != 1)
             {
                 _logger.LogError("Critical error in {MethodName}: Failed to update {EntityType} with ID {EntityId}", nameof(Update), EntityName, entity.Id);
                 throw new RepositoryOperationException(nameof(Update), $"Failed to update entity with ID {entity.Id}");
             }
 
             // Publish event with updated entity after update
-            await EventPublisher.Publish(updated, $"{typeof(TEntity).Name}.Updated", cancellationToken);
+            await EventPublisher.Publish(entity, $"{typeof(TEntity).Name}.Updated", cancellationToken);
 
             return entity;
         }
@@ -216,8 +207,9 @@ public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntit
             // Get the entity for history
             var entity = await GetById(id, cancellationToken);
 
-            var deleted = Collection.Delete(id);
-            if (!deleted)
+            var idFilter = Builders<TEntity>.Filter.Eq(x => x.Id, id);
+            var deleted = await Collection.FindOneAndDeleteAsync(idFilter, null, cancellationToken);
+            if (deleted == null)
             {
                 _logger.LogError("Critical error in {MethodName}: Failed to remove {EntityType} with ID {EntityId}", nameof(Remove), EntityName, id);
                 throw new RepositoryOperationException(nameof(Remove), $"Failed to remove entity with ID {id}");
@@ -227,7 +219,6 @@ public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntit
             await EventPublisher.Publish(entity, $"{typeof(TEntity).Name}.Deleted", cancellationToken);
 
             return entity;
-
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

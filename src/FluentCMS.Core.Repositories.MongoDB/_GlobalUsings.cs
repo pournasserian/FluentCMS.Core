@@ -1,0 +1,12 @@
+﻿global using MongoDB.Driver;
+global using FluentCMS.Core.Repositories.Abstractions;
+global using FluentCMS.Core.EventBus.Abstractions;
+global using Microsoft.Extensions.Logging;
+global using System.Linq.Expressions;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection.Extensions;
+global using Microsoft.Extensions.Options;
+global using MongoDB.Bson;
+global using MongoDB.Bson.Serialization;
+global using MongoDB.Bson.Serialization.Serializers;

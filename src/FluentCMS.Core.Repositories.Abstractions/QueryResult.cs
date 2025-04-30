@@ -6,5 +6,5 @@ public class QueryResult<T>
     public IEnumerable<T> Items { get; set; } = [];
 
     // The total count of records that match the filter (before pagination)
-    public int TotalCount { get; set; }
+    public long TotalCount { get; set; }
 }
