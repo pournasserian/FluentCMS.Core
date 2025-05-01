@@ -1,11 +1,4 @@
-﻿using System.ComponentModel;
-using System.Data;
-using System.Security.Claims;
-using FluentCMS.Core.Repositories.Abstractions;
-using FluentCMS.Plugins.Authentication.Models;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
-
-namespace FluentCMS.Plugins.Authentication.Stores;
+﻿namespace FluentCMS.Plugins.Authentication.Stores;
 
 public class UserStore<TUser, TRole, TContext, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim>(IAuditableEntityRepository<TUser> userRepository, IAuditableEntityRepository<TRole> roleRepository, IAuditableEntityRepository<TUserRole> userRoleRepository, IAuditableEntityRepository<TUserLogin> userLoginRepository, IAuditableEntityRepository<TUserClaim> userClaimsRepository, IAuditableEntityRepository<TUserToken> userTokenRepository) :
     IUserLoginStore<TUser>,

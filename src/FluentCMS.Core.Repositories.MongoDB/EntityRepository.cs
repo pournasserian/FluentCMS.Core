@@ -1,8 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using MongoDB.Driver;
-using SharpCompress.Common;
-
-namespace FluentCMS.Core.Repositories.MongoDB;
+﻿namespace FluentCMS.Core.Repositories.MongoDB;
 
 public abstract class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntity : class, IEntity
 {
@@ -78,7 +74,7 @@ public abstract class EntityRepository<TEntity> : IEntityRepository<TEntity> whe
     }
 
 
-    public virtual async Task<IEnumerable<TEntity>> Find(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default) 
+    public virtual async Task<IEnumerable<TEntity>> Find(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 

@@ -1,6 +1,6 @@
 ﻿namespace FluentCMS.Plugins.Authentication.Models;
 
-public class UserClaim: IdentityUserClaim<Guid> , IAuditableEntity
+public class UserClaim : IdentityUserClaim<Guid>, IAuditableEntity
 {
     // IAuditableEntity implementations
     public Guid Id { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace FluentCMS.Plugins.Authentication.Models;
 
-public class UserLogin : IdentityUserLogin<Guid> , IAuditableEntity
+public class UserLogin : IdentityUserLogin<Guid>, IAuditableEntity
 {
     // IAuditableEntity implementations
     public Guid Id { get; set; }
