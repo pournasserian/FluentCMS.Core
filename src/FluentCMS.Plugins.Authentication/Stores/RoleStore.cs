@@ -1,9 +1,5 @@
 ﻿namespace FluentCMS.Plugins.Authentication.Stores;
 
-public interface IDocumentDbRoleStore<TRole, TRoleClaim> : IQueryableRoleStore<TRole>, IRoleClaimStore<TRole> where TRole : Role where TRoleClaim : RoleClaim, new()
-{
-}
-
 public class RoleStore(IAuditableEntityRepository<Role> roleRepository, ILogger<RoleStore> logger, IdentityErrorDescriber? describer = null) : RoleStore<Role>(roleRepository, logger, describer)
 {
 }
@@ -12,7 +8,7 @@ public class RoleStore<TRole>(IAuditableEntityRepository<TRole> roleRepository, 
 {
 }
 
-public class RoleStore<TRole, TRoleClaim>(IAuditableEntityRepository<TRole> roleRepository, ILogger<RoleStore<TRole, TRoleClaim>> logger, IdentityErrorDescriber? describer = null) : IDocumentDbRoleStore<TRole, TRoleClaim> where TRole : Role where TRoleClaim : RoleClaim, new()
+public class RoleStore<TRole, TRoleClaim>(IAuditableEntityRepository<TRole> roleRepository, ILogger<RoleStore<TRole, TRoleClaim>> logger, IdentityErrorDescriber? describer = null) : IQueryableRoleStore<TRole>, IRoleClaimStore<TRole> where TRole : Role where TRoleClaim : RoleClaim, new()
 {
     private bool _disposed;
 

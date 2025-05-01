@@ -1,6 +1,5 @@
 using FluentCMS.Plugins.Authentication.Options;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace FluentCMS.Plugins.Authentication.Controllers;

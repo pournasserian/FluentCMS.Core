@@ -1,5 +1,9 @@
 ﻿namespace FluentCMS.Plugins.Authentication.Models;
 
+public class User : User<UserClaim, UserLogin, UserToken>
+{
+}
+
 public class User<TUserClaim, TUserLogin, TUserToken> : IdentityUser<Guid>, IAuditableEntity
     where TUserClaim : UserClaim, new()
     where TUserLogin : UserLogin, new()

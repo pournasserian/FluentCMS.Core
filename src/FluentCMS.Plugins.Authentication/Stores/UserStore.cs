@@ -1,8 +1,23 @@
-﻿using System.Globalization;
+﻿namespace FluentCMS.Plugins.Authentication.Stores;
 
-namespace FluentCMS.Plugins.Authentication.Stores;
 
-public interface IDocumentDbUserStore<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken> :
+public class UserStore(IAuditableEntityRepository<User> userRepository, IAuditableEntityRepository<Role> roleRepository, IAuditableEntityRepository<UserRole> userRoleRepository, ILogger<UserStore<User>> logger, IdentityErrorDescriber describer) : UserStore<User>(userRepository, roleRepository, userRoleRepository, logger, describer)
+{
+}
+
+public class UserStore<TUser>(IAuditableEntityRepository<TUser> userRepository, IAuditableEntityRepository<Role> roleRepository, IAuditableEntityRepository<UserRole> userRoleRepository, ILogger<UserStore<TUser>> logger, IdentityErrorDescriber describer) : UserStore<TUser, Role, UserClaim, UserRole, UserLogin, UserToken>(userRepository, roleRepository, userRoleRepository, logger, describer)
+    where TUser : User<UserClaim, UserLogin, UserToken>
+{
+}
+
+public class UserStore<TUser, TRole, TUserRole>(IAuditableEntityRepository<TUser> userRepository, IAuditableEntityRepository<TRole> roleRepository, IAuditableEntityRepository<TUserRole> userRoleRepository, ILogger<UserStore<TUser, TRole, TUserRole>> logger, IdentityErrorDescriber describer) : UserStore<TUser, TRole, UserClaim, TUserRole, UserLogin, UserToken>(userRepository, roleRepository, userRoleRepository, logger, describer)
+    where TUser : User<UserClaim, UserLogin, UserToken>
+    where TRole : Role
+    where TUserRole : UserRole, new()
+{
+}
+
+public class UserStore<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken>(IAuditableEntityRepository<TUser> userRepository, IAuditableEntityRepository<TRole> roleRepository, IAuditableEntityRepository<TUserRole> userRoleRepository, ILogger<UserStore<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken>> logger, IdentityErrorDescriber describer) : UserStoreBase<TUser, TRole, Guid, TUserClaim, TUserRole, TUserLogin, TUserToken, RoleClaim>(describer),
     IUserLoginStore<TUser>,
     IUserClaimStore<TUser>,
     IUserPasswordStore<TUser>,
@@ -17,18 +32,6 @@ public interface IDocumentDbUserStore<TUser, TRole, TUserClaim, TUserRole, TUser
     IUserTwoFactorRecoveryCodeStore<TUser>,
     IProtectedUserStore<TUser>,
     IUserRoleStore<TUser>
-
-    //IUserTwoFactorRecoveryCodeStore<TUser>
-    where TUser : User<TUserClaim, TUserLogin, TUserToken>
-    where TRole : Role
-    where TUserClaim : UserClaim, new()
-    where TUserRole : UserRole, new()
-    where TUserLogin : UserLogin, new()
-    where TUserToken : UserToken, new()
-{
-}
-
-public class UserStore<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken>(IAuditableEntityRepository<TUser> userRepository, IAuditableEntityRepository<TRole> roleRepository, IAuditableEntityRepository<TUserRole> userRoleRepository, ILogger<UserStore<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken>> logger, IdentityErrorDescriber describer) : UserStoreBase<TUser, TRole, Guid, TUserClaim, TUserRole, TUserLogin, TUserToken, RoleClaim>(describer)
     where TUser : User<TUserClaim, TUserLogin, TUserToken>
     where TRole : Role
     where TUserClaim : UserClaim, new()

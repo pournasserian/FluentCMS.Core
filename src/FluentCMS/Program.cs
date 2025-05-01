@@ -2,7 +2,6 @@ using FluentCMS.Core.Api;
 using FluentCMS.Core.EventBus;
 using FluentCMS.Core.Plugins;
 using FluentCMS.Core.Repositories.LiteDB;
-using FluentCMS.Core.Repositories.MongoDB;
 using Serilog;
 using Serilog.Events;
 
