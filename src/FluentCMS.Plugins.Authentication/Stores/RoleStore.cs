@@ -1,6 +1,18 @@
 ﻿namespace FluentCMS.Plugins.Authentication.Stores;
 
-public class RoleStore<TRole, TRoleClaim>(IAuditableEntityRepository<TRole> roleRepository, IAuditableEntityRepository<TRoleClaim> roleClaimsRepository, ILogger<RoleStore<TRole, TRoleClaim>> logger, IdentityErrorDescriber? describer = null) : IQueryableRoleStore<TRole>, IRoleClaimStore<TRole> where TRole : Role where TRoleClaim : RoleClaim, new()
+public interface IDocumentDbRoleStore<TRole, TRoleClaim> : IQueryableRoleStore<TRole>, IRoleClaimStore<TRole> where TRole : Role where TRoleClaim : RoleClaim, new()
+{
+}
+
+public class RoleStore(IAuditableEntityRepository<Role> roleRepository, ILogger<RoleStore> logger, IdentityErrorDescriber? describer = null) : RoleStore<Role>(roleRepository, logger, describer)
+{
+}
+
+public class RoleStore<TRole>(IAuditableEntityRepository<TRole> roleRepository, ILogger<RoleStore<TRole>> logger, IdentityErrorDescriber? describer = null) : RoleStore<TRole, RoleClaim>(roleRepository, logger, describer) where TRole : Role
+{
+}
+
+public class RoleStore<TRole, TRoleClaim>(IAuditableEntityRepository<TRole> roleRepository, ILogger<RoleStore<TRole, TRoleClaim>> logger, IdentityErrorDescriber? describer = null) : IDocumentDbRoleStore<TRole, TRoleClaim> where TRole : Role where TRoleClaim : RoleClaim, new()
 {
     private bool _disposed;
 
@@ -70,6 +82,7 @@ public class RoleStore<TRole, TRoleClaim>(IAuditableEntityRepository<TRole> role
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(role);
+
         try
         {
             await roleRepository.Remove(role, cancellationToken).ConfigureAwait(false);
@@ -125,6 +138,11 @@ public class RoleStore<TRole, TRoleClaim>(IAuditableEntityRepository<TRole> role
         {
             logger.LogWarning("Role with ID {Id} not found", id);
             return null;
+        }
+        catch (RepositoryException)
+        {
+            logger.LogError("Failed to find role by ID {Id}", id);
+            throw;
         }
     }
 
@@ -186,58 +204,37 @@ public class RoleStore<TRole, TRoleClaim>(IAuditableEntityRepository<TRole> role
     {
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(role);
-        try
-        {
-            var roleClaims = await roleClaimsRepository.Find(rc => rc.RoleId.Equals(role.Id), cancellationToken).ConfigureAwait(false);
-            logger.LogDebug("Claims for role {RoleName} retrieved successfully", role.Name);
-            return [.. roleClaims.Select(c => new Claim(c.ClaimType!, c.ClaimValue!))];
-        }
-        catch (Exception)
-        {
-            logger.LogError("Failed to retrieve claims for role {RoleName}", role.Name);
-            throw;
-        }
+        ArgumentNullException.ThrowIfNull(role.Claims);
+
+        var roleClaims = role.Claims.Select(c => new Claim(c.ClaimType!, c.ClaimValue!)).ToList();
+        return await Task.FromResult(roleClaims);
     }
 
     public virtual async Task AddClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default)
     {
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(role);
+        ArgumentNullException.ThrowIfNull(role.Claims);
         ArgumentNullException.ThrowIfNull(claim);
 
-        var roleClaim = CreateRoleClaim(role, claim);
-        try
-        {
-            await roleClaimsRepository.Add(roleClaim, cancellationToken).ConfigureAwait(false);
-            logger.LogInformation("Claim {ClaimType} added to role {RoleName} successfully", claim.Type, role.Name);
-        }
-        catch (Exception)
-        {
-            logger.LogError("Failed to add claim {ClaimType} to role {RoleName}", claim.Type, role.Name);
-            throw;
-        }
-
+        role.Claims.Add(CreateRoleClaim(role, claim));
+        await Task.CompletedTask;
     }
 
-    public virtual async Task RemoveClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default(CancellationToken))
+    public virtual async Task RemoveClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default)
     {
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(role);
+        ArgumentNullException.ThrowIfNull(role.Claims);
         ArgumentNullException.ThrowIfNull(claim);
 
-        try
+        var claims = role.Claims.Where(rc => rc.ClaimValue == claim.Value && rc.ClaimType == claim.Type);
+        foreach (var c in claims)
         {
-            var claims = await roleClaimsRepository.Find(rc => rc.RoleId.Equals(role.Id) && rc.ClaimValue == claim.Value && rc.ClaimType == claim.Type, cancellationToken).ConfigureAwait(false);
-            foreach (var c in claims)
-                await roleClaimsRepository.Remove(c, cancellationToken).ConfigureAwait(false);
-            logger.LogInformation("Claim {ClaimType} removed from role {RoleName} successfully", claim.Type, role.Name);
-        }
-        catch (Exception)
-        {
-            logger.LogError("Failed to remove claim {ClaimType} from role {RoleName}", claim.Type, role.Name);
-            throw;
+            role.Claims.Remove(c);
         }
 
+        await Task.CompletedTask;
     }
 
     #endregion
