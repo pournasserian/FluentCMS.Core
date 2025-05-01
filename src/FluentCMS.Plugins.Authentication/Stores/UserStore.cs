@@ -1,6 +1,6 @@
 ﻿namespace FluentCMS.Plugins.Authentication.Stores;
 
-public class UserStore<TUser, TRole, TContext, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim>(IAuditableEntityRepository<TUser> userRepository, IAuditableEntityRepository<TRole> roleRepository, IAuditableEntityRepository<TUserRole> userRoleRepository, IAuditableEntityRepository<TUserLogin> userLoginRepository, IAuditableEntityRepository<TUserClaim> userClaimsRepository, IAuditableEntityRepository<TUserToken> userTokenRepository) :
+public class UserStore<TUser, TRole, TContext, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim>(IAuditableEntityRepository<TUser> userRepository, IAuditableEntityRepository<TRole> roleRepository, IAuditableEntityRepository<TUserRole> userRoleRepository, IAuditableEntityRepository<TUserLogin> userLoginRepository, IAuditableEntityRepository<TUserClaim> userClaimsRepository, IAuditableEntityRepository<TUserToken> userTokenRepository, ILogger<UserStore<TUser, TRole, TContext, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim>> logger, IdentityErrorDescriber? describer = null) :
     IUserLoginStore<TUser>,
     IUserClaimStore<TUser>,
     IUserPasswordStore<TUser>,
@@ -27,88 +27,199 @@ public class UserStore<TUser, TRole, TContext, TUserClaim, TUserRole, TUserLogin
     private const string InternalLoginProvider = "[FluentCMSIdentity]";
     private const string AuthenticatorKeyTokenName = "AuthenticatorKey";
     private const string RecoveryCodeTokenName = "RecoveryCodes";
+    public IdentityErrorDescriber ErrorDescriber { get; set; } = describer ?? new IdentityErrorDescriber();
+
+
+    protected virtual Guid? ConvertIdFromString(string? id)
+    {
+        if (id == null)
+        {
+            return null;
+        }
+        return (Guid?)TypeDescriptor.GetConverter(typeof(Guid)).ConvertFromInvariantString(id);
+    }
+
+    protected virtual string? ConvertIdToString(Guid id)
+    {
+        if (id == Guid.Empty)
+            return null;
+
+        return id.ToString();
+    }
+
+    protected void ThrowIfDisposed()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+    }
 
     #region IUserStore
 
-    public async Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default)
+    public virtual async Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default)
     {
-        await userRepository.Add(user, cancellationToken);
-        return IdentityResult.Success;
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(user);
+
+        try
+        {
+            await userRepository.Add(user, cancellationToken).ConfigureAwait(false);
+            logger.LogInformation("User {UserName} created", user.UserName);
+            return IdentityResult.Success;
+        }
+        catch (Exception)
+        {
+            logger.LogError("User {UserName} creation failed", user.UserName);
+            return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+        }
     }
 
-    public async Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default)
+    public virtual async Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default)
     {
-        await userRepository.Update(user, cancellationToken);
-        return IdentityResult.Success;
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(user);
+        try
+        {
+            await userRepository.Update(user, cancellationToken).ConfigureAwait(false);
+            return IdentityResult.Success;
+        }
+        catch (Exception)
+        {
+            logger.LogError("User {UserName} update failed", user.UserName);
+            return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+        }
     }
 
-    public async Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken = default)
+    public virtual async Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken = default)
     {
-        await userRepository.Remove(user, cancellationToken);
-        return IdentityResult.Success;
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(user);
+        try
+        {
+            await userRepository.Remove(user, cancellationToken).ConfigureAwait(false);
+            logger.LogInformation("User {UserName} deleted", user.UserName);
+            return IdentityResult.Success;
+        }
+        catch (Exception)
+        {
+            logger.LogError("User {UserName} deletion failed", user.UserName);
+            return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+        }
     }
 
-    public async Task<TUser?> FindByIdAsync(string userId, CancellationToken cancellationToken = default)
+    public virtual async Task<TUser?> FindByIdAsync(string userId, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(userId);
+
         var id = ConvertIdFromString(userId);
         if (id is null)
             return default;
 
-        var users = await userRepository.Find(u => u.Id == id.Value, cancellationToken);
-        return users.FirstOrDefault();
+        try
+        {
+            var users = await userRepository.Find(u => u.Id == id.Value, cancellationToken).ConfigureAwait(false);
+            logger.LogDebug("User {UserName} found by ID", userId);
+            return users.FirstOrDefault();
+        }
+        catch (Exception)
+        {
+            logger.LogError("Exception finding {userId} in {FindByIdAsync}", userId, nameof(FindByIdAsync));
+            throw;
+        }
     }
 
-    public async Task<TUser?> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = default)
+    public virtual async Task<TUser?> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = default)
     {
-        var users = await userRepository.Find(u => u.NormalizedUserName == normalizedUserName, cancellationToken);
-        return users.FirstOrDefault();
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(normalizedUserName);
+
+        try
+        {
+            var users = await userRepository.Find(u => u.NormalizedUserName == normalizedUserName, cancellationToken).ConfigureAwait(false);
+            logger.LogDebug("User {UserName} found by name", normalizedUserName);
+            return users.FirstOrDefault();
+        }
+        catch (Exception)
+        {
+            logger.LogError("Exception finding {normalizedUserName} in {FindByNameAsync}", normalizedUserName, nameof(FindByNameAsync));
+            throw;
+        }
     }
 
-    public Task<string> GetUserIdAsync(TUser user, CancellationToken cancellationToken)
+    public virtual async Task<TUser?> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(normalizedEmail);
+
+        try
+        {
+            var users = await userRepository.Find(u => u.NormalizedEmail == normalizedEmail, cancellationToken).ConfigureAwait(false);
+            logger.LogDebug("User {UserName} found by email", normalizedEmail);
+            return users.FirstOrDefault();
+        }
+        catch (Exception)
+        {
+            logger.LogError("Exception finding {normalizedEmail} in {FindByEmailAsync}", normalizedEmail, nameof(FindByEmailAsync));
+            throw;
+        }
+    }
+
+    public virtual Task<string> GetUserIdAsync(TUser user, CancellationToken cancellationToken)
     {
         return Task.FromResult(ConvertIdToString(user.Id)!);
     }
 
-    public Task<string?> GetUserNameAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<string?> GetUserNameAsync(TUser user, CancellationToken cancellationToken)
     {
         return Task.FromResult(user.UserName);
     }
 
-    public Task SetUserNameAsync(TUser user, string? userName, CancellationToken cancellationToken)
+    public virtual Task SetUserNameAsync(TUser user, string? userName, CancellationToken cancellationToken)
     {
         user.UserName = userName;
         return Task.CompletedTask;
     }
 
-    public Task<string?> GetNormalizedUserNameAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<string?> GetNormalizedUserNameAsync(TUser user, CancellationToken cancellationToken)
     {
         return Task.FromResult(user.NormalizedUserName);
     }
 
-    public Task SetNormalizedUserNameAsync(TUser user, string? normalizedName, CancellationToken cancellationToken)
+    public virtual Task SetNormalizedUserNameAsync(TUser user, string? normalizedName, CancellationToken cancellationToken)
     {
         user.NormalizedUserName = normalizedName;
         return Task.CompletedTask;
     }
 
-    public async Task<TUser?> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default)
-    {
-        var users = await userRepository.Find(u => u.NormalizedEmail == normalizedEmail, cancellationToken);
-        return users.FirstOrDefault();
-    }
-
-    public IQueryable<TUser> Users
+    public virtual IQueryable<TUser> Users
     {
         get { return userRepository.AsQueryable(); }
     }
 
-    protected async Task<TUser?> FindUserAsync(Guid userId, CancellationToken cancellationToken)
+    protected virtual async Task<TUser?> FindUserAsync(Guid userId, CancellationToken cancellationToken)
     {
-        var users = await userRepository.Find(u => u.Id == userId, cancellationToken);
-        return users.FirstOrDefault();
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+
+        try
+        {
+            var users = await userRepository.Find(u => u.Id == userId, cancellationToken).ConfigureAwait(false);
+            logger.LogDebug("User {UserName} found by ID", userId);
+            return users.FirstOrDefault();
+        }
+        catch (Exception)
+        {
+            logger.LogError("Exception finding {userId} in {FindUserAsync}", userId, nameof(FindUserAsync));
+            throw;
+        }
     }
 
-    public void Dispose()
+    public virtual void Dispose()
     {
         _disposed = true;
     }
@@ -117,79 +228,153 @@ public class UserStore<TUser, TRole, TContext, TUserClaim, TUserRole, TUserLogin
 
     #region IUserLoginStore
 
-    public async Task AddLoginAsync(TUser user, UserLoginInfo login, CancellationToken cancellationToken = default)
+    protected virtual TUserLogin CreateUserLogin(TUser user, UserLoginInfo login)
     {
-        await userLoginRepository.Add(new TUserLogin
+        return new TUserLogin
         {
             UserId = user.Id,
             LoginProvider = login.LoginProvider,
             ProviderKey = login.ProviderKey,
             ProviderDisplayName = login.ProviderDisplayName
-        }, cancellationToken);
+        };
     }
 
-    public async Task RemoveLoginAsync(TUser user, string loginProvider, string providerKey, CancellationToken cancellationToken = default)
+    public virtual async Task AddLoginAsync(TUser user, UserLoginInfo login, CancellationToken cancellationToken = default)
     {
-        var entry = await FindUserLoginAsync(user.Id, loginProvider, providerKey, cancellationToken);
-        if (entry != null)
+
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(login);
+
+        try
         {
-            await userLoginRepository.Remove(entry, cancellationToken);
+            await userLoginRepository.Add(CreateUserLogin(user, login), cancellationToken).ConfigureAwait(false);
+            logger.LogInformation("User {UserName} added login {LoginProvider}", user.UserName, login.LoginProvider);
+        }
+        catch (Exception)
+        {
+            logger.LogError("User {UserName} failed to add login {LoginProvider}", user.UserName, login.LoginProvider);
+            throw;
         }
     }
 
-    public async Task<IList<UserLoginInfo>> GetLoginsAsync(TUser user, CancellationToken cancellationToken = default)
+    public virtual async Task RemoveLoginAsync(TUser user, string loginProvider, string providerKey, CancellationToken cancellationToken = default)
     {
-        var userId = user.Id;
-        var userLogins = await userLoginRepository.Find(l => l.UserId.Equals(userId), cancellationToken);
-        return userLogins.Select(l => new UserLoginInfo(l.LoginProvider, l.ProviderKey, l.ProviderDisplayName)).ToList();
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(user);
+
+        try
+        {
+            var entry = await FindUserLoginAsync(user.Id, loginProvider, providerKey, cancellationToken).ConfigureAwait(false);
+            if (entry != null)
+            {
+                await userLoginRepository.Remove(entry, cancellationToken).ConfigureAwait(false);
+            }
+            logger.LogInformation("User {UserName} removed login {LoginProvider}", user.UserName, loginProvider);
+        }
+        catch (Exception)
+        {
+            logger.LogError("User {UserName} failed to remove login {LoginProvider}", user.UserName, loginProvider);
+            throw;
+        }
     }
 
-    public async Task<TUser?> FindByLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken = default)
+    public virtual async Task<IList<UserLoginInfo>> GetLoginsAsync(TUser user, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(user);
+
+        try
+        {
+
+            var userId = user.Id;
+            var userLogins = await userLoginRepository.Find(l => l.UserId.Equals(userId), cancellationToken).ConfigureAwait(false);
+            logger.LogDebug("User {UserName} logins found", user.UserName);
+            return [.. userLogins.Select(l => new UserLoginInfo(l.LoginProvider, l.ProviderKey, l.ProviderDisplayName))];
+        }
+        catch (Exception)
+        {
+            logger.LogError("Exception finding {userId} in {GetLoginsAsync}", user.Id, nameof(GetLoginsAsync));
+            throw;
+        }
+    }
+
+    public virtual async Task<TUser?> FindByLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+
         var userLogin = await FindUserLoginAsync(loginProvider, providerKey, cancellationToken);
         if (userLogin != null)
         {
-            return await FindUserAsync(userLogin.UserId, cancellationToken);
+            return await FindUserAsync(userLogin.UserId, cancellationToken).ConfigureAwait(false);
         }
         return null;
     }
 
-    protected async Task<TUserLogin?> FindUserLoginAsync(Guid userId, string loginProvider, string providerKey, CancellationToken cancellationToken)
+    protected virtual async Task<TUserLogin?> FindUserLoginAsync(Guid userId, string loginProvider, string providerKey, CancellationToken cancellationToken)
     {
-        var userLogins = await userLoginRepository.Find(userLogin => userLogin.UserId == userId && userLogin.LoginProvider == loginProvider && userLogin.ProviderKey == providerKey, cancellationToken);
-        return userLogins.FirstOrDefault();
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+
+        try
+        {
+            var userLogins = await userLoginRepository.Find(userLogin => userLogin.UserId == userId && userLogin.LoginProvider == loginProvider && userLogin.ProviderKey == providerKey, cancellationToken).ConfigureAwait(false);
+            logger.LogDebug("User {UserName} login {LoginProvider} found", userId, loginProvider);
+            return userLogins.FirstOrDefault();
+        }
+        catch (Exception)
+        {
+            logger.LogError("Exception finding {userId} in {FindUserLoginAsync}", userId, nameof(FindUserLoginAsync));
+            throw;
+        }
     }
 
-    protected async Task<TUserLogin?> FindUserLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken)
+    protected virtual async Task<TUserLogin?> FindUserLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken)
     {
-        var userLogins = await userLoginRepository.Find(userLogin => userLogin.LoginProvider == loginProvider && userLogin.ProviderKey == providerKey, cancellationToken);
-        return userLogins.FirstOrDefault();
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+
+        try
+        {
+            var userLogins = await userLoginRepository.Find(userLogin => userLogin.LoginProvider == loginProvider && userLogin.ProviderKey == providerKey, cancellationToken);
+            logger.LogDebug("User login {LoginProvider} found", loginProvider);
+            return userLogins.FirstOrDefault();
+        }
+        catch (Exception)
+        {
+            logger.LogError("Exception finding {loginProvider} in {FindUserLoginAsync}", loginProvider, nameof(FindUserLoginAsync));
+            throw;
+        }
     }
 
     #endregion
 
     #region IUserClaimStore
 
-    public async Task RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default)
+    public virtual async Task RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default)
     {
         var userId = user.Id;
         foreach (var claim in claims)
         {
-            var matchedClaims = await userClaimsRepository.Find(uc => uc.UserId.Equals(user.Id) && uc.ClaimValue == claim.Value && uc.ClaimType == claim.Type, cancellationToken);
+            var matchedClaims = await userClaimsRepository.Find(uc => uc.UserId.Equals(user.Id) && uc.ClaimValue == claim.Value && uc.ClaimType == claim.Type, cancellationToken).ConfigureAwait(false);
             foreach (var c in matchedClaims)
             {
-                await userClaimsRepository.Remove(c, cancellationToken);
+                await userClaimsRepository.Remove(c, cancellationToken).ConfigureAwait(false);
             }
         }
     }
 
-    public async Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken = default)
+    public virtual async Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken = default)
     {
-        var userClaims = await userClaimsRepository.Find(uc => uc.UserId.Equals(user.Id), cancellationToken);
+        var userClaims = await userClaimsRepository.Find(uc => uc.UserId.Equals(user.Id), cancellationToken).ConfigureAwait(false);
         return [.. userClaims.Select(uc => new Claim(uc.ClaimType!, uc.ClaimValue!))];
     }
 
-    public async Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default)
+    public virtual async Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default)
     {
         foreach (var claim in claims)
         {
@@ -200,13 +385,13 @@ public class UserStore<TUser, TRole, TContext, TUserClaim, TUserRole, TUserLogin
                 ClaimValue = claim.Value
             };
             userClaim.InitializeFromClaim(claim);
-            await userClaimsRepository.Add(userClaim, cancellationToken);
+            await userClaimsRepository.Add(userClaim, cancellationToken).ConfigureAwait(false);
         }
     }
 
-    public async Task ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken = default)
+    public virtual async Task ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken = default)
     {
-        var matchedClaims = await userClaimsRepository.Find(uc => uc.UserId.Equals(user.Id) && uc.ClaimValue == claim.Value && uc.ClaimType == claim.Type, cancellationToken);
+        var matchedClaims = await userClaimsRepository.Find(uc => uc.UserId.Equals(user.Id) && uc.ClaimValue == claim.Value && uc.ClaimType == claim.Type, cancellationToken).ConfigureAwait(false);
         foreach (var matchedClaim in matchedClaims)
         {
             matchedClaim.ClaimValue = newClaim.Value;
@@ -214,9 +399,9 @@ public class UserStore<TUser, TRole, TContext, TUserClaim, TUserRole, TUserLogin
         }
     }
 
-    public async Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = default)
+    public virtual async Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = default)
     {
-        var userClaims = await userClaimsRepository.Find(uc => uc.ClaimValue == claim.Value && uc.ClaimType == claim.Type, cancellationToken);
+        var userClaims = await userClaimsRepository.Find(uc => uc.ClaimValue == claim.Value && uc.ClaimType == claim.Type, cancellationToken).ConfigureAwait(false);
         var userIds = userClaims.Select(uc => uc.UserId);
         var users = await userRepository.Find(u => userIds.Contains(u.Id), cancellationToken);
         return [.. users];
@@ -226,18 +411,18 @@ public class UserStore<TUser, TRole, TContext, TUserClaim, TUserRole, TUserLogin
 
     #region IUserPasswordStore
 
-    public Task SetPasswordHashAsync(TUser user, string? passwordHash, CancellationToken cancellationToken)
+    public virtual Task SetPasswordHashAsync(TUser user, string? passwordHash, CancellationToken cancellationToken)
     {
         user.PasswordHash = passwordHash;
         return Task.CompletedTask;
     }
 
-    public Task<string?> GetPasswordHashAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<string?> GetPasswordHashAsync(TUser user, CancellationToken cancellationToken)
     {
         return Task.FromResult(user.PasswordHash);
     }
 
-    public Task<bool> HasPasswordAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<bool> HasPasswordAsync(TUser user, CancellationToken cancellationToken)
     {
         return Task.FromResult(!string.IsNullOrEmpty(user.PasswordHash));
     }
@@ -246,13 +431,13 @@ public class UserStore<TUser, TRole, TContext, TUserClaim, TUserRole, TUserLogin
 
     #region IUserSecurityStampStore
 
-    public Task SetSecurityStampAsync(TUser user, string stamp, CancellationToken cancellationToken)
+    public virtual Task SetSecurityStampAsync(TUser user, string stamp, CancellationToken cancellationToken)
     {
         user.SecurityStamp = stamp;
         return Task.CompletedTask;
     }
 
-    public Task<string?> GetSecurityStampAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<string?> GetSecurityStampAsync(TUser user, CancellationToken cancellationToken)
     {
         return Task.FromResult(user.SecurityStamp);
     }
@@ -261,34 +446,34 @@ public class UserStore<TUser, TRole, TContext, TUserClaim, TUserRole, TUserLogin
 
     #region IUserEmailStore
 
-    public Task SetEmailAsync(TUser user, string? email, CancellationToken cancellationToken)
+    public virtual Task SetEmailAsync(TUser user, string? email, CancellationToken cancellationToken)
     {
         user.Email = email;
         return Task.CompletedTask;
     }
 
-    public Task<string?> GetEmailAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<string?> GetEmailAsync(TUser user, CancellationToken cancellationToken)
     {
         return Task.FromResult(user.Email);
     }
 
-    public Task<bool> GetEmailConfirmedAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<bool> GetEmailConfirmedAsync(TUser user, CancellationToken cancellationToken)
     {
         return Task.FromResult(user.EmailConfirmed);
     }
 
-    public Task SetEmailConfirmedAsync(TUser user, bool confirmed, CancellationToken cancellationToken)
+    public virtual Task SetEmailConfirmedAsync(TUser user, bool confirmed, CancellationToken cancellationToken)
     {
         user.EmailConfirmed = confirmed;
         return Task.CompletedTask;
     }
 
-    public Task<string?> GetNormalizedEmailAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<string?> GetNormalizedEmailAsync(TUser user, CancellationToken cancellationToken)
     {
         return Task.FromResult(user.NormalizedEmail);
     }
 
-    public Task SetNormalizedEmailAsync(TUser user, string? normalizedEmail, CancellationToken cancellationToken)
+    public virtual Task SetNormalizedEmailAsync(TUser user, string? normalizedEmail, CancellationToken cancellationToken)
     {
         user.NormalizedEmail = normalizedEmail;
         return Task.CompletedTask;
@@ -298,40 +483,40 @@ public class UserStore<TUser, TRole, TContext, TUserClaim, TUserRole, TUserLogin
 
     #region IUserLockoutStore
 
-    public Task<DateTimeOffset?> GetLockoutEndDateAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<DateTimeOffset?> GetLockoutEndDateAsync(TUser user, CancellationToken cancellationToken)
     {
         return Task.FromResult(user.LockoutEnd);
     }
 
-    public Task SetLockoutEndDateAsync(TUser user, DateTimeOffset? lockoutEnd, CancellationToken cancellationToken)
+    public virtual Task SetLockoutEndDateAsync(TUser user, DateTimeOffset? lockoutEnd, CancellationToken cancellationToken)
     {
         user.LockoutEnd = lockoutEnd;
         return Task.CompletedTask;
     }
 
-    public Task<int> IncrementAccessFailedCountAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<int> IncrementAccessFailedCountAsync(TUser user, CancellationToken cancellationToken)
     {
         user.AccessFailedCount++;
         return Task.FromResult(user.AccessFailedCount);
     }
 
-    public Task ResetAccessFailedCountAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task ResetAccessFailedCountAsync(TUser user, CancellationToken cancellationToken)
     {
         user.AccessFailedCount = 0;
         return Task.CompletedTask;
     }
 
-    public Task<int> GetAccessFailedCountAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<int> GetAccessFailedCountAsync(TUser user, CancellationToken cancellationToken)
     {
         return Task.FromResult(user.AccessFailedCount);
     }
 
-    public Task<bool> GetLockoutEnabledAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<bool> GetLockoutEnabledAsync(TUser user, CancellationToken cancellationToken)
     {
         return Task.FromResult(user.LockoutEnabled);
     }
 
-    public Task SetLockoutEnabledAsync(TUser user, bool enabled, CancellationToken cancellationToken)
+    public virtual Task SetLockoutEnabledAsync(TUser user, bool enabled, CancellationToken cancellationToken)
     {
         user.LockoutEnabled = enabled;
         return Task.CompletedTask;
@@ -341,23 +526,23 @@ public class UserStore<TUser, TRole, TContext, TUserClaim, TUserRole, TUserLogin
 
     #region IUserPhoneNumberStore
 
-    public Task SetPhoneNumberAsync(TUser user, string? phoneNumber, CancellationToken cancellationToken)
+    public virtual Task SetPhoneNumberAsync(TUser user, string? phoneNumber, CancellationToken cancellationToken)
     {
         user.PhoneNumber = phoneNumber;
         return Task.CompletedTask;
     }
 
-    public Task<string?> GetPhoneNumberAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<string?> GetPhoneNumberAsync(TUser user, CancellationToken cancellationToken)
     {
         return Task.FromResult(user.PhoneNumber);
     }
 
-    public Task<bool> GetPhoneNumberConfirmedAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<bool> GetPhoneNumberConfirmedAsync(TUser user, CancellationToken cancellationToken)
     {
         return Task.FromResult(user.PhoneNumberConfirmed);
     }
 
-    public Task SetPhoneNumberConfirmedAsync(TUser user, bool confirmed, CancellationToken cancellationToken)
+    public virtual Task SetPhoneNumberConfirmedAsync(TUser user, bool confirmed, CancellationToken cancellationToken)
     {
         user.PhoneNumberConfirmed = confirmed;
         return Task.CompletedTask;
@@ -367,13 +552,13 @@ public class UserStore<TUser, TRole, TContext, TUserClaim, TUserRole, TUserLogin
 
     #region IUserTwoFactorStore
 
-    public Task SetTwoFactorEnabledAsync(TUser user, bool enabled, CancellationToken cancellationToken)
+    public virtual Task SetTwoFactorEnabledAsync(TUser user, bool enabled, CancellationToken cancellationToken)
     {
         user.TwoFactorEnabled = enabled;
         return Task.CompletedTask;
     }
 
-    public Task<bool> GetTwoFactorEnabledAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<bool> GetTwoFactorEnabledAsync(TUser user, CancellationToken cancellationToken)
     {
         return Task.FromResult(user.TwoFactorEnabled);
     }
@@ -394,12 +579,12 @@ public class UserStore<TUser, TRole, TContext, TUserClaim, TUserRole, TUserLogin
                 Name = name,
                 Value = value
             };
-            await userTokenRepository.Add(newToken, cancellationToken);
+            await userTokenRepository.Add(newToken, cancellationToken).ConfigureAwait(false);
         }
         else
         {
             token.Value = value;
-            await userTokenRepository.Update(token, cancellationToken);
+            await userTokenRepository.Update(token, cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -408,7 +593,7 @@ public class UserStore<TUser, TRole, TContext, TUserClaim, TUserRole, TUserLogin
         var entry = await FindTokenAsync(user, loginProvider, name, cancellationToken).ConfigureAwait(false);
         if (entry != null)
         {
-            await userTokenRepository.Remove(entry, cancellationToken);
+            await userTokenRepository.Remove(entry, cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -420,7 +605,7 @@ public class UserStore<TUser, TRole, TContext, TUserClaim, TUserRole, TUserLogin
 
     protected async Task<TUserToken?> FindTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
     {
-        var userTokens = await userTokenRepository.Find(ut => ut.UserId == user.Id && ut.LoginProvider == loginProvider && ut.Name == name, cancellationToken);
+        var userTokens = await userTokenRepository.Find(ut => ut.UserId == user.Id && ut.LoginProvider == loginProvider && ut.Name == name, cancellationToken).ConfigureAwait(false);
         return userTokens.FirstOrDefault();
     }
 
@@ -443,10 +628,10 @@ public class UserStore<TUser, TRole, TContext, TUserClaim, TUserRole, TUserLogin
 
     #region IUserTwoFactorRecoveryCodeStore
 
-    public virtual Task ReplaceCodesAsync(TUser user, IEnumerable<string> recoveryCodes, CancellationToken cancellationToken)
+    public virtual async Task ReplaceCodesAsync(TUser user, IEnumerable<string> recoveryCodes, CancellationToken cancellationToken)
     {
         var mergedCodes = string.Join(";", recoveryCodes);
-        return SetTokenAsync(user, InternalLoginProvider, RecoveryCodeTokenName, mergedCodes, cancellationToken);
+        await SetTokenAsync(user, InternalLoginProvider, RecoveryCodeTokenName, mergedCodes, cancellationToken).ConfigureAwait(false);
     }
 
     public virtual async Task<bool> RedeemCodeAsync(TUser user, string code, CancellationToken cancellationToken)
@@ -476,10 +661,9 @@ public class UserStore<TUser, TRole, TContext, TUserClaim, TUserRole, TUserLogin
 
     #region IUserRoleStore
 
-    public async Task AddToRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default)
+    public virtual async Task AddToRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default)
     {
-        var roleEntity = await FindRoleAsync(normalizedRoleName, cancellationToken) ??
-            throw new InvalidOperationException($"Role {normalizedRoleName} not found");
+        var roleEntity = await FindRoleAsync(normalizedRoleName, cancellationToken).ConfigureAwait(false);
 
         var userRole = new TUserRole
         {
@@ -487,82 +671,66 @@ public class UserStore<TUser, TRole, TContext, TUserClaim, TUserRole, TUserLogin
             RoleId = roleEntity.Id
         };
 
-        await userRoleRepository.Add(userRole, cancellationToken);
+        await userRoleRepository.Add(userRole, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task RemoveFromRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default)
+    public virtual async Task RemoveFromRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default)
     {
-        var roleEntity = await FindRoleAsync(normalizedRoleName, cancellationToken);
+        var roleEntity = await FindRoleAsync(normalizedRoleName, cancellationToken).ConfigureAwait(false);
         if (roleEntity != null)
         {
-            var userRole = await FindUserRoleAsync(user.Id, roleEntity.Id, cancellationToken);
+            var userRole = await FindUserRoleAsync(user.Id, roleEntity.Id, cancellationToken).ConfigureAwait(false);
             if (userRole != null)
             {
-                await userRoleRepository.Remove(userRole, cancellationToken);
+                await userRoleRepository.Remove(userRole, cancellationToken).ConfigureAwait(false);
             }
         }
     }
 
-    public async Task<IList<string>> GetRolesAsync(TUser user, CancellationToken cancellationToken = default)
+    public virtual async Task<IList<string>> GetRolesAsync(TUser user, CancellationToken cancellationToken = default)
     {
-        var userRoles = await userRoleRepository.Find(ur => ur.UserId == user.Id, cancellationToken);
+        var userRoles = await userRoleRepository.Find(ur => ur.UserId == user.Id, cancellationToken).ConfigureAwait(false);
         var roleIds = userRoles.Select(ur => ur.RoleId).ToList();
-        var roles = await roleRepository.Find(r => roleIds.Contains(r.Id), cancellationToken);
+        var roles = await roleRepository.Find(r => roleIds.Contains(r.Id), cancellationToken).ConfigureAwait(false);
         return [.. roles.Select(r => r.Name!)];
     }
 
-    public async Task<bool> IsInRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default)
+    public virtual async Task<bool> IsInRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default)
     {
-        var role = await FindRoleAsync(normalizedRoleName, cancellationToken);
+        var role = await FindRoleAsync(normalizedRoleName, cancellationToken).ConfigureAwait(false);
         if (role != null)
         {
-            var userRole = await FindUserRoleAsync(user.Id, role.Id, cancellationToken);
+            var userRole = await FindUserRoleAsync(user.Id, role.Id, cancellationToken).ConfigureAwait(false);
             return userRole != null;
         }
         return false;
     }
 
-    public async Task<IList<TUser>> GetUsersInRoleAsync(string normalizedRoleName, CancellationToken cancellationToken = default)
+    public virtual async Task<IList<TUser>> GetUsersInRoleAsync(string normalizedRoleName, CancellationToken cancellationToken = default)
     {
-        var role = await FindRoleAsync(normalizedRoleName, cancellationToken);
+        var role = await FindRoleAsync(normalizedRoleName, cancellationToken).ConfigureAwait(false);
         if (role == null)
             return [];
 
-        var userRoles = await userRoleRepository.Find(ur => ur.RoleId == role.Id, cancellationToken);
+        var userRoles = await userRoleRepository.Find(ur => ur.RoleId == role.Id, cancellationToken).ConfigureAwait(false);
         var userIds = userRoles.Select(ur => ur.UserId);
-        var users = await userRepository.Find(u => userIds.Contains(u.Id), cancellationToken);
+        var users = await userRepository.Find(u => userIds.Contains(u.Id), cancellationToken).ConfigureAwait(false);
         return [.. users];
     }
 
-    protected async Task<TRole?> FindRoleAsync(string normalizedRoleName, CancellationToken cancellationToken)
+    protected virtual async Task<TRole?> FindRoleAsync(string normalizedRoleName, CancellationToken cancellationToken)
     {
-        var roles = await roleRepository.Find(r => r.NormalizedName == normalizedRoleName, cancellationToken);
+        var roles = await roleRepository.Find(r => r.NormalizedName == normalizedRoleName, cancellationToken).ConfigureAwait(false);
         return roles.FirstOrDefault();
     }
 
-    protected async Task<TUserRole?> FindUserRoleAsync(Guid userId, Guid roleId, CancellationToken cancellationToken)
+    protected virtual async Task<TUserRole?> FindUserRoleAsync(Guid userId, Guid roleId, CancellationToken cancellationToken)
     {
-        var userRoles = await userRoleRepository.Find(ur => ur.UserId == userId && ur.RoleId == roleId, cancellationToken);
+        var userRoles = await userRoleRepository.Find(ur => ur.UserId == userId && ur.RoleId == roleId, cancellationToken).ConfigureAwait(false);
         return userRoles.FirstOrDefault();
     }
 
     #endregion
 
-    protected virtual Guid? ConvertIdFromString(string? id)
-    {
-        if (id == null)
-        {
-            return null;
-        }
-        return (Guid?)TypeDescriptor.GetConverter(typeof(Guid)).ConvertFromInvariantString(id);
-    }
-
-    public virtual string? ConvertIdToString(Guid id)
-    {
-        if (id == Guid.Empty)
-            return null;
-
-        return id.ToString();
-    }
 }
 

@@ -5,3 +5,4 @@ global using Microsoft.AspNetCore.Identity;
 global using System.ComponentModel;
 global using System.Data;
 global using System.Security.Claims;
+global using Microsoft.Extensions.Logging;

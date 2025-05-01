@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace FluentCMS.Plugins.Authentication.Stores;
+﻿namespace FluentCMS.Plugins.Authentication.Stores;
 
 public class RoleStore<TRole, TRoleClaim>(IAuditableEntityRepository<TRole> roleRepository, IAuditableEntityRepository<TRoleClaim> roleClaimsRepository, ILogger<RoleStore<TRole, TRoleClaim>> logger, IdentityErrorDescriber? describer = null) : IQueryableRoleStore<TRole>, IRoleClaimStore<TRole> where TRole : Role where TRoleClaim : RoleClaim, new()
 {
@@ -8,7 +6,7 @@ public class RoleStore<TRole, TRoleClaim>(IAuditableEntityRepository<TRole> role
 
     public IdentityErrorDescriber ErrorDescriber { get; set; } = describer ?? new IdentityErrorDescriber();
 
-    public virtual Guid? ConvertIdFromString(string id)
+    protected virtual Guid? ConvertIdFromString(string id)
     {
         if (string.IsNullOrEmpty(id))
             return null;
@@ -16,7 +14,7 @@ public class RoleStore<TRole, TRoleClaim>(IAuditableEntityRepository<TRole> role
         return Guid.Parse(id);
     }
 
-    public virtual string? ConvertIdToString(Guid id)
+    protected virtual string? ConvertIdToString(Guid id)
     {
         if (id == Guid.Empty)
             return null;
