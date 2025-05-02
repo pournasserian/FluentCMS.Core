@@ -31,4 +31,35 @@ public class EntityRepository<TEntity, TKey>(DbContext context) :
 public class EntityRepository<TEntity>(DbContext context) : EntityRepository<TEntity, Guid>(context), IEntityRepository<TEntity>
     where TEntity : class, IEntity
 {
+    public override Task<TEntity> Add(TEntity entity, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(entity);
+
+        if (entity.Id == Guid.Empty)
+        {
+            entity.Id = Guid.NewGuid();
+        }
+
+        return base.Add(entity, cancellationToken);
+    }
+
+    public override Task<IEnumerable<TEntity>> AddMany(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(entities);
+        foreach (var entity in entities)
+        {
+            if (entity is null)
+            {
+                throw new ArgumentNullException(nameof(entities), "Entities collection contains null values.");
+            }
+            if (entity.Id == Guid.Empty)
+            {
+                entity.Id = Guid.NewGuid();
+            }
+        }
+
+        return base.AddMany(entities, cancellationToken);
+    }
 }

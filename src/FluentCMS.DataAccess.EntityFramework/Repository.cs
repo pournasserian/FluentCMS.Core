@@ -33,12 +33,12 @@ public class Repository<T>(DbContext context) : IRepository<T> where T : class
         return await Task.FromResult(DbSet.Remove(entity).Entity).ConfigureAwait(false);
     }
 
-    public virtual async Task<T> Update(T entity, CancellationToken cancellationToken = default)
+    public virtual Task<T> Update(T entity, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(entity);
 
-        return await Task.FromResult(DbSet.Update(entity).Entity).ConfigureAwait(false);
+        return Task.FromResult(DbSet.Update(entity).Entity);
     }
 
     public virtual async Task<bool> Any(Expression<Func<T, bool>>? filter = null, CancellationToken cancellationToken = default)
