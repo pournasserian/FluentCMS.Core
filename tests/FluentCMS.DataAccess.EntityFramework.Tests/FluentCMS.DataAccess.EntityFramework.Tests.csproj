@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\FluentCMS.DataAccess.Abstractions\FluentCMS.DataAccess.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\FluentCMS.DataAccess.EntityFramework\FluentCMS.DataAccess.EntityFramework.csproj" />
+    <ProjectReference Include="..\..\src\FluentCMS.DataAccess.EntityFramework.Sqlite\FluentCMS.DataAccess.EntityFramework.Sqlite.csproj" />
   </ItemGroup>
 
 </Project>
