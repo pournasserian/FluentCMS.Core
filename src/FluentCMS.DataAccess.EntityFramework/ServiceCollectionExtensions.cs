@@ -1,8 +1,8 @@
 ﻿using FluentCMS.DataAccess.Abstractions;
-using FluentCMS.DataAccess.EntityFramework;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Extensions.DependencyInjection;
+namespace FluentCMS.DataAccess.EntityFramework;
 
 public static class ServiceCollectionExtensions
 {
