@@ -1,6 +1,6 @@
-﻿using FluentCMS.Core.Plugins.Abstractions;
-using FluentCMS.Plugins.Authentication.Options;
-using FluentCMS.Plugins.Authentication.Stores;
+﻿using FluentCMS.Core.Identity.Models;
+using FluentCMS.Core.Identity.Options;
+using FluentCMS.Core.Plugins.Abstractions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -17,15 +17,12 @@ public class AuthenticationPlugin : IPlugin
 {
     public void ConfigureServices(IHostApplicationBuilder builder)
     {
-        builder.Services.AddIdentityCore<User>()
-            .AddUserStore<UserStore>()
-            .AddRoleStore<RoleStore>()
-            .AddUserManager<UserManager<User>>()
-            .AddRoleManager<RoleManager<Role>>()
-            .AddDefaultTokenProviders();
-
-        // Add custom stores
-        builder.Services.AddDefaultStores();
+        //builder.Services.AddIdentityCore<User>()
+        //    .AddUserStore<UserStore>()
+        //    .AddRoleStore<RoleStore>()
+        //    .AddUserManager<UserManager<User>>()
+        //    .AddRoleManager<RoleManager<Role>>()
+        //    .AddDefaultTokenProviders();
 
         // Configure Identity options from appsettings.json
         builder.Services.Configure<IdentityOptions>(options =>

@@ -1,6 +1,17 @@
-﻿namespace FluentCMS.Plugins.Authentication.Models;
+﻿namespace FluentCMS.Core.Identity.Models;
 
-public class Role : IdentityRole<Guid>, IAuditableEntity
+public class Role : Role<RoleClaim>
+{
+    public Role()
+    {
+    }
+    public Role(string roleName) : this()
+    {
+        Name = roleName;
+    }
+}
+
+public class Role<TRoleClaim> : IdentityRole<Guid>, IAuditableEntity where TRoleClaim : RoleClaim, new()
 {
     // IAuditableEntity implementations
     public string CreatedBy { get; set; } = default!;
@@ -10,7 +21,7 @@ public class Role : IdentityRole<Guid>, IAuditableEntity
     public int Version { get; set; }
 
     // Claims collection
-    public ICollection<RoleClaim> Claims { get; set; } = [];
+    public ICollection<TRoleClaim> Claims { get; set; } = [];
 
     public Role()
     {

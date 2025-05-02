@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace FluentCMS.Plugins.Authentication.Options;
+﻿namespace FluentCMS.Core.Identity.Options;
 
 public class JwtOptions
 {

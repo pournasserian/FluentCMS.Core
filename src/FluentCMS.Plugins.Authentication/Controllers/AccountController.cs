@@ -1,4 +1,4 @@
-using FluentCMS.Plugins.Authentication.Options;
+using FluentCMS.Core.Identity.Options;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -6,12 +6,18 @@ namespace FluentCMS.Plugins.Authentication.Controllers;
 
 [ApiController]
 [Route("api/{controller}/{action}")]
-public class AccountController(ILogger<AccountController> logger, IOptions<JwtOptions> options) : ControllerBase
+public class AccountController(IOptions<JwtOptions> jwtOptions, IOptions<IdentityOptions> identityOptions) : ControllerBase
 {
 
     [HttpGet]
-    public JwtOptions Get()
+    public JwtOptions GetJwt()
     {
-        return options.Value;
+        return jwtOptions.Value;
+    }
+
+    [HttpGet]
+    public IdentityOptions GetIdentity()
+    {
+        return identityOptions.Value;
     }
 }

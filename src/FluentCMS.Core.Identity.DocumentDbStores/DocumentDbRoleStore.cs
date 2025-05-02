@@ -1,14 +1,10 @@
-﻿namespace FluentCMS.Plugins.Authentication.Stores;
+﻿namespace FluentCMS.Core.Identity.DocumentDbStores;
 
-public class RoleStore(IAuditableEntityRepository<Role> roleRepository, ILogger<RoleStore> logger, IdentityErrorDescriber? describer = null) : RoleStore<Role>(roleRepository, logger, describer)
+public class DocumentDbRoleStore<TRole>(IRoleRepository<TRole> roleRepository, ILogger<DocumentDbRoleStore<TRole>> logger, IdentityErrorDescriber? describer = null) : DocumentDbRoleStore<TRole, RoleClaim>(roleRepository, logger, describer) where TRole : Role
 {
 }
 
-public class RoleStore<TRole>(IAuditableEntityRepository<TRole> roleRepository, ILogger<RoleStore<TRole>> logger, IdentityErrorDescriber? describer = null) : RoleStore<TRole, RoleClaim>(roleRepository, logger, describer) where TRole : Role
-{
-}
-
-public class RoleStore<TRole, TRoleClaim>(IAuditableEntityRepository<TRole> roleRepository, ILogger<RoleStore<TRole, TRoleClaim>> logger, IdentityErrorDescriber? describer = null) : IQueryableRoleStore<TRole>, IRoleClaimStore<TRole> where TRole : Role where TRoleClaim : RoleClaim, new()
+public class DocumentDbRoleStore<TRole, TRoleClaim>(IRoleRepository<TRole, TRoleClaim> roleRepository, ILogger<DocumentDbRoleStore<TRole, TRoleClaim>> logger, IdentityErrorDescriber? describer = null) : IQueryableRoleStore<TRole>, IRoleClaimStore<TRole> where TRole : Role where TRoleClaim : RoleClaim, new()
 {
     private bool _disposed;
 

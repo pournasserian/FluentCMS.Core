@@ -1,23 +1,18 @@
-﻿namespace FluentCMS.Plugins.Authentication.Stores;
+﻿namespace FluentCMS.Core.Identity.DocumentDbStores;
 
-
-public class UserStore(IAuditableEntityRepository<User> userRepository, IAuditableEntityRepository<Role> roleRepository, IAuditableEntityRepository<UserRole> userRoleRepository, ILogger<UserStore<User>> logger, IdentityErrorDescriber describer) : UserStore<User>(userRepository, roleRepository, userRoleRepository, logger, describer)
+public class DocumentDbUserStore<TUser>(IUserRepository<TUser> userRepository, IRoleRepository<Role> roleRepository, IUserRoleRepository<UserRole> userRoleRepository, ILogger<DocumentDbUserStore<TUser>> logger, IdentityErrorDescriber describer) : DocumentDbUserStore<TUser, Role, UserRole>(userRepository, roleRepository, userRoleRepository, logger, describer)
+    where TUser : User
 {
 }
 
-public class UserStore<TUser>(IAuditableEntityRepository<TUser> userRepository, IAuditableEntityRepository<Role> roleRepository, IAuditableEntityRepository<UserRole> userRoleRepository, ILogger<UserStore<TUser>> logger, IdentityErrorDescriber describer) : UserStore<TUser, Role, UserClaim, UserRole, UserLogin, UserToken>(userRepository, roleRepository, userRoleRepository, logger, describer)
-    where TUser : User<UserClaim, UserLogin, UserToken>
-{
-}
-
-public class UserStore<TUser, TRole, TUserRole>(IAuditableEntityRepository<TUser> userRepository, IAuditableEntityRepository<TRole> roleRepository, IAuditableEntityRepository<TUserRole> userRoleRepository, ILogger<UserStore<TUser, TRole, TUserRole>> logger, IdentityErrorDescriber describer) : UserStore<TUser, TRole, UserClaim, TUserRole, UserLogin, UserToken>(userRepository, roleRepository, userRoleRepository, logger, describer)
-    where TUser : User<UserClaim, UserLogin, UserToken>
+public class DocumentDbUserStore<TUser, TRole, TUserRole>(IUserRepository<TUser, TRole, TUserRole> userRepository, IRoleRepository<TRole> roleRepository, IUserRoleRepository<TUserRole> userRoleRepository, ILogger<DocumentDbUserStore<TUser, TRole, TUserRole>> logger, IdentityErrorDescriber describer) : DocumentDbUserStore<TUser, TRole, UserClaim, TUserRole, UserLogin, UserToken, RoleClaim>(userRepository, roleRepository, userRoleRepository, logger, describer)
+    where TUser : User
     where TRole : Role
     where TUserRole : UserRole, new()
 {
 }
 
-public class UserStore<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken>(IAuditableEntityRepository<TUser> userRepository, IAuditableEntityRepository<TRole> roleRepository, IAuditableEntityRepository<TUserRole> userRoleRepository, ILogger<UserStore<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken>> logger, IdentityErrorDescriber describer) : UserStoreBase<TUser, TRole, Guid, TUserClaim, TUserRole, TUserLogin, TUserToken, RoleClaim>(describer),
+public class DocumentDbUserStore<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim>(IUserRepository<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken> userRepository, IRoleRepository<TRole, TRoleClaim> roleRepository, IUserRoleRepository<TUserRole> userRoleRepository, ILogger<DocumentDbUserStore<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim>> logger, IdentityErrorDescriber describer) : UserStoreBase<TUser, TRole, Guid, TUserClaim, TUserRole, TUserLogin, TUserToken, RoleClaim>(describer),
     IUserLoginStore<TUser>,
     IUserClaimStore<TUser>,
     IUserPasswordStore<TUser>,
@@ -38,6 +33,7 @@ public class UserStore<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserTok
     where TUserRole : UserRole, new()
     where TUserLogin : UserLogin, new()
     where TUserToken : UserToken, new()
+    where TRoleClaim : RoleClaim, new()
 {
     #region IUserStore
 
