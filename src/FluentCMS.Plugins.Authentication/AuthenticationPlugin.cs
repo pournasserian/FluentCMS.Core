@@ -1,5 +1,4 @@
-﻿using FluentCMS.Core.Identity.Models;
-using FluentCMS.Core.Identity.Options;
+﻿using FluentCMS.Core.Identity.Options;
 using FluentCMS.Core.Plugins.Abstractions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;

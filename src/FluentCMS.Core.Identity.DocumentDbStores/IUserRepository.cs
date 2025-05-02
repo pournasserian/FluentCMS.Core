@@ -12,7 +12,7 @@ public interface IUserRepository<TUser, TRole, TUserRole> : IUserRepository<TUse
 {
 }
 
-public interface IUserRepository<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken> : IAuditableEntityRepository<TUser> 
+public interface IUserRepository<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken> : IAuditableEntityRepository<TUser>
     where TUser : User<TUserClaim, TUserLogin, TUserToken>
     where TRole : Role
     where TUserClaim : UserClaim, new()
