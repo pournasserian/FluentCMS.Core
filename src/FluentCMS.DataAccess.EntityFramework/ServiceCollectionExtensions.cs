@@ -12,9 +12,11 @@ public static class ServiceCollectionExtensions
         {
             optionsAction?.Invoke(options);
         });
-     
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
-        
+
+        services.AddScoped<IUnitOfWorkFactory, UnitOfWorkFactory>();
+
+        services.AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
+
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
         services.AddScoped(typeof(IEntityRepository<,>), typeof(EntityRepository<,>));

@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 
 namespace FluentCMS.DataAccess.EntityFramework;
 
-public class UnitOfWork(DbContext context, IServiceProvider serviceProvider) : IUnitOfWork
+public class UnitOfWork<TContext>(TContext context, IServiceProvider serviceProvider) : IUnitOfWork<TContext> where TContext : DbContext
 {
     private readonly ConcurrentDictionary<string, IRepository> _repositories = [];
     
@@ -30,6 +30,8 @@ public class UnitOfWork(DbContext context, IServiceProvider serviceProvider) : I
     {
         await context.SaveChangesAsync(cancellationToken);
     }
+
+    public TContext Context => context;
 
     #region IDisposable Members
 
