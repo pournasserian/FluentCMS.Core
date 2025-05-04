@@ -13,9 +13,7 @@ public static class ServiceCollectionExtensions
             optionsAction?.Invoke(options);
         });
 
-        services.AddScoped<IUnitOfWorkFactory, UnitOfWorkFactory>();
-
-        services.AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
+        services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork<TContext>));
 
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 

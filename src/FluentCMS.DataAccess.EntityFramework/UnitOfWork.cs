@@ -5,22 +5,24 @@ using System.Collections.Concurrent;
 
 namespace FluentCMS.DataAccess.EntityFramework;
 
-public class UnitOfWork<TContext>(TContext context, IServiceProvider serviceProvider) : IUnitOfWork<TContext> where TContext : DbContext
+public class UnitOfWork<TContext>(TContext context, IServiceProvider serviceProvider) : IUnitOfWork where TContext : DbContext
 {
     private readonly ConcurrentDictionary<string, IRepository> _repositories = [];
-    
+
+    protected TContext Context => context;
+
     public virtual T Repository<T>() where T : IRepository
     {
-        T repositoryInstance ;
+        T repositoryInstance;
 
-        var key = typeof(T).FullName ?? 
+        var key = typeof(T).FullName ??
             throw new ArgumentNullException(nameof(T));
 
         if (_repositories.TryGetValue(key, out var repository))
             repositoryInstance = (T)repository;
-        else 
+        else
         {
-            repositoryInstance = serviceProvider.GetRequiredService<T>();
+            repositoryInstance = ActivatorUtilities.CreateInstance<T>(serviceProvider);
             _repositories.TryAdd(key, repositoryInstance);
         }
         return repositoryInstance;
@@ -31,7 +33,6 @@ public class UnitOfWork<TContext>(TContext context, IServiceProvider serviceProv
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public TContext Context => context;
 
     #region IDisposable Members
 
