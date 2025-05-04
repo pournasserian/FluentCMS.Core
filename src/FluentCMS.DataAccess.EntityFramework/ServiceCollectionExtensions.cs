@@ -14,6 +14,7 @@ public static class ServiceCollectionExtensions
         });
 
         services.AddScoped<IUnitOfWork, UnitOfWork<TContext>>();
+        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
         var registry = new RepositoryRegistry();
         services.AddSingleton(registry);
@@ -28,10 +29,13 @@ public static class ServiceCollectionExtensions
                 {
                     services.AddScoped(interfaceType, implementationType);
                 }
+                else 
+                {
+                    // If no implementation type is found, register the interface with the default repository
+                    services.AddScoped(interfaceType, sp => sp.GetRequiredService(typeof(IRepository<>).MakeGenericType(entityType)));
+                }
             }
         }
-
-        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
         return services;
     }
