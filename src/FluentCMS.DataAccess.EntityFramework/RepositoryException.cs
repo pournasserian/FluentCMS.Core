@@ -1,4 +1,4 @@
-﻿namespace FluentCMS.DataAccess.Abstractions;
+﻿namespace FluentCMS.DataAccess.EntityFramework;
 
 public class RepositoryException : Exception
 {

@@ -1,10 +1,6 @@
 ﻿namespace FluentCMS.DataAccess.Abstractions;
 
-public interface IEntity<TKey> where TKey : IEquatable<TKey>
+public interface IEntity
 {
-    TKey Id { get; set; }
-}
-
-public interface IEntity : IEntity<Guid>
-{
+    Guid Id { get; set; }
 }

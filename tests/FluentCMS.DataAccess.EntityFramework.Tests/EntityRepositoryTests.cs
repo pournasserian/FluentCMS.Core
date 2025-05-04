@@ -1,4 +1,3 @@
-using FluentCMS.DataAccess.Abstractions;
 using FluentCMS.DataAccess.EntityFramework.Tests.Infrastructure;
 using FluentCMS.DataAccess.EntityFramework.Tests.Models;
 using Microsoft.Data.Sqlite;

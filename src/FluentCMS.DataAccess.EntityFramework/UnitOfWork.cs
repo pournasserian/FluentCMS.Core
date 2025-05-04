@@ -5,34 +5,48 @@ using System.Collections.Concurrent;
 
 namespace FluentCMS.DataAccess.EntityFramework;
 
+
 public class UnitOfWork<TContext>(TContext context, IServiceProvider serviceProvider) : IUnitOfWork where TContext : DbContext
 {
-    private readonly ConcurrentDictionary<string, IRepository> _repositories = [];
+    private readonly ConcurrentDictionary<Type, object> _repositories = [];
+    private readonly RepositoryRegistry _repositoryRegistry = serviceProvider.GetRequiredService<RepositoryRegistry>();
 
     protected TContext Context => context;
 
-    public virtual T Repository<T>() where T : IRepository
+    public virtual IRepository<T> Repository<T>() where T : class, IEntity
     {
-        T repositoryInstance;
+        var entityType = typeof(T);
 
-        var key = typeof(T).FullName ??
-            throw new ArgumentNullException(nameof(T));
+        if (_repositories.TryGetValue(entityType, out object? value))
+            return (IRepository<T>)value;
 
-        if (_repositories.TryGetValue(key, out var repository))
-            repositoryInstance = (T)repository;
-        else
+
+        // Get custom repository interface type if it exists
+        var customRepositoryInterfaceType = _repositoryRegistry.GetRepositoryInterfaceType(entityType);
+
+        if (customRepositoryInterfaceType != null)
         {
-            repositoryInstance = ActivatorUtilities.CreateInstance<T>(serviceProvider, context);
-            _repositories.TryAdd(key, repositoryInstance);
+            // Try to resolve from DI container first
+            var customRepositoryInstance = serviceProvider.GetService(customRepositoryInterfaceType);
+
+            if (customRepositoryInstance != null)
+            {
+                // Cache the custom repository instance
+                _repositories.TryAdd(entityType, customRepositoryInstance);
+                return (IRepository<T>)customRepositoryInstance;
+            }
         }
-        return repositoryInstance;
+
+        // Fallback to the default repository implementation
+        var genericRepositoryInstance = serviceProvider.GetRequiredService<IRepository<T>>();
+        _repositories.TryAdd(entityType, genericRepositoryInstance);
+        return genericRepositoryInstance;
     }
 
     public virtual async Task SaveChanges(CancellationToken cancellationToken = default)
     {
         await context.SaveChangesAsync(cancellationToken);
     }
-
 
     #region IDisposable Members
 

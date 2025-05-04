@@ -2,6 +2,6 @@
 
 public interface IUnitOfWork : IDisposable
 {
-    T Repository<T>() where T : IRepository;
+    IRepository<T> Repository<T>() where T : class, IEntity;
     Task SaveChanges(CancellationToken cancellationToken = default);
 }
