@@ -2,7 +2,7 @@ using FluentCMS.DataAccess.Abstractions;
 
 namespace FluentCMS.DataAccess.EntityFramework.Tests.Models
 {
-    public class TestEntity : IEntity
+    public class TestEntity : IAuditableEntity
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;

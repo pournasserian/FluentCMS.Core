@@ -14,7 +14,7 @@ public interface ITodoService
 
 public class TodoService(IUnitOfWork unitOfWork) : ITodoService
 {
-    private readonly IAuditableEntityRepository<Todo> repository = unitOfWork.Repository<IAuditableEntityRepository<Todo>>();
+    private readonly IRepository<Todo> repository = unitOfWork.Repository<Todo>();
 
     public Task<Todo> Add(Todo entity, CancellationToken cancellationToken = default)
     {
