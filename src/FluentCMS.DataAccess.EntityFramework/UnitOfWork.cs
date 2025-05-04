@@ -60,7 +60,7 @@ public class UnitOfWork<TContext>(TContext context, IServiceProvider serviceProv
             {
                 context.Dispose();
 
-                foreach (var repository in _repositories.Values)
+                foreach (IRepository repository in _repositories.Values)
                     repository.Dispose();
 
                 _repositories.Clear();

@@ -32,8 +32,6 @@ public static class ServiceCollectionExtensions
         }
 
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-        //services.AddScoped(typeof(IEntityRepository<>), typeof(EntityRepository<>));
-        //services.AddScoped(typeof(IAuditableEntityRepository<>), typeof(AuditableEntityRepository<>));
 
         return services;
     }

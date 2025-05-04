@@ -4,14 +4,36 @@ using System.Linq.Expressions;
 
 namespace FluentCMS.DataAccess.EntityFramework;
 
-public class Repository<T>(DbContext context) : IRepository<T> where T : class
+public class Repository<T>(DbContext context) : IRepository<T> where T : class, IEntity
 {
     protected readonly DbSet<T> DbSet = context.Set<T>();
+
+    public virtual async Task<T?> GetById(Guid id, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return await DbSet.SingleOrDefaultAsync(e => e.Id.Equals(id), cancellationToken);
+    }
+
+    public virtual async Task<T> Remove(Guid id, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var entity = await GetById(id, cancellationToken).ConfigureAwait(false) ??
+            throw new EntityNotFoundException(id.ToString()!, typeof(T).Name);
+
+        return DbSet.Remove(entity).Entity;
+    }
 
     public virtual async Task<T> Add(T entity, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(entity);
+
+        if (entity.Id == Guid.Empty)
+        {
+            entity.Id = Guid.NewGuid();
+        }
 
         await context.AddAsync(entity, cancellationToken).ConfigureAwait(false);
         return entity;
@@ -20,6 +42,18 @@ public class Repository<T>(DbContext context) : IRepository<T> where T : class
     public virtual async Task<IEnumerable<T>> AddMany(IEnumerable<T> entities, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
+
+        foreach (var entity in entities)
+        {
+            if (entity is null)
+            {
+                throw new ArgumentNullException(nameof(entities), "Entities collection contains null values.");
+            }
+            if (entity.Id == Guid.Empty)
+            {
+                entity.Id = Guid.NewGuid();
+            }
+        }
 
         await context.AddRangeAsync(entities, cancellationToken).ConfigureAwait(false);
         return entities;
