@@ -118,7 +118,7 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
             var nonExistentId = Guid.NewGuid();
 
             // Act & Assert
-            await Assert.ThrowsAsync<EntityNotFoundException>(() => 
+            await Assert.ThrowsAsync<EntityNotFoundException>(() =>
                 _repository.Remove(nonExistentId));
         }
 
@@ -128,7 +128,7 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
         public async Task RemoveById_WithDefaultGuid_ShouldThrowEntityNotFoundException()
         {
             // Arrange & Act & Assert
-            await Assert.ThrowsAsync<EntityNotFoundException>(() => 
+            await Assert.ThrowsAsync<EntityNotFoundException>(() =>
                 _repository.Remove(default));
         }
 
@@ -150,7 +150,7 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
 
             // Assert
             Assert.NotEqual(Guid.Empty, result.Id);
-            
+
             var dbEntity = await _context.TestEntities.FindAsync(result.Id);
             Assert.NotNull(dbEntity);
             Assert.Equal(result.Id, dbEntity.Id);
@@ -175,7 +175,7 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
 
             // Assert
             Assert.Equal(providedId, result.Id);
-            
+
             var dbEntity = await _context.TestEntities.FindAsync(providedId);
             Assert.NotNull(dbEntity);
             Assert.Equal(providedId, dbEntity.Id);
@@ -199,11 +199,11 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
             // Assert
             Assert.NotNull(results);
             Assert.Equal(entities.Count, results.Count());
-            
+
             foreach (var result in results)
             {
                 Assert.NotEqual(Guid.Empty, result.Id);
-                
+
                 var dbEntity = await _context.TestEntities.FindAsync(result.Id);
                 Assert.NotNull(dbEntity);
                 Assert.Equal(result.Id, dbEntity.Id);
@@ -230,10 +230,10 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
             // Assert
             Assert.NotNull(results);
             Assert.Equal(entities.Count, results.Count());
-            
+
             var resultIds = results.Select(e => e.Id).ToList();
             Assert.Equal(originalIds, resultIds);
-            
+
             foreach (var originalId in originalIds)
             {
                 var dbEntity = await _context.TestEntities.FindAsync(originalId);
@@ -253,7 +253,7 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
             };
 
             // Act & Assert
-            await Assert.ThrowsAsync<ArgumentNullException>(() => 
+            await Assert.ThrowsAsync<ArgumentNullException>(() =>
                 _repository.AddMany(entities!));
         }
 
@@ -265,10 +265,10 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
             cts.Cancel(); // Cancel the token immediately
 
             // Act & Assert
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => 
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
                 _repository.GetById(Guid.NewGuid(), cts.Token));
-            
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => 
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
                 _repository.Remove(Guid.NewGuid(), cts.Token));
         }
 

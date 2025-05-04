@@ -11,8 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FluentCMS.Core.Repositories.LiteDB\FluentCMS.Core.Repositories.LiteDB.csproj" />
     <ProjectReference Include="..\FluentCMS.Core.Plugins.Abstractions\FluentCMS.Core.Plugins.Abstractions.csproj" />
+    <ProjectReference Include="..\FluentCMS.DataAccess.Abstractions\FluentCMS.DataAccess.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

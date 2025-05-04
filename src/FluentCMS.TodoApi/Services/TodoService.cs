@@ -1,4 +1,4 @@
-﻿using FluentCMS.Core.Repositories.Abstractions;
+﻿using FluentCMS.DataAccess.Abstractions;
 using FluentCMS.TodoApi.Models;
 
 namespace FluentCMS.TodoApi.Services;
@@ -7,13 +7,15 @@ public interface ITodoService
 {
     Task<Todo> Add(Todo entity, CancellationToken cancellationToken = default);
     Task<IEnumerable<Todo>> GetAll(CancellationToken cancellationToken = default);
-    Task<Todo> GetById(Guid entityId, CancellationToken cancellationToken = default);
+    Task<Todo?> GetById(Guid entityId, CancellationToken cancellationToken = default);
     Task Remove(Guid entityId, CancellationToken cancellationToken = default);
     Task<Todo> Update(Todo entity, CancellationToken cancellationToken = default);
 }
 
-public class TodoService(IEntityRepository<Todo> repository) : ITodoService
+public class TodoService(IUnitOfWork unitOfWork) : ITodoService
 {
+    private readonly IAuditableEntityRepository<Todo> repository = unitOfWork.Repository<IAuditableEntityRepository<Todo>>();
+
     public Task<Todo> Add(Todo entity, CancellationToken cancellationToken = default)
     {
         return repository.Add(entity, cancellationToken);
@@ -29,7 +31,7 @@ public class TodoService(IEntityRepository<Todo> repository) : ITodoService
         return repository.Remove(entityId, cancellationToken);
     }
 
-    public Task<Todo> GetById(Guid entityId, CancellationToken cancellationToken = default)
+    public Task<Todo?> GetById(Guid entityId, CancellationToken cancellationToken = default)
     {
         return repository.GetById(entityId, cancellationToken);
     }

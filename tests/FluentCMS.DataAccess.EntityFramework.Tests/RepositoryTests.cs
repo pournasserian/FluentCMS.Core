@@ -50,7 +50,7 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
             // Assert
             Assert.NotNull(result);
             Assert.Equal(entity.Name, result.Name);
-            
+
             var dbEntity = await _context.TestEntities.FindAsync(result.Id);
             Assert.NotNull(dbEntity);
             Assert.Equal(entity.Name, dbEntity.Name);
@@ -89,7 +89,7 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
 
             var dbEntities = await _context.TestEntities.ToListAsync();
             Assert.Equal(entities.Count, dbEntities.Count);
-            
+
             foreach (var entity in entities)
             {
                 var dbEntity = dbEntities.FirstOrDefault(e => e.Name == entity.Name);
@@ -216,7 +216,7 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
             // Assert
             Assert.NotNull(results);
             Assert.Equal(entities.Count, results.Count());
-            
+
             foreach (var entity in entities)
             {
                 var result = results.FirstOrDefault(e => e.Name == entity.Name);
@@ -308,28 +308,28 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
             cts.Cancel(); // Cancel the token immediately
 
             // Act & Assert
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => 
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
                 _repository.Add(new TestEntity { Name = "Test" }, cts.Token));
-            
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => 
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
                 _repository.AddMany(new[] { new TestEntity { Name = "Test" } }, cts.Token));
-            
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => 
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
                 _repository.Update(new TestEntity { Name = "Test" }, cts.Token));
-            
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => 
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
                 _repository.Remove(new TestEntity { Name = "Test" }, cts.Token));
-            
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => 
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
                 _repository.GetAll(cts.Token));
-            
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => 
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
                 _repository.Find(e => e.Name == "Test", cts.Token));
-            
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => 
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
                 _repository.Count(null, cts.Token));
-            
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => 
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
                 _repository.Any(null, cts.Token));
         }
 

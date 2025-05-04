@@ -14,11 +14,8 @@
   <ItemGroup>
     <ProjectReference Include="..\FluentCMS.Core.Api\FluentCMS.Core.Api.csproj" />
     <ProjectReference Include="..\FluentCMS.Core.EventBus\FluentCMS.Core.EventBus.csproj" />
-    <ProjectReference Include="..\FluentCMS.Core.Plugins.History\FluentCMS.Core.Plugins.History.csproj" />
-    <ProjectReference Include="..\FluentCMS.Core.Repositories.LiteDB\FluentCMS.Core.Repositories.LiteDB.csproj" />
     <ProjectReference Include="..\FluentCMS.Core.Plugins\FluentCMS.Core.Plugins.csproj" />
-    <ProjectReference Include="..\FluentCMS.Core.Repositories.MongoDB\FluentCMS.Core.Repositories.MongoDB.csproj" />
-    <ProjectReference Include="..\FluentCMS.Plugins.Authentication\FluentCMS.Plugins.Authentication.csproj" />
+    <ProjectReference Include="..\FluentCMS.DataAccess.EntityFramework.Sqlite\FluentCMS.DataAccess.EntityFramework.Sqlite.csproj" />
     <ProjectReference Include="..\FluentCMS.TodoApi\FluentCMS.TodoApi.csproj" />
   </ItemGroup>
 

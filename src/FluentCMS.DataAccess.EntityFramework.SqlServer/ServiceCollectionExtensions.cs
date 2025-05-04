@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FluentCMS.DataAccess.EntityFramework.Sqlite;
+namespace FluentCMS.DataAccess.EntityFramework.SqlServer;
 
 public static class ServiceCollectionExtensions
 {
@@ -9,7 +9,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddEntityFrameworkDataAccess<TContext>(options =>
         {
-            options.UseSqlite(connectionString);
+            options.UseSqlServer(connectionString);
         });
         return services;
     }

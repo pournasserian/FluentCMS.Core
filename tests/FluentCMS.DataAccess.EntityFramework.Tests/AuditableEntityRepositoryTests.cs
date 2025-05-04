@@ -59,7 +59,7 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
             Assert.Equal(0, result.Version); // Version is not set in Add, but initialized in AddMany
             Assert.Null(result.UpdatedBy);
             Assert.Null(result.UpdatedAt);
-            
+
             var dbEntity = await _context.AuditableTestEntities.FindAsync(result.Id);
             Assert.NotNull(dbEntity);
             Assert.Equal("test-user", dbEntity.CreatedBy);
@@ -86,7 +86,7 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
             // Assert
             Assert.NotNull(results);
             Assert.Equal(entities.Count, results.Count());
-            
+
             foreach (var result in results)
             {
                 Assert.Equal("test-user", result.CreatedBy);
@@ -95,7 +95,7 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
                 Assert.Equal(1, result.Version);
                 Assert.Null(result.UpdatedBy);
                 Assert.Null(result.UpdatedAt);
-                
+
                 var dbEntity = await _context.AuditableTestEntities.FindAsync(result.Id);
                 Assert.NotNull(dbEntity);
                 Assert.Equal("test-user", dbEntity.CreatedBy);
@@ -122,7 +122,7 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
             await _context.SaveChangesAsync();
 
             // Reload from database to ensure we have the initial state with CreatedAt/CreatedBy set
-            entity = await _context.AuditableTestEntities.FindAsync(entity.Id) ?? 
+            entity = await _context.AuditableTestEntities.FindAsync(entity.Id) ??
                 throw new Exception("Entity was not saved properly.");
 
             var initialVersion = entity.Version;
@@ -145,11 +145,11 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
             Assert.NotEqual(default, result.UpdatedAt);
             Assert.Equal(DateTime.UtcNow.Date, result.UpdatedAt!.Value.Date);
             Assert.Equal(initialVersion + 1, result.Version);
-            
+
             // CreatedAt and CreatedBy should remain unchanged
             Assert.Equal(createdAt, result.CreatedAt);
             Assert.Equal(createdBy, result.CreatedBy);
-            
+
             var dbEntity = await _context.AuditableTestEntities.FindAsync(entity.Id);
             Assert.NotNull(dbEntity);
             Assert.Equal("test-user", dbEntity.UpdatedBy);
@@ -175,21 +175,21 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
             await _context.SaveChangesAsync();
 
             // First update
-            entity = await _context.AuditableTestEntities.FindAsync(entity.Id) ?? 
+            entity = await _context.AuditableTestEntities.FindAsync(entity.Id) ??
                 throw new Exception("Entity was not saved properly.");
             entity.Name = "First Update";
             await _repository.Update(entity);
             await _context.SaveChangesAsync();
 
             // Second update
-            entity = await _context.AuditableTestEntities.FindAsync(entity.Id) ?? 
+            entity = await _context.AuditableTestEntities.FindAsync(entity.Id) ??
                 throw new Exception("Entity was not saved properly.");
             entity.Name = "Second Update";
             await _repository.Update(entity);
             await _context.SaveChangesAsync();
 
             // Third update
-            entity = await _context.AuditableTestEntities.FindAsync(entity.Id) ?? 
+            entity = await _context.AuditableTestEntities.FindAsync(entity.Id) ??
                 throw new Exception("Entity was not saved properly.");
             entity.Name = "Third Update";
 
@@ -200,7 +200,7 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
             // Assert
             Assert.NotNull(result);
             Assert.Equal(3, result.Version); // Should be 3 after 3 updates
-            
+
             var dbEntity = await _context.AuditableTestEntities.FindAsync(entity.Id);
             Assert.NotNull(dbEntity);
             Assert.Equal(3, dbEntity.Version);
@@ -212,7 +212,7 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
             // Arrange - Create a new repository with a different user
             var user1Context = new TestApplicationExecutionContext("user-1");
             var user2Context = new TestApplicationExecutionContext("user-2");
-            
+
             var user1Repository = new AuditableEntityRepository<AuditableTestEntity>(_context, user1Context);
             var user2Repository = new AuditableEntityRepository<AuditableTestEntity>(_context, user2Context);
 
@@ -228,7 +228,7 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
             await _context.SaveChangesAsync();
 
             // User 2 updates the entity
-            entity = await _context.AuditableTestEntities.FindAsync(entity.Id) ?? 
+            entity = await _context.AuditableTestEntities.FindAsync(entity.Id) ??
                 throw new Exception("Entity was not saved properly.");
             entity.Description = "Updated by User 2";
             var result2 = await user2Repository.Update(entity);
@@ -238,7 +238,7 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
             Assert.NotNull(result2);
             Assert.Equal("user-1", result2.CreatedBy);
             Assert.Equal("user-2", result2.UpdatedBy);
-            
+
             var dbEntity = await _context.AuditableTestEntities.FindAsync(entity.Id);
             Assert.NotNull(dbEntity);
             Assert.Equal("user-1", dbEntity.CreatedBy);
@@ -253,13 +253,13 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
             cts.Cancel(); // Cancel the token immediately
 
             // Act & Assert
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => 
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
                 _repository.Add(new AuditableTestEntity { Name = "Test" }, cts.Token));
-            
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => 
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
                 _repository.AddMany(new[] { new AuditableTestEntity { Name = "Test" } }, cts.Token));
-            
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => 
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
                 _repository.Update(new AuditableTestEntity { Name = "Test" }, cts.Token));
         }
 

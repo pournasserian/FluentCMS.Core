@@ -22,7 +22,7 @@ public class UnitOfWork<TContext>(TContext context, IServiceProvider serviceProv
             repositoryInstance = (T)repository;
         else
         {
-            repositoryInstance = ActivatorUtilities.CreateInstance<T>(serviceProvider);
+            repositoryInstance = ActivatorUtilities.CreateInstance<T>(serviceProvider, context);
             _repositories.TryAdd(key, repositoryInstance);
         }
         return repositoryInstance;

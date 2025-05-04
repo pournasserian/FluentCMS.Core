@@ -1,7 +1,7 @@
 using FluentCMS.Core.Api;
 using FluentCMS.Core.EventBus;
 using FluentCMS.Core.Plugins;
-using FluentCMS.Core.Repositories.LiteDB;
+using FluentCMS.DataAccess.EntityFramework.Sqlite;
 using Serilog;
 using Serilog.Events;
 
@@ -16,7 +16,8 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.File("logs/myapp-.log", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
-builder.Services.AddLiteDBRepositories(builder.Configuration);
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddSqliteDataAccess(connectionString);
 //builder.Services.AddMongoDbRepositories(builder.Configuration);
 
 
