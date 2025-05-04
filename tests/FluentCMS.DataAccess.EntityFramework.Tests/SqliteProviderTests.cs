@@ -71,7 +71,7 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
             // Verify unit of work is registered
             var unitOfWork = serviceProvider.GetService<IUnitOfWork>();
             Assert.NotNull(unitOfWork);
-            Assert.IsType<UnitOfWork>(unitOfWork);
+            Assert.IsType<UnitOfWork<TestDbContext>>(unitOfWork);
         }
 
         [Fact]

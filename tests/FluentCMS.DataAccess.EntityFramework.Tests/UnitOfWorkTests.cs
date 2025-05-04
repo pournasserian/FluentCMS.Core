@@ -13,7 +13,7 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
         private readonly DbContextOptions<TestDbContext> _contextOptions;
         private readonly TestDbContext _context;
         private readonly IServiceProvider _serviceProvider;
-        private readonly UnitOfWork _unitOfWork;
+        private readonly UnitOfWork<TestDbContext> _unitOfWork;
 
         public UnitOfWorkTests()
         {
@@ -49,7 +49,7 @@ namespace FluentCMS.DataAccess.EntityFramework.Tests
             _serviceProvider = services.BuildServiceProvider();
             
             // Create unit of work
-            _unitOfWork = new UnitOfWork(_context, _serviceProvider);
+            _unitOfWork = new UnitOfWork<TestDbContext>(_context, _serviceProvider);
         }
 
         [Fact]
