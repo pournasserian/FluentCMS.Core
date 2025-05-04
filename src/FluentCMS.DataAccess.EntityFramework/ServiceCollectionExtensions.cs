@@ -10,13 +10,9 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddEntityFrameworkDataAccess<TContext>(this IServiceCollection services, Action<DbContextOptionsBuilder>? optionsAction = default) where TContext : DbContext
     {
-        // Register the interceptor
-        services.AddScoped<AuditableEntitySaveChangesInterceptor>();
-
         services.AddDbContext<TContext>((sp, options) =>
         {
             // Register the interceptor with the DbContext
-            //options.AddInterceptors(sp.GetRequiredService<AuditableEntitySaveChangesInterceptor>());
             options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 
             // Apply any other options
