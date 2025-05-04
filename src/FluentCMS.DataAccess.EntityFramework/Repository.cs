@@ -111,7 +111,6 @@ public class Repository<T>(DbContext context) : IRepository<T> where T : class, 
         return await DbSet.ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
-
     #region IDisposable Members
 
     private bool _disposed;

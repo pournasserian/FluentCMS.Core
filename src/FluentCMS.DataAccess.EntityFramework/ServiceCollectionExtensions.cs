@@ -1,6 +1,8 @@
 ﻿using FluentCMS.DataAccess.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace FluentCMS.DataAccess.EntityFramework;
 
@@ -8,8 +10,16 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddEntityFrameworkDataAccess<TContext>(this IServiceCollection services, Action<DbContextOptionsBuilder>? optionsAction = default) where TContext : DbContext
     {
-        services.AddDbContext<TContext>(options =>
+        // Register the interceptor
+        services.AddScoped<AuditableEntitySaveChangesInterceptor>();
+
+        services.AddDbContext<TContext>((sp, options) =>
         {
+            // Register the interceptor with the DbContext
+            //options.AddInterceptors(sp.GetRequiredService<AuditableEntitySaveChangesInterceptor>());
+            options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+
+            // Apply any other options
             optionsAction?.Invoke(options);
         });
 
