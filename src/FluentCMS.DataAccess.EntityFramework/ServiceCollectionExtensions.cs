@@ -1,8 +1,7 @@
-﻿using FluentCMS.DataAccess.Abstractions;
+﻿using FluentCMS.Core.EventBus.Abstractions;
+using FluentCMS.DataAccess.Abstractions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace FluentCMS.DataAccess.EntityFramework;
 
@@ -12,7 +11,14 @@ public static class ServiceCollectionExtensions
     {
         services.AddDbContext<TContext>((sp, options) =>
         {
-            // Register the interceptor with the DbContext
+            // Register the audit interceptor with the DbContext
+            var eventPublisher = sp.GetService<IEventPublisher>();
+            if (eventPublisher != null)
+            {
+                options.AddInterceptors(new EventBusSaveChangesInterceptor(eventPublisher));
+            }
+            
+            // Configure query tracking behavior
             options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 
             // Apply any other options
