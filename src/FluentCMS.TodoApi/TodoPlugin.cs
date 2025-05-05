@@ -1,4 +1,6 @@
 using FluentCMS.Core.Plugins.Abstractions;
+using FluentCMS.DataAccess.Abstractions;
+using FluentCMS.DataAccess.EntityFramework;
 using FluentCMS.TodoApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +12,10 @@ public class TodoPlugin : IPlugin
 {
     public void ConfigureServices(IHostApplicationBuilder builder)
     {
+        builder.Services.AddScoped<IApplicationExecutionContext, ApiExecutionContext>();
+        builder.Services.AddScoped<IApplicationUnitOfWork, ApplicationUnitOfWork>();
         builder.Services.AddScoped<ITodoService, TodoService>();
+        builder.Services.AddScoped<ITodoRepository, TodoRepository>();        
     }
 
     public void Configure(IApplicationBuilder app)

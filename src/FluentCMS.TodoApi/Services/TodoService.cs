@@ -12,32 +12,35 @@ public interface ITodoService
     Task<Todo> Update(Todo entity, CancellationToken cancellationToken = default);
 }
 
-public class TodoService(IUnitOfWork unitOfWork) : ITodoService
+public class TodoService(IApplicationUnitOfWork unitOfWork) : ITodoService
 {
-    private readonly IRepository<Todo> repository = unitOfWork.Repository<Todo>();
-
-    public Task<Todo> Add(Todo entity, CancellationToken cancellationToken = default)
+    public async Task<Todo> Add(Todo entity, CancellationToken cancellationToken = default)
     {
-        return repository.Add(entity, cancellationToken);
+        await unitOfWork.TodoRepository.Add(entity, cancellationToken);
+        await unitOfWork.SaveChanges(cancellationToken);
+        return entity;
     }
 
-    public Task<Todo> Update(Todo entity, CancellationToken cancellationToken = default)
+    public async Task<Todo> Update(Todo entity, CancellationToken cancellationToken = default)
     {
-        return repository.Update(entity, cancellationToken);
+        await unitOfWork.TodoRepository.Update(entity, cancellationToken);
+        await unitOfWork.SaveChanges(cancellationToken);
+        return entity;
     }
 
-    public Task Remove(Guid entityId, CancellationToken cancellationToken = default)
+    public async Task Remove(Guid entityId, CancellationToken cancellationToken = default)
     {
-        return repository.Remove(entityId, cancellationToken);
+        await unitOfWork.TodoRepository.Remove(entityId, cancellationToken);
+        await unitOfWork.SaveChanges(cancellationToken);
     }
 
     public Task<Todo?> GetById(Guid entityId, CancellationToken cancellationToken = default)
     {
-        return repository.GetById(entityId, cancellationToken);
+        return unitOfWork.TodoRepository.GetById(entityId, cancellationToken);
     }
 
     public Task<IEnumerable<Todo>> GetAll(CancellationToken cancellationToken = default)
     {
-        return repository.GetAll(cancellationToken);
+        return unitOfWork.TodoRepository.GetAll(cancellationToken);
     }
 }

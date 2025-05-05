@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace FluentCMS.DataAccess.EntityFramework;
 
-public class Repository<T>(DbContext context, IApplicationExecutionContext executionContext) : IRepository<T> where T : class, IEntity
+public class Repository<T>(DbContext context) : IRepository<T> where T : class, IEntity
 {
     protected readonly DbSet<T> DbSet = context.Set<T>();
 
@@ -12,18 +12,18 @@ public class Repository<T>(DbContext context, IApplicationExecutionContext execu
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var entity = await GetById(id, cancellationToken).ConfigureAwait(false) ??
+        var entity = await DbSet.FindAsync([id], cancellationToken: cancellationToken).ConfigureAwait(false) ??
             throw new EntityNotFoundException(id.ToString()!, typeof(T).Name);
 
-        return DbSet.Remove(entity).Entity;
+        DbSet.Remove(entity);
+
+        return entity;
     }
 
     public virtual async Task<T> Add(T entity, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(entity);
-
-        PrepareAdding(entity);
 
         await context.AddAsync(entity, cancellationToken).ConfigureAwait(false);
 
@@ -34,25 +34,18 @@ public class Repository<T>(DbContext context, IApplicationExecutionContext execu
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        foreach (var entity in entities)
-        {
-            if (entity is null)
-            {
-                throw new ArgumentNullException(nameof(entities), "Entities collection contains null values.");
-            }
-            PrepareAdding(entity);
-        }
-
         await context.AddRangeAsync(entities, cancellationToken).ConfigureAwait(false);
         return entities;
     }
 
-    public virtual async Task<T> Remove(T entity, CancellationToken cancellationToken = default)
+    public virtual Task<T> Remove(T entity, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(entity);
 
-        return await Task.FromResult(DbSet.Remove(entity).Entity).ConfigureAwait(false);
+        DbSet.Remove(entity);
+
+        return Task.FromResult(entity);
     }
 
     public virtual Task<T> Update(T entity, CancellationToken cancellationToken = default)
@@ -60,9 +53,9 @@ public class Repository<T>(DbContext context, IApplicationExecutionContext execu
         cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(entity);
 
-        PrepareUpdating(entity);
+        DbSet.Update(entity);
 
-        return Task.FromResult(DbSet.Update(entity).Entity);
+        return Task.FromResult(entity);
     }
 
     public virtual async Task<T?> GetById(Guid id, CancellationToken cancellationToken = default)
@@ -106,29 +99,6 @@ public class Repository<T>(DbContext context, IApplicationExecutionContext execu
         cancellationToken.ThrowIfCancellationRequested();
 
         return await DbSet.ToListAsync(cancellationToken).ConfigureAwait(false);
-    }
-
-    protected virtual void PrepareAdding(T entity)
-    {
-        if (entity.Id == Guid.Empty)
-            entity.Id = Guid.NewGuid();
-
-        if (entity is IAuditableEntity auditable)
-        {
-            auditable.CreatedBy = executionContext?.Username;
-            auditable.CreatedAt = DateTime.UtcNow;
-            auditable.Version = 1;
-        }
-    }
-
-    protected virtual void PrepareUpdating(T entity)
-    {
-        if (entity is IAuditableEntity auditable)
-        {
-            auditable.UpdatedBy = executionContext?.Username;
-            auditable.UpdatedAt = DateTime.UtcNow;
-            auditable.Version++;
-        }
     }
 
     #region IDisposable Members

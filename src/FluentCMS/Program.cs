@@ -2,6 +2,7 @@ using FluentCMS.Core.Api;
 using FluentCMS.Core.EventBus;
 using FluentCMS.Core.Plugins;
 using FluentCMS.DataAccess.EntityFramework.Sqlite;
+using FluentCMS.TodoApi;
 using Serilog;
 using Serilog.Events;
 
@@ -9,17 +10,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
+    .MinimumLevel.Debug()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
     .Enrich.FromLogContext()
     .WriteTo.Console()
     .WriteTo.File("logs/myapp-.log", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddSqliteDataAccess(connectionString);
-//builder.Services.AddMongoDbRepositories(builder.Configuration);
+var connectionstring = builder.Configuration.GetConnectionString("DefaultConnection") ??
+    throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
+builder.Services.AddSqliteDataAccess<ApplicationDbContext>(connectionstring);
 
 // Add Serilog to the application
 builder.Host.UseSerilog();

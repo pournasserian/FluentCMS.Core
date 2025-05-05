@@ -45,7 +45,15 @@ public class UnitOfWork<TContext>(TContext context, IServiceProvider serviceProv
 
     public virtual async Task SaveChanges(CancellationToken cancellationToken = default)
     {
-        await context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await context.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            // Handle specific exceptions if needed
+            throw new RepositoryOperationException("An error occurred while saving changes to the database.", ex);
+        }
     }
 
     #region IDisposable Members

@@ -1,5 +1,5 @@
-﻿using FluentCMS.Core.EventBus.Abstractions;
-using FluentCMS.DataAccess.Abstractions;
+﻿using FluentCMS.DataAccess.Abstractions;
+using FluentCMS.DataAccess.EntityFramework.Interceptors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,19 +11,18 @@ public static class ServiceCollectionExtensions
     {
         services.AddDbContext<TContext>((sp, options) =>
         {
-            // Register the audit interceptor with the DbContext
-            var eventPublisher = sp.GetService<IEventPublisher>();
-            if (eventPublisher != null)
-            {
-                options.AddInterceptors(new EventBusSaveChangesInterceptor(eventPublisher));
-            }
-            
+            options.AddInterceptors(sp.GetRequiredService<AuditableEntityInterceptor>());
+            options.AddInterceptors(sp.GetRequiredService<EventBusInterceptor>());
+
             // Configure query tracking behavior
             options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 
             // Apply any other options
             optionsAction?.Invoke(options);
         });
+
+        services.AddScoped<AuditableEntityInterceptor>();
+        services.AddScoped<EventBusInterceptor>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork<TContext>>();
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -41,7 +40,7 @@ public static class ServiceCollectionExtensions
                 {
                     services.AddScoped(interfaceType, implementationType);
                 }
-                else 
+                else
                 {
                     // If no implementation type is found, register the interface with the default repository
                     services.AddScoped(interfaceType, sp => sp.GetRequiredService(typeof(IRepository<>).MakeGenericType(entityType)));

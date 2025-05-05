@@ -1,8 +1,10 @@
 ﻿using FluentCMS.DataAccess.Abstractions;
+using System.ComponentModel.DataAnnotations;
 
 namespace FluentCMS.DataAccess.EntityFramework;
 
 public abstract class Entity : IEntity
 {
-    public Guid Id { get; set; } 
+    [Key]
+    public Guid Id { get; set; }
 }
