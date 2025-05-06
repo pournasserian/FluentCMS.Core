@@ -2,7 +2,7 @@
 
 namespace FluentCMS.DataAccess.EntityFramework;
 
-public class RepositoryRegistry
+internal class RepositoryRegistry
 {
     public readonly Dictionary<Type, Type> CustomRepositoryTypes = [];
     public readonly Dictionary<Type, Type> CustomRepositoryImplementations = [];
