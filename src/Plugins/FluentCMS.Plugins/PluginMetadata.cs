@@ -1,4 +1,4 @@
-﻿namespace FluentCMS.Core.Plugins;
+﻿namespace FluentCMS.Plugins;
 
 public class PluginMetadata : IPluginMetadata
 {

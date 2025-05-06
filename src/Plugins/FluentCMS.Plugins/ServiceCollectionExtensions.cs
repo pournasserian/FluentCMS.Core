@@ -1,6 +1,4 @@
-using Microsoft.Extensions.Hosting;
-
-namespace FluentCMS.Core.Plugins;
+namespace FluentCMS.Plugins;
 
 public static class ServiceCollectionExtensions
 {

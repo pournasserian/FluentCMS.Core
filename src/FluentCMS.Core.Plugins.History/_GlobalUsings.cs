@@ -1,6 +1,6 @@
 ﻿global using AutoMapper;
 global using FluentCMS.Core.EventBus.Abstractions;
-global using FluentCMS.Core.Plugins.Abstractions;
+global using FluentCMS.Plugins.Abstractions;
 global using FluentCMS.Core.Plugins.History.Models;
 global using FluentCMS.Core.Plugins.History.Repositories;
 global using FluentCMS.Core.Plugins.History.Services;

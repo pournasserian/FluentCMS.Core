@@ -14,8 +14,8 @@
   <ItemGroup>
     <ProjectReference Include="..\FluentCMS.Core.Api\FluentCMS.Core.Api.csproj" />
     <ProjectReference Include="..\FluentCMS.Core.EventBus.Abstractions\FluentCMS.Core.EventBus.Abstractions.csproj" />
-    <ProjectReference Include="..\FluentCMS.Core.Plugins.Abstractions\FluentCMS.Core.Plugins.Abstractions.csproj" />
     <ProjectReference Include="..\FluentCMS.Core.Repositories.Abstractions\FluentCMS.Core.Repositories.Abstractions.csproj" />
+    <ProjectReference Include="..\Plugins\FluentCMS.Plugins.Abstractions\FluentCMS.Plugins.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

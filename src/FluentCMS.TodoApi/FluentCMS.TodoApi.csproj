@@ -18,8 +18,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataAccess\FluentCMS.DataAccess.EntityFramework\FluentCMS.DataAccess.EntityFramework.csproj" />
-    <ProjectReference Include="..\FluentCMS.Core.Plugins.Abstractions\FluentCMS.Core.Plugins.Abstractions.csproj" />
     <ProjectReference Include="..\FluentCMS.Core\FluentCMS.Core.csproj" />
+    <ProjectReference Include="..\Plugins\FluentCMS.Plugins.Abstractions\FluentCMS.Plugins.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

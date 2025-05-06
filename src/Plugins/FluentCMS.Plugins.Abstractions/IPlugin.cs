@@ -1,4 +1,4 @@
-namespace FluentCMS.Core.Plugins.Abstractions;
+namespace FluentCMS.Plugins.Abstractions;
 
 public interface IPlugin
 {

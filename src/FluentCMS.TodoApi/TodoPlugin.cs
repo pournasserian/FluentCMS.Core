@@ -1,4 +1,4 @@
-using FluentCMS.Core.Plugins.Abstractions;
+using FluentCMS.Plugins.Abstractions;
 using FluentCMS.DataAccess.Abstractions;
 using FluentCMS.DataAccess.EntityFramework;
 using FluentCMS.TodoApi.Services;

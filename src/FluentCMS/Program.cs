@@ -1,6 +1,6 @@
 using FluentCMS.Core.Api;
 using FluentCMS.Core.EventBus;
-using FluentCMS.Core.Plugins;
+using FluentCMS.Plugins;
 using FluentCMS.DataAccess.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
