@@ -28,4 +28,5 @@ public class TodoResponseDto
     public bool IsCompleted { get; set; }
     public DateTime? DueDate { get; set; }
     public DateTime CreatedAt { get; set; }
+    public int Version { get; set; }
 }

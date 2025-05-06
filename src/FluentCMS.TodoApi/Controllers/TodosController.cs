@@ -16,7 +16,8 @@ public class TodosController(ITodoService service) : BaseController
             Description = todo.Description,
             IsCompleted = todo.IsCompleted,
             DueDate = todo.DueDate,
-            CreatedAt = todo.CreatedAt
+            CreatedAt = todo.CreatedAt,
+            Version = todo.Version
         };
     }
 
@@ -62,6 +63,7 @@ public class TodosController(ITodoService service) : BaseController
         existingTodo.Description = todoDto.Description;
         existingTodo.IsCompleted = todoDto.IsCompleted;
         existingTodo.DueDate = todoDto.DueDate;
+        //existingTodo.Version++;
 
         var updated = await service.Update(existingTodo, cancellationToken);
         return Ok(MapToResponseDto(updated));
