@@ -23,6 +23,7 @@ public class TodoPlugin : IPlugin
 
     public void Configure(IApplicationBuilder app)
     {
-
+        var dbContext = app.ApplicationServices.GetRequiredService<ApplicationDbContext>();
+        dbContext.Database.EnsureCreated();
     }
 }
