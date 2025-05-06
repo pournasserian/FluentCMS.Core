@@ -12,5 +12,5 @@ public interface IApplicationUnitOfWork : IUnitOfWork
 
 public class ApplicationUnitOfWork(ApplicationDbContext context, IServiceProvider serviceProvider) : UnitOfWork<ApplicationDbContext>(context, serviceProvider), IApplicationUnitOfWork
 {
-    public ITodoRepository TodoRepository => (ITodoRepository) Repository<Todo>();
+    public ITodoRepository TodoRepository => (ITodoRepository)Repository<Todo>();
 }

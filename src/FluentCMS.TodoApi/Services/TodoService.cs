@@ -1,5 +1,4 @@
-﻿using FluentCMS.DataAccess.Abstractions;
-using FluentCMS.TodoApi.Models;
+﻿using FluentCMS.TodoApi.Models;
 
 namespace FluentCMS.TodoApi.Services;
 

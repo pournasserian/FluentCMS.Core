@@ -1,11 +1,10 @@
 ﻿using FluentCMS.DataAccess.Abstractions;
 using FluentCMS.DataAccess.EntityFramework;
 using FluentCMS.TodoApi.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace FluentCMS.TodoApi;
 
-public interface ITodoRepository: IRepository<Todo>
+public interface ITodoRepository : IRepository<Todo>
 {
 }
 

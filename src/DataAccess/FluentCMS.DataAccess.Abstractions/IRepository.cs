@@ -2,7 +2,7 @@
 
 namespace FluentCMS.DataAccess.Abstractions;
 
-public interface IRepository: IDisposable
+public interface IRepository : IDisposable
 {
 }
 

@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Diagnostics;
+﻿using FluentCMS.DataAccess.Abstractions;
 using Microsoft.EntityFrameworkCore;
-using FluentCMS.DataAccess.Abstractions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace FluentCMS.DataAccess.EntityFramework.Interceptors;
 
