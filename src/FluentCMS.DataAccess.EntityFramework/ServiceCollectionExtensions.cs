@@ -1,53 +1,53 @@
-﻿using FluentCMS.DataAccess.Abstractions;
-using FluentCMS.DataAccess.EntityFramework.Interceptors;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿//using FluentCMS.DataAccess.Abstractions;
+//using FluentCMS.DataAccess.EntityFramework.Interceptors;
+//using Microsoft.EntityFrameworkCore;
+//using Microsoft.Extensions.DependencyInjection;
 
-namespace FluentCMS.DataAccess.EntityFramework;
+//namespace FluentCMS.DataAccess.EntityFramework;
 
-public static class ServiceCollectionExtensions
-{
-    public static IServiceCollection AddEntityFrameworkDataAccess<TContext>(this IServiceCollection services, Action<DbContextOptionsBuilder>? optionsAction = default) where TContext : DbContext
-    {
-        services.AddDbContext<TContext>((sp, options) =>
-        {
-            options.AddInterceptors(sp.GetRequiredService<AuditableEntityInterceptor>());
-            options.AddInterceptors(sp.GetRequiredService<EventBusInterceptor>());
+//public static class ServiceCollectionExtensions1
+//{
+//    public static IServiceCollection AddEntityFrameworkDataAccess<TContext>(this IServiceCollection services, Action<DbContextOptionsBuilder>? optionsAction = default) where TContext : DbContext
+//    {
+//        services.AddDbContext<TContext>((sp, options) =>
+//        {
+//            options.AddInterceptors(sp.GetRequiredService<AuditableEntityInterceptor>());
+//            options.AddInterceptors(sp.GetRequiredService<EventBusInterceptor>());
 
-            // Configure query tracking behavior
-            options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+//            // Configure query tracking behavior
+//            options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 
-            // Apply any other options
-            optionsAction?.Invoke(options);
-        });
+//            // Apply any other options
+//            optionsAction?.Invoke(options);
+//        });
 
-        services.AddScoped<AuditableEntityInterceptor>();
-        services.AddScoped<EventBusInterceptor>();
+//        services.AddScoped<AuditableEntityInterceptor>();
+//        services.AddScoped<EventBusInterceptor>();
 
-        services.AddScoped<IUnitOfWork, UnitOfWork<TContext>>();
-        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+//        services.AddScoped<IUnitOfWork, UnitOfWork<TContext>>();
+//        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
-        var registry = new RepositoryRegistry();
-        services.AddSingleton(registry);
+//        var registry = new RepositoryRegistry();
+//        services.AddSingleton(registry);
 
-        foreach (var entityType in registry.CustomRepositoryTypes.Keys)
-        {
-            var interfaceType = registry.GetRepositoryInterfaceType(entityType);
-            if (interfaceType != null)
-            {
-                var implementationType = registry.GetRepositoryImplementationType(interfaceType);
-                if (implementationType != null)
-                {
-                    services.AddScoped(interfaceType, implementationType);
-                }
-                else
-                {
-                    // If no implementation type is found, register the interface with the default repository
-                    services.AddScoped(interfaceType, sp => sp.GetRequiredService(typeof(IRepository<>).MakeGenericType(entityType)));
-                }
-            }
-        }
+//        foreach (var entityType in registry.CustomRepositoryTypes.Keys)
+//        {
+//            var interfaceType = registry.GetRepositoryInterfaceType(entityType);
+//            if (interfaceType != null)
+//            {
+//                var implementationType = registry.GetRepositoryImplementationType(interfaceType);
+//                if (implementationType != null)
+//                {
+//                    services.AddScoped(interfaceType, implementationType);
+//                }
+//                else
+//                {
+//                    // If no implementation type is found, register the interface with the default repository
+//                    services.AddScoped(interfaceType, sp => sp.GetRequiredService(typeof(IRepository<>).MakeGenericType(entityType)));
+//                }
+//            }
+//        }
 
-        return services;
-    }
-}
+//        return services;
+//    }
+//}

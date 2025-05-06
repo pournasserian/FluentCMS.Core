@@ -7,10 +7,10 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddSqliteDataAccess<TContext>(this IServiceCollection services, string connectionString) where TContext : DbContext
     {
-        services.AddEntityFrameworkDataAccess<TContext>(options =>
-        {
-            options.UseSqlite(connectionString);
-        });
+        //services.AddEntityFrameworkDataAccess<TContext>(options =>
+        //{
+        //    options.UseSqlite(connectionString);
+        //});
         return services;
     }
 }

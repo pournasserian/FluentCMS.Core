@@ -18,7 +18,7 @@ public class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Todo>().ToTable("Todos");
+        //modelBuilder.Entity<Todo>().ToTable("Todos");
 
         // Configure the Todo entity
         modelBuilder.Entity<Todo>()
@@ -37,19 +37,23 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Todo>().HasData(
             new Todo
             {
+                Id = Guid.NewGuid(),
                 Title = "Complete EF Core tutorial",
                 Description = "Finish the Entity Framework Core getting started tutorial",
                 IsCompleted = false,
                 DueDate = DateTime.Now.AddDays(3),
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
+                Version = 1
             },
             new Todo
             {
+                Id = Guid.NewGuid(),
                 Title = "Buy groceries",
                 Description = "Milk, eggs, bread, and vegetables",
                 IsCompleted = false,
                 DueDate = DateTime.Now.AddDays(1),
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
+                Version = 1
             }
         );
     }

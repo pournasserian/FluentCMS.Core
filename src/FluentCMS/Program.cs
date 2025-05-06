@@ -1,8 +1,8 @@
 using FluentCMS.Core.Api;
 using FluentCMS.Core.EventBus;
 using FluentCMS.Core.Plugins;
-using FluentCMS.DataAccess.EntityFramework.Sqlite;
-using FluentCMS.TodoApi;
+using FluentCMS.DataAccess.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 
@@ -20,7 +20,10 @@ Log.Logger = new LoggerConfiguration()
 var connectionstring = builder.Configuration.GetConnectionString("DefaultConnection") ??
     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-builder.Services.AddSqliteDataAccess<ApplicationDbContext>(connectionstring);
+builder.Services.AddDatabase((sp, options) =>
+{
+    options.UseSqlite(connectionstring);
+});
 
 // Add Serilog to the application
 builder.Host.UseSerilog();
