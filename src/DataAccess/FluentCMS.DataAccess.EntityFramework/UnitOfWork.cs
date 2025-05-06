@@ -20,7 +20,6 @@ public class UnitOfWork<TContext>(TContext context, IServiceProvider serviceProv
         if (_repositories.TryGetValue(entityType, out object? value))
             return (IRepository<T>)value;
 
-
         // Get custom repository interface type if it exists
         var customRepositoryInterfaceType = _repositoryRegistry.GetRepositoryInterfaceType(entityType);
 

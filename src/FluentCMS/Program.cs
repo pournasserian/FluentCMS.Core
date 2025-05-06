@@ -17,8 +17,12 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.File("logs/myapp-.log", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
+
 var connectionstring = builder.Configuration.GetConnectionString("DefaultConnection") ??
     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+// Add plugin system
+builder.AddPlugins();
 
 builder.Services.AddDatabase((sp, options) =>
 {
@@ -32,9 +36,6 @@ builder.Services.AddEventBus();
 
 // Add services to the container.
 builder.Services.AddFluentCmsApi();
-
-// Add plugin system
-builder.AddPlugins();
 
 var app = builder.Build();
 

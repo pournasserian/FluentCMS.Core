@@ -82,8 +82,7 @@ public class PluginManager : IPluginManager
     {
         // Get all DLL files in the specified directory
         var dllFiles = Directory.GetFiles(folderPath, "*.dll", SearchOption.TopDirectoryOnly)
-            .Where(file => !Path.GetFileName(file).StartsWith("System.") &&
-                          !Path.GetFileName(file).StartsWith("Microsoft."))
+            .Where(file => Path.GetFileName(file).StartsWith("FluentCMS."))
             .ToArray();
 
         //_logger.LogInformation("Found {DllCount} potential plugin DLL files", dllFiles.Length);
@@ -96,9 +95,11 @@ public class PluginManager : IPluginManager
         {
             try
             {
-                // Load the assembly
-                var assembly = Assembly.LoadFrom(dllPath);
-                var assemblyName = assembly.GetName();
+                // Check if the assembly is already loaded before loading it
+                var assemblyName = AssemblyName.GetAssemblyName(dllPath);
+                var assembly = AppDomain.CurrentDomain.GetAssemblies()
+                    .FirstOrDefault(a => AssemblyName.ReferenceMatchesDefinition(a.GetName(), assemblyName)) ?? 
+                    Assembly.LoadFrom(dllPath);
 
                 // Get all types first to avoid multiple calls to GetTypes()
                 Type?[] allTypes = [];
