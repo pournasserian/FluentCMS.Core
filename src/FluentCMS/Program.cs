@@ -22,7 +22,7 @@ var connectionstring = builder.Configuration.GetConnectionString("DefaultConnect
     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 // Add plugin system
-builder.AddPlugins();
+builder.AddPlugins(["FluentCMS"]);
 
 builder.Services.AddDatabase((sp, options) =>
 {

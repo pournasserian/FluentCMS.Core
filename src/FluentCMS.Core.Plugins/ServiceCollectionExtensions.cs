@@ -4,9 +4,9 @@ namespace FluentCMS.Core.Plugins;
 
 public static class ServiceCollectionExtensions
 {
-    public static void AddPlugins(this IHostApplicationBuilder builder)
+    public static void AddPlugins(this IHostApplicationBuilder builder, string[] pluginPrefixes)
     {
-        var pluginManager = new PluginManager();
+        var pluginManager = new PluginManager(pluginPrefixes);
         builder.Services.AddSingleton<IPluginManager>(pluginManager);
         pluginManager.ConfigureServices(builder);
     }

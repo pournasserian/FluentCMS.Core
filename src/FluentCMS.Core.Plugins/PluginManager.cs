@@ -2,19 +2,19 @@
 
 namespace FluentCMS.Core.Plugins;
 
-public class PluginManager : IPluginManager
+internal class PluginManager : IPluginManager
 {
     private readonly IEnumerable<IPluginMetadata> _pluginsMetaData;
     private readonly List<IPlugin> _pluginInstances = [];
 
-    public PluginManager()
+    public PluginManager(string[] pluginPrefixes)
     {
         var executablePath = Assembly.GetExecutingAssembly().Location;
 
         var executanbleFolder = Path.GetDirectoryName(executablePath) ??
             throw new InvalidOperationException("Could not determine the executable folder path.");
 
-        _pluginsMetaData = ScanAssemblies(executanbleFolder);
+        _pluginsMetaData = ScanAssemblies(executanbleFolder, pluginPrefixes);
     }
 
     public void ConfigureServices(IHostApplicationBuilder builder)
@@ -78,11 +78,13 @@ public class PluginManager : IPluginManager
         return _pluginsMetaData;
     }
 
-    private IEnumerable<IPluginMetadata> ScanAssemblies(string folderPath)
+    private IEnumerable<IPluginMetadata> ScanAssemblies(string folderPath, string[] pluginPrefixes)
     {
         // Get all DLL files in the specified directory
-        var dllFiles = Directory.GetFiles(folderPath, "*.dll", SearchOption.TopDirectoryOnly)
-            .Where(file => Path.GetFileName(file).StartsWith("FluentCMS."))
+        var allDllFiles = Directory.GetFiles(folderPath, "*.dll", SearchOption.TopDirectoryOnly);
+
+        var dllFiles = allDllFiles
+            .Where(dllFilePath => pluginPrefixes.Any(prefix => Path.GetFileName(dllFilePath).StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))
             .ToArray();
 
         //_logger.LogInformation("Found {DllCount} potential plugin DLL files", dllFiles.Length);
@@ -98,7 +100,7 @@ public class PluginManager : IPluginManager
                 // Check if the assembly is already loaded before loading it
                 var assemblyName = AssemblyName.GetAssemblyName(dllPath);
                 var assembly = AppDomain.CurrentDomain.GetAssemblies()
-                    .FirstOrDefault(a => AssemblyName.ReferenceMatchesDefinition(a.GetName(), assemblyName)) ?? 
+                    .FirstOrDefault(a => AssemblyName.ReferenceMatchesDefinition(a.GetName(), assemblyName)) ??
                     Assembly.LoadFrom(dllPath);
 
                 // Get all types first to avoid multiple calls to GetTypes()
