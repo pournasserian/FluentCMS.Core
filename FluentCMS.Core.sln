@@ -59,6 +59,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Plugins", "src\Pl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Plugins.Abstractions", "src\Plugins\FluentCMS.Plugins.Abstractions\FluentCMS.Plugins.Abstractions.csproj", "{425A7B16-8091-455A-8C1E-2F27D22A9004}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Plugins.AuditTrailManager", "src\Plugins\FluentCMS.Plugins.AuditTrailManager\FluentCMS.Plugins.AuditTrailManager.csproj", "{407B0001-1BEB-4F1E-981D-C1FFBA1C2818}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -309,6 +311,18 @@ Global
 		{425A7B16-8091-455A-8C1E-2F27D22A9004}.Release|x64.Build.0 = Release|Any CPU
 		{425A7B16-8091-455A-8C1E-2F27D22A9004}.Release|x86.ActiveCfg = Release|Any CPU
 		{425A7B16-8091-455A-8C1E-2F27D22A9004}.Release|x86.Build.0 = Release|Any CPU
+		{407B0001-1BEB-4F1E-981D-C1FFBA1C2818}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{407B0001-1BEB-4F1E-981D-C1FFBA1C2818}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{407B0001-1BEB-4F1E-981D-C1FFBA1C2818}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{407B0001-1BEB-4F1E-981D-C1FFBA1C2818}.Debug|x64.Build.0 = Debug|Any CPU
+		{407B0001-1BEB-4F1E-981D-C1FFBA1C2818}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{407B0001-1BEB-4F1E-981D-C1FFBA1C2818}.Debug|x86.Build.0 = Debug|Any CPU
+		{407B0001-1BEB-4F1E-981D-C1FFBA1C2818}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{407B0001-1BEB-4F1E-981D-C1FFBA1C2818}.Release|Any CPU.Build.0 = Release|Any CPU
+		{407B0001-1BEB-4F1E-981D-C1FFBA1C2818}.Release|x64.ActiveCfg = Release|Any CPU
+		{407B0001-1BEB-4F1E-981D-C1FFBA1C2818}.Release|x64.Build.0 = Release|Any CPU
+		{407B0001-1BEB-4F1E-981D-C1FFBA1C2818}.Release|x86.ActiveCfg = Release|Any CPU
+		{407B0001-1BEB-4F1E-981D-C1FFBA1C2818}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -331,6 +345,7 @@ Global
 		{1562E3CE-142B-0A9A-E6C5-1D4AF532AE18} = {C9630A60-D05A-4806-B092-36510FF91A68}
 		{04ED9890-95A7-4300-95EE-E39506C2EE7C} = {12288030-F57A-4F6C-A7F4-CD6126134C3E}
 		{425A7B16-8091-455A-8C1E-2F27D22A9004} = {12288030-F57A-4F6C-A7F4-CD6126134C3E}
+		{407B0001-1BEB-4F1E-981D-C1FFBA1C2818} = {12288030-F57A-4F6C-A7F4-CD6126134C3E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4A20D9D5-B268-4753-8057-813B6394829F}

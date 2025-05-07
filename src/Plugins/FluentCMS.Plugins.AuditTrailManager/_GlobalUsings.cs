@@ -1,0 +1,14 @@
+﻿global using FluentCMS.DataAccess.Abstractions;
+global using FluentCMS.Plugins.AuditTrailManager.Models;
+global using FluentCMS.DataAccess.EntityFramework;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.Extensions.Logging;
+global using FluentCMS.Core.EventBus.Abstractions;
+global using AutoMapper;
+global using FluentCMS.Plugins.Abstractions;
+global using Microsoft.Extensions.Hosting;
+global using FluentCMS.Plugins.AuditTrailManager.Handlers;
+global using Microsoft.AspNetCore.Builder;
+global using Microsoft.Extensions.DependencyInjection;
+global using System.ComponentModel.DataAnnotations.Schema;
+global using System.Text.Json;
