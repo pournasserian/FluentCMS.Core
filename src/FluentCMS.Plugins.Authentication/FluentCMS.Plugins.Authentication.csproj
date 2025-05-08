@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FluentCMS.Core.Identity\FluentCMS.Core.Identity.csproj" />
-    <ProjectReference Include="..\FluentCMS.Core.Repositories.Abstractions\FluentCMS.Core.Repositories.Abstractions.csproj" />
     <ProjectReference Include="..\Plugins\FluentCMS.Plugins.Abstractions\FluentCMS.Plugins.Abstractions.csproj" />
   </ItemGroup>
 

@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\FluentCMS.Shared\FluentCMS.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

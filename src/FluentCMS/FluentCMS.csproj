@@ -15,6 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="..\FluentCMS.Core.Api\FluentCMS.Core.Api.csproj" />
     <ProjectReference Include="..\FluentCMS.Core.EventBus\FluentCMS.Core.EventBus.csproj" />
+    <ProjectReference Include="..\FluentCMS.Plugins.Authentication\FluentCMS.Plugins.Authentication.csproj" />
     <ProjectReference Include="..\FluentCMS.TodoApi\FluentCMS.TodoApi.csproj" />
     <ProjectReference Include="..\Plugins\FluentCMS.Plugins.AuditTrailManager\FluentCMS.Plugins.AuditTrailManager.csproj" />
     <ProjectReference Include="..\Plugins\FluentCMS.Plugins\FluentCMS.Plugins.csproj" />

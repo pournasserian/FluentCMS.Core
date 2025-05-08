@@ -17,7 +17,11 @@ public class AuditTrailHandler<T>(IAuditTrailService service, ILogger<AuditTrail
                 throw new ArgumentNullException("Event data cannot be null.");
             }
 
-            await service.Add(domainEvent.Data, domainEvent.EventType, cancellationToken);
+            var entityTypeName = domainEvent.Data.GetType().Name;
+            var validEventTypes = new[] { $"{entityTypeName}.Adding", $"{entityTypeName}.Updated", $"{entityTypeName}.Removed" };
+
+            if (validEventTypes.Contains(domainEvent.EventType))
+                await service.Add(domainEvent.Data, domainEvent.EventType, cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

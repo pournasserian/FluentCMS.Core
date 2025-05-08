@@ -10,10 +10,10 @@ public class User<TUserClaim, TUserLogin, TUserToken> : IdentityUser<Guid>, IAud
     where TUserToken : UserToken, new()
 {
     // IAuditableEntity implementations
-    public string CreatedBy { get; set; } = default!;
+    public string? CreatedBy { get; set; } = default!;
     public DateTime CreatedAt { get; set; }
-    public string? ModifiedBy { get; set; }
-    public DateTime? ModifiedAt { get; set; }
+    public string? UpdatedBy { get; set; }
+    public DateTime? UpdatedAt { get; set; }
     public int Version { get; set; }
 
     // Additional properties

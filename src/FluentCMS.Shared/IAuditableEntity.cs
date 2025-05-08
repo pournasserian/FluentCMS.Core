@@ -1,4 +1,4 @@
-﻿namespace FluentCMS.DataAccess.Abstractions;
+﻿namespace FluentCMS;
 
 public interface IAuditableEntity : IEntity
 {

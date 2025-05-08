@@ -1,5 +1,4 @@
 ﻿using FluentCMS.Core.EventBus.Abstractions;
-using FluentCMS.DataAccess.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 

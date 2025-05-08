@@ -1,4 +1,5 @@
-﻿using FluentCMS.Core.Identity.Options;
+﻿using FluentCMS.Core.Identity;
+using FluentCMS.Core.Identity.Options;
 using FluentCMS.Plugins.Abstractions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -9,6 +10,9 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using System.Text;
+using FluentCMS.DataAccess.EntityFramework;
+using FluentCMS.Core.Identity.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace FluentCMS.Plugins.Authentication;
 
@@ -16,12 +20,13 @@ public class AuthenticationPlugin : IPlugin
 {
     public void ConfigureServices(IHostApplicationBuilder builder)
     {
-        //builder.Services.AddIdentityCore<User>()
-        //    .AddUserStore<UserStore>()
-        //    .AddRoleStore<RoleStore>()
-        //    .AddUserManager<UserManager<User>>()
-        //    .AddRoleManager<RoleManager<Role>>()
-        //    .AddDefaultTokenProviders();
+        var services = builder.Services;
+
+        services.AddCoreDbContext<ApplicationDbContext>();
+        
+        services.AddIdentity<User, Role>()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
 
         // Configure Identity options from appsettings.json
         builder.Services.Configure<IdentityOptions>(options =>
@@ -78,5 +83,25 @@ public class AuthenticationPlugin : IPlugin
 
     public void Configure(IApplicationBuilder app)
     {
+        // Initialize the database in development environment only
+        using (var scope = app.ApplicationServices.CreateScope())
+        {
+            var sp = scope.ServiceProvider;
+            var dbContext = sp.GetRequiredService<ApplicationDbContext>();
+
+            // Add this check to avoid conflicts
+            if (!dbContext.Database.CanConnect())
+            {
+                dbContext.Database.EnsureCreated();
+            }
+            else
+            {
+                // For subsequent DbContexts, we need a different approach
+                // This will ensure the tables for this specific DbContext are created
+                // without dropping existing tables
+                var script = dbContext.Database.GenerateCreateScript();
+                dbContext.Database.ExecuteSqlRaw(script);
+            }
+        }
     }
 }
