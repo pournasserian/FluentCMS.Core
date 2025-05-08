@@ -10,5 +10,4 @@ global using Microsoft.Extensions.Hosting;
 global using FluentCMS.Plugins.AuditTrailManager.Handlers;
 global using Microsoft.AspNetCore.Builder;
 global using Microsoft.Extensions.DependencyInjection;
-global using System.ComponentModel.DataAnnotations.Schema;
 global using System.Text.Json;

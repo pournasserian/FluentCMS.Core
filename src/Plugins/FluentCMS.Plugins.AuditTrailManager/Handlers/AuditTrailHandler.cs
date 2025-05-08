@@ -1,8 +1,8 @@
-using FluentCMS.Plugins.AuditTrailManager.Repositories;
+using FluentCMS.Plugins.AuditTrailManager.Services;
 
 namespace FluentCMS.Plugins.AuditTrailManager.Handlers;
 
-public class AuditTrailHandler<T>(IAuditTrailRepository repository, IApplicationExecutionContext executionContext, ILogger<AuditTrailHandler<T>> logger) : IEventSubscriber<T>
+public class AuditTrailHandler<T>(IAuditTrailService service, ILogger<AuditTrailHandler<T>> logger) : IEventSubscriber<T>
 {
     public async Task Handle(DomainEvent<T> domainEvent, CancellationToken cancellationToken = default)
     {
@@ -10,29 +10,14 @@ public class AuditTrailHandler<T>(IAuditTrailRepository repository, IApplication
 
         try
         {
-            // Skip handling if T is not IAuditableEntity
-            if (domainEvent.Data is IAuditableEntity auditableEntity)
+            // Check if event data is null
+            if (domainEvent.Data is null)
             {
-                var auditTrail = new AuditTrail
-                {
-                    EntityId = auditableEntity.Id,
-                    EntityType = typeof(T).Name,
-                    EventType = domainEvent.EventType,
-                    Timestamp = DateTime.UtcNow,
-                    Entity = auditableEntity,
-                    IsAuthenticated = executionContext.IsAuthenticated,
-                    Language = executionContext.Language,
-                    SessionId = executionContext.SessionId,
-                    StartDate = DateTime.UtcNow,
-                    TraceId = executionContext.TraceId,
-                    UniqueId = executionContext.UniqueId,
-                    UserId = executionContext.UserId,
-                    UserIp = executionContext.UserIp,
-                    Username = executionContext.Username
-                };
-
-                await repository.Add(auditTrail, cancellationToken);
+                // Throw an exception or handle it as per your requirements
+                throw new ArgumentNullException("Event data cannot be null.");
             }
+
+            await service.Add(domainEvent.Data, domainEvent.EventType, cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

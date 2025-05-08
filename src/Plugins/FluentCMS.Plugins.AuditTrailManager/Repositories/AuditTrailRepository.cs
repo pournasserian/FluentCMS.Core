@@ -1,17 +1,20 @@
 ﻿namespace FluentCMS.Plugins.AuditTrailManager.Repositories;
 
-public interface IAuditTrailRepository : IRepository<AuditTrail>
+public interface IAuditTrailRepository
 {
+    Task<AuditTrail> Add(AuditTrail entity, CancellationToken cancellationToken = default);
 }
 
-public class AuditTrailRepository : Repository<AuditTrail, AuditTrailDbContext>, IAuditTrailRepository
+public class AuditTrailRepository(AuditTrailDbContext auditTrailDbContext, IMapper mapper) : IAuditTrailRepository
 {
-    public AuditTrailRepository(AuditTrailDbContext auditTrailDbContext) : base(auditTrailDbContext)
+    public async Task<AuditTrail> Add(AuditTrail entity, CancellationToken cancellationToken)
     {
-        // Log the context creation
-        Console.WriteLine("AuditTrailRepository created");
-        Console.WriteLine("AuditTrailRepository created with context: {0}", auditTrailDbContext.GetType().Name);
-        Console.WriteLine("AuditTrailRepository created with DbSet: {0}", auditTrailDbContext.Database.ProviderName);
+        cancellationToken.ThrowIfCancellationRequested();
 
+        var internalEntity = mapper.Map<AuditTrailInternal>(entity);
+        await auditTrailDbContext.AuditTrails.AddAsync(internalEntity, cancellationToken);
+        await auditTrailDbContext.SaveChangesAsync(cancellationToken);
+
+        return mapper.Map<AuditTrail>(entity);
     }
 }
