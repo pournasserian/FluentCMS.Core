@@ -18,6 +18,8 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 
+builder.Services.AddScoped<FluentCMS.IApplicationExecutionContext, FluentCMS.ApiExecutionContext>();
+
 var connectionstring = builder.Configuration.GetConnectionString("DefaultConnection") ??
     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 

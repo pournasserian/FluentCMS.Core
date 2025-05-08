@@ -1,10 +1,10 @@
 using FluentCMS.Plugins.Abstractions;
-using FluentCMS.DataAccess.Abstractions;
 using FluentCMS.DataAccess.EntityFramework;
 using FluentCMS.TodoApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using FluentCMS.TodoApi.Repositories;
 
 namespace FluentCMS.TodoApi;
 
@@ -12,11 +12,9 @@ public class TodoPlugin : IPlugin
 {
     public void ConfigureServices(IHostApplicationBuilder builder)
     {
-        builder.Services.AddScoped<IApplicationExecutionContext, ApiExecutionContext>();
-        builder.Services.AddScoped<IApplicationUnitOfWork, ApplicationUnitOfWork>();
         builder.Services.AddScoped<ITodoService, TodoService>();
         builder.Services.AddScoped<ITodoRepository, TodoRepository>();
-        builder.Services.AddCoreDbContext<ApplicationDbContext>();
+        builder.Services.AddCoreDbContext<TodoDbContext>();
     }
 
     public void Configure(IApplicationBuilder app)
@@ -25,7 +23,7 @@ public class TodoPlugin : IPlugin
         using (var scope = app.ApplicationServices.CreateScope())
         {
             var sp = scope.ServiceProvider;
-            var dbContext = sp.GetRequiredService<ApplicationDbContext>();
+            var dbContext = sp.GetRequiredService<TodoDbContext>();
 
             // This ensures the database is created based on the current model
             // Only use this when NOT using migrations

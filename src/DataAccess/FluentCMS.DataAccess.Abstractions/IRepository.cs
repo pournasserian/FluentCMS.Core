@@ -2,20 +2,20 @@
 
 namespace FluentCMS.DataAccess.Abstractions;
 
-public interface IRepository : IDisposable
+public interface IRepository
 {
 }
 
-public interface IRepository<T> : IRepository where T : class, IEntity
+public interface IRepository<TEntity> : IRepository where TEntity : class, IEntity
 {
-    Task<T> Add(T entity, CancellationToken cancellationToken = default);
-    Task<IEnumerable<T>> AddMany(IEnumerable<T> entities, CancellationToken cancellationToken = default);
-    Task<T> Update(T entity, CancellationToken cancellationToken = default);
-    Task<T> Remove(T entity, CancellationToken cancellationToken = default);
-    Task<T?> GetById(Guid id, CancellationToken cancellationToken = default);
-    Task<T> Remove(Guid id, CancellationToken cancellationToken = default);
-    Task<IEnumerable<T>> GetAll(CancellationToken cancellationToken = default);
-    Task<IEnumerable<T>> Find(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
-    Task<long> Count(Expression<Func<T, bool>>? filter = default, CancellationToken cancellationToken = default);
-    Task<bool> Any(Expression<Func<T, bool>>? filter = default, CancellationToken cancellationToken = default);
+    Task<TEntity> Add(TEntity entity, CancellationToken cancellationToken = default);
+    Task<IEnumerable<TEntity>> AddMany(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);
+    Task<TEntity> Update(TEntity entity, CancellationToken cancellationToken = default);
+    Task<TEntity> Remove(TEntity entity, CancellationToken cancellationToken = default);
+    Task<TEntity?> GetById(Guid id, CancellationToken cancellationToken = default);
+    Task<TEntity> Remove(Guid id, CancellationToken cancellationToken = default);
+    Task<IEnumerable<TEntity>> GetAll(CancellationToken cancellationToken = default);
+    Task<IEnumerable<TEntity>> Find(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default);
+    Task<long> Count(Expression<Func<TEntity, bool>>? filter = default, CancellationToken cancellationToken = default);
+    Task<bool> Any(Expression<Func<TEntity, bool>>? filter = default, CancellationToken cancellationToken = default);
 }

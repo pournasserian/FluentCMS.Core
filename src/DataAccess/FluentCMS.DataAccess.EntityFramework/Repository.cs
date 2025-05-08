@@ -4,123 +4,203 @@ using System.Linq.Expressions;
 
 namespace FluentCMS.DataAccess.EntityFramework;
 
-public class Repository<T>(DbContext context) : IRepository<T> where T : class, IEntity
+public class Repository<TEntity, TContext> : 
+    IRepository<TEntity> 
+    where TEntity : class, IEntity 
+    where TContext : DbContext
 {
-    protected readonly DbSet<T> DbSet = context.Set<T>();
+    protected readonly TContext Context;
+    protected readonly DbSet<TEntity> DbSet;
+    protected virtual QueryTrackingBehavior QueryTrackingBehavior { get => QueryTrackingBehavior.NoTracking; }
+    protected virtual bool AutoDetectChangesEnabled { get => false; }
 
-    public virtual async Task<T> Remove(Guid id, CancellationToken cancellationToken = default)
+    public Repository(TContext context)
+    {
+        Context = context ??
+            throw new ArgumentNullException(nameof(context));
+
+        DbSet = context.Set<TEntity>();
+        context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior;
+        context.ChangeTracker.AutoDetectChangesEnabled = AutoDetectChangesEnabled;
+    }
+
+    public virtual async Task<TEntity> Remove(Guid id, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var entity = await DbSet.FindAsync([id], cancellationToken: cancellationToken).ConfigureAwait(false) ??
-            throw new EntityNotFoundException(id.ToString()!, typeof(T).Name);
+        var entity = await DbSet.FindAsync([id], cancellationToken) ??
+            throw new EntityNotFoundException(id.ToString()!, typeof(TEntity).Name);
 
         DbSet.Remove(entity);
+        Context.Entry(entity).State = EntityState.Deleted;
+
+        var affectedRows = await Context.SaveChangesAsync(cancellationToken);
+
+        if (affectedRows != 1)
+        {
+            // TODO: Log this or throw an exception
+        }
 
         return entity;
     }
 
-    public virtual async Task<T> Add(T entity, CancellationToken cancellationToken = default)
+    public virtual async Task<TEntity> Add(TEntity entity, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(entity);
 
-        await context.AddAsync(entity, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            await Context.AddAsync(entity, cancellationToken);
+            await Context.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception)
+        {
+            // TODO: Log this or throw an exception
+            throw;
+        }
 
         return entity;
     }
 
-    public virtual async Task<IEnumerable<T>> AddMany(IEnumerable<T> entities, CancellationToken cancellationToken = default)
+    public virtual async Task<IEnumerable<TEntity>> AddMany(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        await context.AddRangeAsync(entities, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            await Context.AddRangeAsync(entities, cancellationToken);
+            await Context.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception)
+        {
+            // TODO: Log this or throw an exception
+            throw;
+        }
+
         return entities;
     }
 
-    public virtual Task<T> Remove(T entity, CancellationToken cancellationToken = default)
+    public virtual async Task<TEntity> Remove(TEntity entity, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(entity);
 
-        DbSet.Remove(entity);
+        try
+        {
 
-        return Task.FromResult(entity);
+            DbSet.Remove(entity);
+            await Context.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception)
+        {
+            // TODO: Log this or throw an exception
+            throw;
+        }
+
+        return entity;
     }
 
-    public virtual Task<T> Update(T entity, CancellationToken cancellationToken = default)
+    public virtual async Task<TEntity> Update(TEntity entity, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(entity);
 
-        DbSet.Update(entity);
-
-        return Task.FromResult(entity);
-    }
-
-    public virtual async Task<T?> GetById(Guid id, CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        return await DbSet.SingleOrDefaultAsync(e => e.Id.Equals(id), cancellationToken);
-    }
-
-    public virtual async Task<bool> Any(Expression<Func<T, bool>>? filter = null, CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        if (filter == null)
+        try
         {
-            return await DbSet.AnyAsync(cancellationToken).ConfigureAwait(false);
+            DbSet.Update(entity);
+            await Context.SaveChangesAsync(cancellationToken);
         }
-        return await DbSet.AnyAsync(filter, cancellationToken).ConfigureAwait(false);
-    }
-
-    public virtual async Task<long> Count(Expression<Func<T, bool>>? filter = null, CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        if (filter == null)
+        catch (Exception)
         {
-            return await DbSet.CountAsync(cancellationToken).ConfigureAwait(false);
+            // TODO: Log this or throw an exception
+            throw;
         }
-        return await DbSet.CountAsync(filter, cancellationToken).ConfigureAwait(false);
+
+        return entity;
     }
 
-    public virtual async Task<IEnumerable<T>> Find(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+    public virtual async Task<TEntity?> GetById(Guid id, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        return await DbSet.Where(predicate).ToListAsync(cancellationToken).ConfigureAwait(false);
-    }
-
-    public virtual async Task<IEnumerable<T>> GetAll(CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        return await DbSet.ToListAsync(cancellationToken).ConfigureAwait(false);
-    }
-
-    #region IDisposable Members
-
-    private bool _disposed;
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!_disposed)
+        try
         {
-            if (disposing)
+            return await DbSet.SingleOrDefaultAsync(e => e.Id.Equals(id), cancellationToken);
+        }
+        catch (Exception)
+        {
+            // TODO: Log this or throw an exception
+            throw;
+        }
+    }
+
+    public virtual async Task<bool> Any(Expression<Func<TEntity, bool>>? filter = null, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        try
+        {
+            if (filter == null)
             {
+                return await DbSet.AnyAsync(cancellationToken);
             }
-            _disposed = true;
+            return await DbSet.AnyAsync(filter, cancellationToken);
+        }
+        catch (Exception)
+        {
+            // TODO: Log this or throw an exception
+            throw;
         }
     }
 
-    public void Dispose()
+    public virtual async Task<long> Count(Expression<Func<TEntity, bool>>? filter = null, CancellationToken cancellationToken = default)
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        try
+        {
+            if (filter == null)
+            {
+                return await DbSet.CountAsync(cancellationToken);
+            }
+            return await DbSet.CountAsync(filter, cancellationToken);
+        }
+        catch (Exception)
+        {
+            // TODO: Log this or throw an exception
+            throw;
+        }
     }
 
-    #endregion IDisposable Members
+    public virtual async Task<IEnumerable<TEntity>> Find(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(predicate);
+
+        try
+        {
+            return await DbSet.Where(predicate).ToListAsync(cancellationToken);
+        }
+        catch (Exception)
+        {
+            // TODO: Log this or throw an exception
+            throw;
+        }
+    }
+
+    public virtual async Task<IEnumerable<TEntity>> GetAll(CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        try
+        {
+            return await DbSet.ToListAsync(cancellationToken);
+        }
+        catch (Exception)
+        {
+            // TODO: Log this or throw an exception
+            throw;
+        }
+    }
 }

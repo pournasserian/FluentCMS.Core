@@ -2,12 +2,12 @@
 using FluentCMS.DataAccess.EntityFramework;
 using FluentCMS.TodoApi.Models;
 
-namespace FluentCMS.TodoApi;
+namespace FluentCMS.TodoApi.Repositories;
 
 public interface ITodoRepository : IRepository<Todo>
 {
 }
 
-public class TodoRepository(ApplicationDbContext context) : Repository<Todo>(context), ITodoRepository
+public class TodoRepository(TodoDbContext context) : Repository<Todo, TodoDbContext>(context), ITodoRepository
 {
 }

@@ -1,6 +1,4 @@
-﻿using FluentCMS.DataAccess.Abstractions;
-
-namespace FluentCMS.DataAccess.EntityFramework;
+﻿namespace FluentCMS;
 
 public class ApiExecutionContext : IApplicationExecutionContext
 {

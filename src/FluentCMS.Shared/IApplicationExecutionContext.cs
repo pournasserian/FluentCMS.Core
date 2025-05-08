@@ -1,4 +1,4 @@
-﻿namespace FluentCMS.DataAccess.Abstractions;
+﻿namespace FluentCMS;
 
 /// <summary>
 /// ApiExecutionContext encapsulates various contextual information 

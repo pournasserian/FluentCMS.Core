@@ -1,4 +1,5 @@
 ﻿using FluentCMS.TodoApi.Models;
+using FluentCMS.TodoApi.Repositories;
 
 namespace FluentCMS.TodoApi.Services;
 
@@ -11,35 +12,32 @@ public interface ITodoService
     Task<Todo> Update(Todo entity, CancellationToken cancellationToken = default);
 }
 
-public class TodoService(IApplicationUnitOfWork unitOfWork) : ITodoService
+public class TodoService(ITodoRepository todoRepository) : ITodoService
 {
     public async Task<Todo> Add(Todo entity, CancellationToken cancellationToken = default)
     {
-        await unitOfWork.TodoRepository.Add(entity, cancellationToken);
-        await unitOfWork.SaveChanges(cancellationToken);
+        await todoRepository.Add(entity, cancellationToken);
         return entity;
     }
 
     public async Task<Todo> Update(Todo entity, CancellationToken cancellationToken = default)
     {
-        await unitOfWork.TodoRepository.Update(entity, cancellationToken);
-        await unitOfWork.SaveChanges(cancellationToken);
+        await todoRepository.Update(entity, cancellationToken);
         return entity;
     }
 
     public async Task Remove(Guid entityId, CancellationToken cancellationToken = default)
     {
-        await unitOfWork.TodoRepository.Remove(entityId, cancellationToken);
-        await unitOfWork.SaveChanges(cancellationToken);
+        await todoRepository.Remove(entityId, cancellationToken);
     }
 
     public Task<Todo?> GetById(Guid entityId, CancellationToken cancellationToken = default)
     {
-        return unitOfWork.TodoRepository.GetById(entityId, cancellationToken);
+        return todoRepository.GetById(entityId, cancellationToken);
     }
 
     public Task<IEnumerable<Todo>> GetAll(CancellationToken cancellationToken = default)
     {
-        return unitOfWork.TodoRepository.GetAll(cancellationToken);
+        return todoRepository.GetAll(cancellationToken);
     }
 }

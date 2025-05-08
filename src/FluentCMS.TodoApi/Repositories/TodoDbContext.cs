@@ -1,16 +1,14 @@
 ﻿using FluentCMS.TodoApi.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace FluentCMS.TodoApi;
+namespace FluentCMS.TodoApi.Repositories;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
+public class TodoDbContext(DbContextOptions<TodoDbContext> options) : DbContext(options)
 {
     public DbSet<Todo> Todos { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        //modelBuilder.Entity<Todo>().ToTable("Todos");
-
         // Configure the Todo entity
         modelBuilder.Entity<Todo>()
             .HasKey(t => t.Id);
