@@ -2,9 +2,11 @@
 
 public class AuditTrailDbContext : DbContext
 {
-    public AuditTrailDbContext(DbContextOptions<AuditTrailDbContext> options) : base(options)
+    public AuditTrailDbContext(DbContextOptions<AuditTrailDbContext> options, ILogger<AuditTrailDbContext> logger) : base(options)
     {
-
+        logger.LogDebug("AuditTrailDbContext created");
+        logger.LogDebug("AuditTrailDbContext created with context: {Context}", options.ContextType.Name);
+        logger.LogDebug("AuditTrailDbContext created with DbSet: {ProviderName}", Database.ProviderName);
     }
     public DbSet<AuditTrail> AuditTrails { get; set; } = null!;
 

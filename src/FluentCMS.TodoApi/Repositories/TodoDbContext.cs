@@ -3,9 +3,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FluentCMS.TodoApi.Repositories;
 
-public class TodoDbContext(DbContextOptions<TodoDbContext> options) : DbContext(options)
+public class TodoDbContext : DbContext
 {
     public DbSet<Todo> Todos { get; set; } = null!;
+
+    public TodoDbContext(DbContextOptions<TodoDbContext> options) : base(options)
+    {
+        // Log the context creation
+        Console.WriteLine("TodoDbContext created");
+        Console.WriteLine("TodoDbContext created with context: {0}", options.ContextType.Name);
+        Console.WriteLine("TodoDbContext created with DbSet: {0}", Database.ProviderName);
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
