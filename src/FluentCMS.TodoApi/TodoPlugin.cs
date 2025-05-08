@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using FluentCMS.TodoApi.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace FluentCMS.TodoApi;
 
@@ -25,12 +26,19 @@ public class TodoPlugin : IPlugin
             var sp = scope.ServiceProvider;
             var dbContext = sp.GetRequiredService<TodoDbContext>();
 
-            // This ensures the database is created based on the current model
-            // Only use this when NOT using migrations
-            dbContext.Database.EnsureCreated();
-
-            // Optionally, you could seed initial data here
-            // SeedData.Initialize(dbContext);
+            // Add this check to avoid conflicts
+            if (!dbContext.Database.CanConnect())
+            {
+                dbContext.Database.EnsureCreated();
+            }
+            else
+            {
+                // For subsequent DbContexts, we need a different approach
+                // This will ensure the tables for this specific DbContext are created
+                // without dropping existing tables
+                var script = dbContext.Database.GenerateCreateScript();
+                dbContext.Database.ExecuteSqlRaw(script);
+            }
         }
     }
 }
