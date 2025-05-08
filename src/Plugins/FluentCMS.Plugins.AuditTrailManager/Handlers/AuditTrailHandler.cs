@@ -1,6 +1,8 @@
+using FluentCMS.Plugins.AuditTrailManager.Repositories;
+
 namespace FluentCMS.Plugins.AuditTrailManager.Handlers;
 
-public class AuditTrailHandler<T>(IAuditTrailUnitOfWork uow, IApplicationExecutionContext executionContext, ILogger<AuditTrailHandler<T>> logger) : IEventSubscriber<T>
+public class AuditTrailHandler<T>(IAuditTrailRepository repository, IApplicationExecutionContext executionContext, ILogger<AuditTrailHandler<T>> logger) : IEventSubscriber<T>
 {
     public async Task Handle(DomainEvent<T> domainEvent, CancellationToken cancellationToken = default)
     {
@@ -29,8 +31,7 @@ public class AuditTrailHandler<T>(IAuditTrailUnitOfWork uow, IApplicationExecuti
                     Username = executionContext.Username
                 };
 
-                await uow.AuditTrails.Add(auditTrail, cancellationToken);
-                await uow.SaveChanges(cancellationToken);
+                await repository.Add(auditTrail, cancellationToken);
             }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)

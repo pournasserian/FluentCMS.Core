@@ -1,4 +1,4 @@
-﻿namespace FluentCMS.Plugins.AuditTrailManager.Models;
+﻿namespace FluentCMS.Plugins.AuditTrailManager.Repositories;
 
 public class AuditTrailDbContext : DbContext
 {
@@ -18,15 +18,15 @@ public class AuditTrailDbContext : DbContext
         modelBuilder.Entity<AuditTrail>()
          .Property(a => a.EntityJson);
 
-        // Seed initial data
-        modelBuilder.Entity<AuditTrail>().HasData(
-            new AuditTrail
-            {
-                Id = Guid.NewGuid(),
-                EntityId = Guid.NewGuid(),
-                EntityType = "Todo",
-                EventType = "Created",
-                Timestamp = DateTime.UtcNow
-            });
+        //// Seed initial data
+        //modelBuilder.Entity<AuditTrail>().HasData(
+        //    new AuditTrail
+        //    {
+        //        Id = Guid.NewGuid(),
+        //        EntityId = Guid.NewGuid(),
+        //        EntityType = "Todo",
+        //        EventType = "Created",
+        //        Timestamp = DateTime.UtcNow
+        //    });
     }
 }

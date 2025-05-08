@@ -33,7 +33,7 @@ public class AuditableEntityInterceptor(IApplicationExecutionContext executionCo
                     // For new entities, set the CreatedAt and CreatedBy properties
                     // and generate a new Guid for the Id if it is empty
                     // Also set the Version to 1
-                    if (entity is IAuditableEntity idEntity && idEntity.Id == Guid.Empty)
+                    if (entity is IEntity idEntity && idEntity.Id == Guid.Empty)
                         idEntity.Id = Guid.NewGuid();
 
                     if (entity is IAuditableEntity auditableAdding)

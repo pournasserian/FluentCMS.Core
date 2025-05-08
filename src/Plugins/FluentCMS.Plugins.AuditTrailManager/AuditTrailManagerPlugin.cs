@@ -11,7 +11,6 @@ public class AuditTrailManagerPlugin : IPlugin
 
         services.AddCoreDbContext<AuditTrailDbContext>();
         services.AddTransient(typeof(IEventSubscriber<>), typeof(AuditTrailHandler<>));
-        services.AddScoped<IAuditTrailUnitOfWork, AuditTrailUnitOfWork>();
         services.AddScoped<IAuditTrailService, AuditTrailService>();
         services.AddScoped<IAuditTrailRepository, AuditTrailRepository>();
         services.AddAutoMapper(typeof(MappingProfile));
