@@ -44,9 +44,11 @@ public class EventPublisher(IServiceProvider serviceProvider) : IEventPublisher
         {
             // Log the exceptions here if needed
             foreach (var exception in exceptions)
+            {
                 _logger.LogError(exception, "An error occurred while handling the event.");
+            }
 
-            throw new AggregateException("One or more event handlers threw an exception.", exceptions);
+            throw new EventPublisherAggregatedException<TEvent>(exceptions);
         }
     }
 }

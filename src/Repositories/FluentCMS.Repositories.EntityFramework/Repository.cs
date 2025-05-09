@@ -10,21 +10,11 @@ public class Repository<TEntity, TContext>(TContext context) : IRepository<TEnti
     public virtual async Task<TEntity> Remove(Guid id, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-
+        
         var entity = await DbSet.FindAsync([id], cancellationToken) ??
-            throw new EntityNotFoundException(id.ToString()!, typeof(TEntity).Name);
+            throw new RepositoryException<TEntity>($"Entity {typeof(TEntity).Name} with id {id} not found.");
 
-        DbSet.Remove(entity);
-        Context.Entry(entity).State = EntityState.Deleted;
-
-        var affectedRows = await Context.SaveChangesAsync(cancellationToken);
-
-        if (affectedRows != 1)
-        {
-            // TODO: Log this or throw an exception
-        }
-
-        return entity;
+        return await Remove(entity, cancellationToken);
     }
 
     public virtual async Task<TEntity> Add(TEntity entity, CancellationToken cancellationToken = default)
@@ -40,10 +30,9 @@ public class Repository<TEntity, TContext>(TContext context) : IRepository<TEnti
             await Context.AddAsync(entity, cancellationToken);
             await Context.SaveChangesAsync(cancellationToken);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // TODO: Log this or throw an exception
-            throw;
+            throw new RepositoryException<TEntity>($"Unable to Add Entity {typeof(TEntity).Name} with id {entity.Id}", ex);
         }
 
         return entity;
@@ -79,14 +68,20 @@ public class Repository<TEntity, TContext>(TContext context) : IRepository<TEnti
 
         try
         {
-
             DbSet.Remove(entity);
-            await Context.SaveChangesAsync(cancellationToken);
+            var affectedRows = await Context.SaveChangesAsync(cancellationToken);
+            if (affectedRows == 0)
+            {
+                throw new RepositoryException<TEntity>($"Unable to Remove Entity {typeof(TEntity).Name} with id {entity.Id}");
+            }
+            else if (affectedRows > 1)
+            {
+                throw new RepositoryException<TEntity>($"More than one entity was removed for Entity {typeof(TEntity).Name} with id {entity.Id}");
+            }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // TODO: Log this or throw an exception
-            throw;
+            throw new RepositoryException<TEntity>($"Unable to Remove Entity {typeof(TEntity).Name} with id {entity.Id}", ex);
         }
 
         return entity;
@@ -102,10 +97,9 @@ public class Repository<TEntity, TContext>(TContext context) : IRepository<TEnti
             DbSet.Update(entity);
             await Context.SaveChangesAsync(cancellationToken);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // TODO: Log this or throw an exception
-            throw;
+            throw new RepositoryException<TEntity>($"Unable to Update Entity {typeof(TEntity).Name} with id {entity.Id}", ex);
         }
 
         return entity;
@@ -119,10 +113,9 @@ public class Repository<TEntity, TContext>(TContext context) : IRepository<TEnti
         {
             return await DbSet.SingleOrDefaultAsync(e => e.Id.Equals(id), cancellationToken);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // TODO: Log this or throw an exception
-            throw;
+            throw new RepositoryException<TEntity>($"Unable in GetById for Entity {typeof(TEntity).Name} with id {id}", ex);
         }
     }
 
@@ -138,10 +131,9 @@ public class Repository<TEntity, TContext>(TContext context) : IRepository<TEnti
             }
             return await DbSet.AnyAsync(filter, cancellationToken);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // TODO: Log this or throw an exception
-            throw;
+            throw new RepositoryException<TEntity>($"Unable in Any for Entity {typeof(TEntity).Name}", ex);
         }
     }
 
@@ -157,10 +149,9 @@ public class Repository<TEntity, TContext>(TContext context) : IRepository<TEnti
             }
             return await DbSet.CountAsync(filter, cancellationToken);
         }
-        catch (Exception)
+        catch (Exception ex )
         {
-            // TODO: Log this or throw an exception
-            throw;
+            throw new RepositoryException<TEntity>($"Unable in Count for Entity {typeof(TEntity).Name}", ex);
         }
     }
 
@@ -173,10 +164,9 @@ public class Repository<TEntity, TContext>(TContext context) : IRepository<TEnti
         {
             return await DbSet.Where(predicate).ToListAsync(cancellationToken);
         }
-        catch (Exception)
+        catch (Exception ex )
         {
-            // TODO: Log this or throw an exception
-            throw;
+            throw new RepositoryException<TEntity>($"Unable in Find for Entity {typeof(TEntity).Name}", ex);
         }
     }
 
@@ -188,10 +178,9 @@ public class Repository<TEntity, TContext>(TContext context) : IRepository<TEnti
         {
             return await DbSet.ToListAsync(cancellationToken);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // TODO: Log this or throw an exception
-            throw;
+            throw new RepositoryException<TEntity>($"Unable in GetAll for Entity {typeof(TEntity).Name}", ex);
         }
     }
 }
