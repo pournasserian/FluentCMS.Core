@@ -3,7 +3,7 @@
 /// <summary>
 /// Extension methods for configuring database contexts and providers
 /// </summary>
-public static class DatabaseExtensions
+public static class ServiceCollectionExtensions
 {
     // Store both DbContext types and their local configurations
     private static readonly Dictionary<Type, Action<IServiceProvider, DbContextOptionsBuilder>> _pendingDbContextConfigs = [];
