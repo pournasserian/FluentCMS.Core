@@ -22,8 +22,8 @@ public class EventBusPublisherInterceptor(IRepositortyEventPublisher publisher) 
 
     private async Task AfterSaveChanges(DbContext? context, CancellationToken cancellationToken = default)
     {
-        // Check if dbContext inherits from BaseDbContext
-        if (context == null || context is not BaseDbContext) 
+        // Check if dbContext implements IEventPublisherDbContext
+        if (context == null || context is not IEventPublisherDbContext) 
             return;
 
         foreach (var entry in context.ChangeTracker.Entries<IEntity>())

@@ -2,7 +2,7 @@
 
 namespace FluentCMS.DataAccess.EntityFramework;
 
-public abstract class BaseDbContext : DbContext
+public abstract class BaseDbContext : DbContext, IEventPublisherDbContext
 {
     public BaseDbContext(DbContextOptions options) : base(options)
     {

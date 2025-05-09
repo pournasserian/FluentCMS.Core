@@ -1,8 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FluentCMS.DataAccess.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 
 namespace FluentCMS.Core.Identity;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<User, Role, Guid, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>(options)
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : 
+    IdentityDbContext<User, Role, Guid, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>(options),
+    IEventPublisherDbContext
 {
     protected override void OnModelCreating(ModelBuilder builder)
     {
