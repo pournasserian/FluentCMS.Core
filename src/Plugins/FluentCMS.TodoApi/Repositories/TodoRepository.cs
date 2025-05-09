@@ -11,7 +11,7 @@ public interface ITodoRepository : IRepository<Todo>
 
 public class TodoRepository : Repository<Todo, TodoDbContext>, ITodoRepository
 {
-    public TodoRepository(TodoDbContext context, ILogger<TodoRepository> logger) : base(context)
+    public TodoRepository(TodoDbContext context, ILogger<TodoRepository> logger) : base(context, logger)
     {        
         logger.LogDebug("TodoRepository created");
         logger.LogDebug("TodoRepository created with context: {Context}", context.GetType().Name);
