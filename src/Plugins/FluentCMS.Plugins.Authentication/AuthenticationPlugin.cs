@@ -4,7 +4,7 @@ public class AuthenticationPlugin : IPlugin
 {
     public void ConfigureServices(IHostApplicationBuilder builder)
     {
-
+        builder.AddIdentityCore();
     }
 
     public void Configure(IApplicationBuilder app)

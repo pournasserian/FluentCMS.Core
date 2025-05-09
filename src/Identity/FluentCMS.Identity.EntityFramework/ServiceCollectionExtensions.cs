@@ -2,7 +2,7 @@
 
 public static class ServiceCollectionExtensions
 {
-    public static IHostApplicationBuilder AddIdentityCore(IHostApplicationBuilder builder)
+    public static IHostApplicationBuilder AddIdentityCore(this IHostApplicationBuilder builder)
     {
         var services = builder.Services;
 
