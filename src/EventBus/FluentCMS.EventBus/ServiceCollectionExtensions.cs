@@ -1,6 +1,6 @@
 namespace FluentCMS.EventBus;
 
-public static class EventPublisherServiceCollectionExtensions
+public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddEventPublisher(this IServiceCollection services)
     {
