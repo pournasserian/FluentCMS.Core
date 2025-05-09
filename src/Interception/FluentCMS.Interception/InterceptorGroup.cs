@@ -1,4 +1,4 @@
-﻿namespace FluentCMS.Core.Interception;
+﻿namespace FluentCMS.Interception;
 
 public class InterceptorGroup<TService, TImplementation> where TService : class where TImplementation : class, TService
 {

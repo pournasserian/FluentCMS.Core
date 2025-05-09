@@ -1,4 +1,4 @@
-﻿namespace FluentCMS.Core.Interception;
+﻿namespace FluentCMS.Interception;
 
 public class AspectProxy : DispatchProxy
 {
