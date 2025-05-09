@@ -1,0 +1,16 @@
+﻿global using Microsoft.AspNetCore.Identity;
+global using FluentCMS.Identity.Models;
+global using FluentCMS.Repositories.EntityFramework;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+global using System.ComponentModel.DataAnnotations;
+global using FluentCMS.Identity.Options;
+global using Microsoft.AspNetCore.Authentication.JwtBearer;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Hosting;
+global using System.Text;
+global using Microsoft.Extensions.Options;
+global using Microsoft.IdentityModel.Tokens;
+global using System.Security.Cryptography;
+
