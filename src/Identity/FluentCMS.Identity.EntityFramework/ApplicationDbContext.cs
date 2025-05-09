@@ -6,15 +6,35 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 {
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        // Set table names
-        builder.Entity<User>(b => b.ToTable("Users"));
-        builder.Entity<Role>(b => b.ToTable("Roles"));
-        builder.Entity<UserClaim>(b => b.ToTable("UserClaims"));
-        builder.Entity<UserRole>(b => b.ToTable("UserRoles"));
-        builder.Entity<UserLogin>(b => b.ToTable("UserLogins"));
-        builder.Entity<UserToken>(b => b.ToTable("UserTokens"));
-        builder.Entity<RoleClaim>(b => b.ToTable("RoleClaims"));
-
         base.OnModelCreating(builder);
+
+        // Change Identity table names
+        builder.Entity<User>(entity => {
+            entity.ToTable("Users");
+        });
+
+        builder.Entity<Role>(entity => {
+            entity.ToTable("Roles");
+        });
+
+        builder.Entity<UserRole>(entity => {
+            entity.ToTable("UserRoles");
+        });
+
+        builder.Entity<UserClaim>(entity => {
+            entity.ToTable("UserClaims");
+        });
+
+        builder.Entity<UserLogin>(entity => {
+            entity.ToTable("UserLogins");
+        });
+
+        builder.Entity<RoleClaim>(entity => {
+            entity.ToTable("RoleClaims");
+        });
+
+        builder.Entity<UserToken>(entity => {
+            entity.ToTable("UserTokens");
+        });
     }
 }
