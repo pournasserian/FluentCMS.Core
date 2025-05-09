@@ -1,5 +1,3 @@
-using FluentCMS.Plugins.AuditTrailManager.Services;
-
 namespace FluentCMS.Plugins.AuditTrailManager.Handlers;
 
 public class AuditTrailHandler(IAuditTrailService service, ILogger<AuditTrailHandler> logger) :

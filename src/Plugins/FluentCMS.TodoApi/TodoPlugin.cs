@@ -1,19 +1,21 @@
-﻿namespace FluentCMS.Plugins.AuditTrailManager;
+using FluentCMS.Plugins.Abstractions;
+using FluentCMS.TodoApi.Services;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using FluentCMS.TodoApi.Repositories;
+using Microsoft.EntityFrameworkCore;
+using FluentCMS.Repositories.EntityFramework;
 
-public class AuditTrailManagerPlugin : IPlugin
+namespace FluentCMS.TodoApi;
+
+public class TodoPlugin : IPlugin
 {
     public void ConfigureServices(IHostApplicationBuilder builder)
     {
-        var services = builder.Services;
-
-        services.AddCoreDbContext<AuditTrailDbContext>();
-        services.AddTransient<IEventSubscriber<RepositoryEntityCreatedEvent>, AuditTrailHandler>();
-        services.AddTransient<IEventSubscriber<RepositoryEntityUpdatedEvent>, AuditTrailHandler>();
-        services.AddTransient<IEventSubscriber<RepositoryEntityRemovedEvent>, AuditTrailHandler>();
-
-        services.AddScoped<IAuditTrailService, AuditTrailService>();
-        services.AddScoped<IAuditTrailRepository, AuditTrailRepository>();
-        services.AddAutoMapper(typeof(MappingProfile));
+        builder.Services.AddScoped<ITodoService, TodoService>();
+        builder.Services.AddScoped<ITodoRepository, TodoRepository>();
+        builder.Services.AddCoreDbContext<TodoDbContext>();
     }
 
     public void Configure(IApplicationBuilder app)
@@ -22,7 +24,7 @@ public class AuditTrailManagerPlugin : IPlugin
         using (var scope = app.ApplicationServices.CreateScope())
         {
             var sp = scope.ServiceProvider;
-            var dbContext = sp.GetRequiredService<AuditTrailDbContext>();
+            var dbContext = sp.GetRequiredService<TodoDbContext>();
 
             // Add this check to avoid conflicts
             if (!dbContext.Database.CanConnect())

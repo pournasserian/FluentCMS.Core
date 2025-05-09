@@ -1,10 +1,10 @@
-using FluentCMS.Core.Api;
-using FluentCMS.Core.EventBus;
 using FluentCMS.Plugins;
-using FluentCMS.DataAccess.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
+using FluentCMS.Repositories.EntityFramework;
+using FluentCMS.EventBus;
+using FluentCMS.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,9 +16,6 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .WriteTo.File("logs/myapp-.log", rollingInterval: RollingInterval.Day)
     .CreateLogger();
-
-
-builder.Services.AddScoped<FluentCMS.IApplicationExecutionContext, FluentCMS.ApiExecutionContext>();
 
 var connectionstring = builder.Configuration.GetConnectionString("DefaultConnection") ??
     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");

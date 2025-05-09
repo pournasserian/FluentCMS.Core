@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace FluentCMS;
+﻿namespace FluentCMS;
 
 public interface IEntity
 {
