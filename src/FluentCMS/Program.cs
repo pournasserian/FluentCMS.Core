@@ -34,7 +34,7 @@ builder.Services.AddDatabase((sp, options) =>
 // Add Serilog to the application
 builder.Host.UseSerilog();
 
-builder.Services.AddEventBus();
+builder.Services.AddEventPublisher();
 
 // Add services to the container.
 builder.Services.AddFluentCmsApi();

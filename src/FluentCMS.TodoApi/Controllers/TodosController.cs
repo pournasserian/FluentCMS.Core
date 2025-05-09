@@ -45,8 +45,7 @@ public class TodosController(ITodoService service) : BaseController
             Title = todoDto.Title,
             Description = todoDto.Description,
             IsCompleted = todoDto.IsCompleted,
-            DueDate = todoDto.DueDate,
-            CreatedAt = DateTime.UtcNow
+            DueDate = todoDto.DueDate
         };
 
         var created = await service.Add(todo, cancellationToken);

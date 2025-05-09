@@ -1,7 +1,6 @@
-﻿using FluentCMS.DataAccess.Abstractions;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace FluentCMS.DataAccess.EntityFramework;
+namespace FluentCMS;
 
 public abstract class AuditableEntity : Entity, IAuditableEntity
 {

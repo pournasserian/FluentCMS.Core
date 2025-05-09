@@ -1,4 +1,6 @@
-﻿using FluentCMS.DataAccess.EntityFramework.Interceptors;
+﻿using FluentCMS.Core.EventBus;
+using FluentCMS.DataAccess.Abstractions;
+using FluentCMS.DataAccess.EntityFramework.Interceptors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +20,7 @@ public static class DatabaseExtensions
     private static bool _databaseProviderConfigured = false;
 
     // Built-in interceptors to apply to all DbContexts
-    private static readonly List<Type> _builtInInterceptorTypes = [typeof(AuditableEntityInterceptor), typeof(EventBusInterceptor)];
+    private static readonly List<Type> _builtInInterceptorTypes = [typeof(AuditableEntityInterceptor), typeof(EventBusPublisherInterceptor)];
 
     /// <summary>
     /// Registers global interceptors to be applied to all DbContexts
@@ -47,20 +49,21 @@ public static class DatabaseExtensions
         Action<IServiceProvider, DbContextOptionsBuilder>? localConfigureOptions = null)
         where TContext : DbContext
     {
+        // Register built-in interceptors in DI
+        foreach (var interceptorType in _builtInInterceptorTypes)
+            services.TryAddScoped(interceptorType);
+
         var contextType = typeof(TContext);
 
-        services.TryAddScoped<AuditableEntityInterceptor>();
-        services.TryAddScoped<EventBusInterceptor>();
-
         // Create combined local configuration that includes built-in interceptors
-        Action<IServiceProvider, DbContextOptionsBuilder> combinedLocalConfig = (sp, options) =>
+        void combinedLocalConfig(IServiceProvider sp, DbContextOptionsBuilder options)
         {
             // Apply built-in interceptors first
             ApplyBuiltInInterceptors(sp, options);
 
             // Then apply custom local configuration
             localConfigureOptions?.Invoke(sp, options);
-        };
+        }
 
         if (_databaseProviderConfigured)
         {
@@ -84,6 +87,8 @@ public static class DatabaseExtensions
     {
         // Mark database provider as configured
         _databaseProviderConfigured = true;
+
+        services.TryAddScoped<IRepositortyEventPublisher, RepositortyEventPublisher>();
 
         // Register all pending contexts with the global provider configuration
         foreach (var entry in _pendingDbContextConfigs)
@@ -141,14 +146,7 @@ public static class DatabaseExtensions
             globalConfigureOptions?.Invoke(sp, options);
         };
 
-        // Create the proper generic delegate for this context type
-        var optionsBuilderType = typeof(DbContextOptionsBuilder<>).MakeGenericType(contextType);
-        var serviceProviderType = typeof(IServiceProvider);
-        var delegateType = typeof(Action<,>).MakeGenericType(serviceProviderType, optionsBuilderType);
-
-        Action<IServiceProvider, DbContextOptionsBuilder> delegateAction = (sp, builder) => combinedConfigureOptions(sp, builder);
-
-        addDbContextMethod.Invoke(null, [services, delegateAction, ServiceLifetime.Scoped, ServiceLifetime.Scoped]);
+        addDbContextMethod.Invoke(null, [services, combinedConfigureOptions, ServiceLifetime.Scoped, ServiceLifetime.Scoped]);
     }
 
     /// <summary>

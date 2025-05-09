@@ -10,9 +10,6 @@ public class MappingProfile : Profile
 
         CreateMap<IApplicationExecutionContext, AuditTrailInternal>().ReverseMap();
 
-        //CreateMap<AuditTrail, AuditTrailInternal>()
-        //    .IncludeMembers(src => src.Context);
-
         // Map from AuditTrail to AuditTrailInternal
         CreateMap<AuditTrail, AuditTrailInternal>()
             .IncludeMembers(src => src.Context)

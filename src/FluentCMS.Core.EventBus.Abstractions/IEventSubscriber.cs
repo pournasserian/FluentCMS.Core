@@ -1,7 +1,7 @@
 namespace FluentCMS.Core.EventBus.Abstractions;
 
 // Generic event subscriber interface
-public interface IEventSubscriber<T>
+public interface IEventSubscriber<TEvent> where TEvent : class, IEvent
 {
-    Task Handle(DomainEvent<T> domainEvent, CancellationToken cancellationToken = default);
+    Task Handle(TEvent domainEvent, CancellationToken cancellationToken = default);
 }

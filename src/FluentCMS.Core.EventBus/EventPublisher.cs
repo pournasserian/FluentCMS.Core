@@ -1,46 +1,53 @@
 namespace FluentCMS.Core.EventBus;
 
-public class EventPublisher(IServiceProvider serviceProvider, ILogger<EventPublisher> logger) : IEventPublisher
+public class EventPublisher(IServiceProvider serviceProvider) : IEventPublisher
 {
-    public async Task Publish<T>(T data, string eventType, CancellationToken cancellationToken = default)
-    {
-        var domainEvent = new DomainEvent<T>(data, eventType);
-        await Publish(domainEvent, cancellationToken);
-    }
+    protected readonly IServiceProvider ServiceProvider = serviceProvider ??
+        throw new ArgumentNullException(nameof(serviceProvider));
 
-    public async Task Publish<T>(DomainEvent<T> domainEvent, CancellationToken cancellationToken = default)
+    private readonly ILogger<EventPublisher> Logger = serviceProvider.GetService<ILogger<EventPublisher>>() ??
+        throw new ArgumentNullException(nameof(Logger));
+
+    public async Task Publish<TEvent>(TEvent data, CancellationToken cancellationToken = default) where TEvent : class, IEvent
     {
-        try
+        cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(data);
+
+        // Get all registered subscribers for this event type
+        var subscribers = ServiceProvider.GetServices<IEventSubscriber<TEvent>>().ToList();
+
+        if (subscribers.Count == 0)
+            return;
+
+        // Create a list to hold any exceptions that occur during handler execution
+        var exceptions = new List<Exception>();
+
+        // Execute all handlers
+        var tasks = subscribers.Select(async subscriber =>
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            // Get all subscribers for this event type
-            var subscribers = serviceProvider.GetServices<IEventSubscriber<T>>();
-
-            if (!subscribers.Any())
+            try
             {
-                logger.LogWarning("No subscribers found for event type {EventType}", domainEvent.EventType);
-                return;
+                await subscriber.Handle(data, cancellationToken);
             }
+            catch (Exception ex)
+            {
+                // Collect exceptions but don't stop other handlers from executing
+                exceptions.Add(ex);
+            }
+        });
 
-            // Execute all handlers in parallel
-            var tasks = subscribers.Select(subscriber =>
-                subscriber.Handle(domainEvent, cancellationToken));
+        // Wait for all handlers to complete
+        await Task.WhenAll(tasks);
 
-            await Task.WhenAll(tasks);
-
-            logger.LogInformation("Event {EventType} published successfully with {SubscriberCount} subscribers",
-                domainEvent.EventType, subscribers.Count());
-        }
-        catch (OperationCanceledException)
+        // If any handlers threw exceptions, throw an aggregate exception
+        if (exceptions.Count != 0)
         {
-            logger.LogWarning("Event publishing was cancelled for event type {EventType}", domainEvent.EventType);
-            throw;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error publishing event {EventType}", domainEvent.EventType);
-            throw;
+            // Log the exceptions here if needed
+            foreach (var exception in exceptions)
+                Logger.LogError(exception, "An error occurred while handling the event.");
+
+            throw new AggregateException("One or more event handlers threw an exception.", exceptions);
         }
     }
 }
+

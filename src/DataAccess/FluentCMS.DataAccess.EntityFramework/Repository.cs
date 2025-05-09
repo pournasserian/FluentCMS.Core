@@ -4,25 +4,12 @@ using System.Linq.Expressions;
 
 namespace FluentCMS.DataAccess.EntityFramework;
 
-public class Repository<TEntity, TContext> : 
-    IRepository<TEntity> 
-    where TEntity : class, IEntity 
-    where TContext : DbContext
+public class Repository<TEntity, TContext>(TContext context) : IRepository<TEntity> where TEntity : class, IEntity where TContext : DbContext
 {
-    protected readonly TContext Context;
-    protected readonly DbSet<TEntity> DbSet;
-    protected virtual QueryTrackingBehavior QueryTrackingBehavior { get => QueryTrackingBehavior.NoTracking; }
-    protected virtual bool AutoDetectChangesEnabled { get => false; }
-
-    public Repository(TContext context)
-    {
-        Context = context ??
+    protected readonly TContext Context = context ??
             throw new ArgumentNullException(nameof(context));
 
-        DbSet = context.Set<TEntity>();
-        context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior;
-        context.ChangeTracker.AutoDetectChangesEnabled = AutoDetectChangesEnabled;
-    }
+    protected readonly DbSet<TEntity> DbSet = context.Set<TEntity>();
 
     public virtual async Task<TEntity> Remove(Guid id, CancellationToken cancellationToken = default)
     {
@@ -51,6 +38,9 @@ public class Repository<TEntity, TContext> :
 
         try
         {
+            if (entity.Id == Guid.Empty)
+                entity.Id = Guid.NewGuid();
+
             await Context.AddAsync(entity, cancellationToken);
             await Context.SaveChangesAsync(cancellationToken);
         }
@@ -69,6 +59,11 @@ public class Repository<TEntity, TContext> :
 
         try
         {
+            foreach (var entity in entities)
+            {
+                if (entity.Id == Guid.Empty)
+                    entity.Id = Guid.NewGuid();
+            }
             await Context.AddRangeAsync(entities, cancellationToken);
             await Context.SaveChangesAsync(cancellationToken);
         }

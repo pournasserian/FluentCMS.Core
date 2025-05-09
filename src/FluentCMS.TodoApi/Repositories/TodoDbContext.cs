@@ -1,9 +1,11 @@
-﻿using FluentCMS.TodoApi.Models;
+﻿using FluentCMS.DataAccess.EntityFramework;
+using FluentCMS.TodoApi.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace FluentCMS.TodoApi.Repositories;
 
-public class TodoDbContext : DbContext
+public class TodoDbContext : BaseDbContext
 {
     public DbSet<Todo> Todos { get; set; } = null!;
 
@@ -54,5 +56,4 @@ public class TodoDbContext : DbContext
             }
         );
     }
-
 }
