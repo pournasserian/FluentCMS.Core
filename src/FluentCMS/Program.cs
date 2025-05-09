@@ -1,5 +1,6 @@
 using FluentCMS.Api;
 using FluentCMS.EventBus;
+using FluentCMS.Identity.EntityFramework;
 using FluentCMS.Plugins;
 using FluentCMS.Repositories.EntityFramework;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,8 @@ var connectionstring = builder.Configuration.GetConnectionString("DefaultConnect
 
 // Add plugin system
 builder.AddPlugins(["FluentCMS"]);
+
+builder.AddIdentityCore();
 
 builder.Services.AddDatabase((sp, options) =>
 {

@@ -9,31 +9,38 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         base.OnModelCreating(builder);
 
         // Change Identity table names
-        builder.Entity<User>(entity => {
+        builder.Entity<User>(entity =>
+        {
             entity.ToTable("Users");
         });
 
-        builder.Entity<Role>(entity => {
+        builder.Entity<Role>(entity =>
+        {
             entity.ToTable("Roles");
         });
 
-        builder.Entity<UserRole>(entity => {
+        builder.Entity<UserRole>(entity =>
+        {
             entity.ToTable("UserRoles");
         });
 
-        builder.Entity<UserClaim>(entity => {
+        builder.Entity<UserClaim>(entity =>
+        {
             entity.ToTable("UserClaims");
         });
 
-        builder.Entity<UserLogin>(entity => {
+        builder.Entity<UserLogin>(entity =>
+        {
             entity.ToTable("UserLogins");
         });
 
-        builder.Entity<RoleClaim>(entity => {
+        builder.Entity<RoleClaim>(entity =>
+        {
             entity.ToTable("RoleClaims");
         });
 
-        builder.Entity<UserToken>(entity => {
+        builder.Entity<UserToken>(entity =>
+        {
             entity.ToTable("UserTokens");
         });
     }
