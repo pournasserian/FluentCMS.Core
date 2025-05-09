@@ -1,6 +1,6 @@
 ﻿namespace FluentCMS.Identity.EntityFramework;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : 
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) :
     IdentityDbContext<User, Role, Guid, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>(options),
     IEventPublisherDbContext
 {
@@ -14,7 +14,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<UserLogin>(b => b.ToTable("UserLogins"));
         builder.Entity<UserToken>(b => b.ToTable("UserTokens"));
         builder.Entity<RoleClaim>(b => b.ToTable("RoleClaims"));
-        
+
         base.OnModelCreating(builder);
     }
 }

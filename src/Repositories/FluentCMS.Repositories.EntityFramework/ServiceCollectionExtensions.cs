@@ -106,13 +106,13 @@ public static class ServiceCollectionExtensions
         Action<IServiceProvider, DbContextOptionsBuilder>? localConfigureOptions,
         Action<IServiceProvider, DbContextOptionsBuilder>? globalConfigureOptions = null)
     {
-        
+
         // Use reflection to call the generic AddDbContext method for this type 
         var addDbContextMethod = typeof(EntityFrameworkServiceCollectionExtensions)
             .GetMethods()
             .Single(
-                m => m.IsPublic && 
-                m.IsStatic && 
+                m => m.IsPublic &&
+                m.IsStatic &&
                 m.IsGenericMethod &&
                 m.GetGenericArguments().Length == 1 &&
                 m.Name == nameof(EntityFrameworkServiceCollectionExtensions.AddDbContext) &&

@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-namespace FluentCMS.Plugins.Authentication.Controllers;
+﻿namespace FluentCMS.Plugins.Authentication.Controllers;
 
 [ApiController]
 [Route("api/[controller]/[action]")]

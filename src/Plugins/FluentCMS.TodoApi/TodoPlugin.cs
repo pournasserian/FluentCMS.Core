@@ -1,11 +1,11 @@
 using FluentCMS.Plugins.Abstractions;
+using FluentCMS.Repositories.EntityFramework;
+using FluentCMS.TodoApi.Repositories;
 using FluentCMS.TodoApi.Services;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using FluentCMS.TodoApi.Repositories;
-using Microsoft.EntityFrameworkCore;
-using FluentCMS.Repositories.EntityFramework;
 
 namespace FluentCMS.TodoApi;
 

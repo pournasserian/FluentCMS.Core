@@ -39,7 +39,7 @@ public class AuditableEntityInterceptor(IApplicationExecutionContext executionCo
                     entity.UpdatedBy = executionContext.Username;
                     entity.UpdatedAt = DateTime.UtcNow;
                     entity.Version++;
-                    
+
                     break;
 
                 case EntityState.Deleted:

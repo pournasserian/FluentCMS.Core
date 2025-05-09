@@ -1,11 +1,11 @@
-﻿global using Microsoft.AspNetCore.Identity;
+﻿global using FluentCMS.Identity.EntityFramework;
 global using FluentCMS.Identity.Models;
 global using FluentCMS.Identity.Options;
-global using Microsoft.AspNetCore.Mvc;
-global using Microsoft.Extensions.Options;
-global using Microsoft.EntityFrameworkCore;
 global using FluentCMS.Plugins.Abstractions;
 global using Microsoft.AspNetCore.Builder;
+global using Microsoft.AspNetCore.Identity;
+global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Hosting;
-global using FluentCMS.Identity.EntityFramework;
+global using Microsoft.Extensions.Options;

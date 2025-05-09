@@ -1,10 +1,10 @@
+using FluentCMS.Api;
+using FluentCMS.EventBus;
 using FluentCMS.Plugins;
+using FluentCMS.Repositories.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
-using FluentCMS.Repositories.EntityFramework;
-using FluentCMS.EventBus;
-using FluentCMS.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 
