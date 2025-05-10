@@ -120,20 +120,8 @@ public static class ServiceCollectionExtensions
             var context = accessor?.HttpContext;
 
             if (context == null)
-            {
-                return new ApiExecutionContext
-                {
-                    TraceId = string.Empty,
-                    UniqueId = string.Empty,
-                    SessionId = string.Empty,
-                    UserIp = string.Empty,
-                    Language = DEFAULT_LANGUAGE,
-                    StartDate = DateTime.UtcNow,
-                    UserId = null,
-                    Username = string.Empty,
-                    IsAuthenticated = false
-                };
-            }
+                return new SystemExecutionContext();
+
             var instance = new ApiExecutionContext
             {
                 // Initialize properties based on the current HTTP context
