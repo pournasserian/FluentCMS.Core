@@ -1,4 +1,4 @@
-namespace FluentCMS.Plugins.Authentication.Controllers;
+namespace FluentCMS.Plugins.AuthenticationManager.Controllers;
 
 public class AccountController(IOptions<JwtOptions> jwtOptions, IOptions<IdentityOptions> identityOptions, UserManager<User> userManager) : BaseController
 {

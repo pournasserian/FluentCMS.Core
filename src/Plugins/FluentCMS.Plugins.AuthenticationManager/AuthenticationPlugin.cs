@@ -1,4 +1,4 @@
-﻿namespace FluentCMS.Plugins.Authentication;
+﻿namespace FluentCMS.Plugins.AuthenticationManager;
 
 public class AuthenticationPlugin : IPlugin
 {

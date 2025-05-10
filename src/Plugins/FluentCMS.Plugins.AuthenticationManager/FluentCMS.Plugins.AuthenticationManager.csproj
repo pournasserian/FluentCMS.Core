@@ -5,10 +5,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <ProjectReference Include="..\..\Identity\FluentCMS.Identity.EntityFramework\FluentCMS.Identity.EntityFramework.csproj" />
     <ProjectReference Include="..\FluentCMS.Plugins.Abstractions\FluentCMS.Plugins.Abstractions.csproj" />
   </ItemGroup>
-
+  
 </Project>

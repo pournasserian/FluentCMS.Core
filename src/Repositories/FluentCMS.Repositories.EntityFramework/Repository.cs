@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace FluentCMS.Repositories.EntityFramework;
+﻿namespace FluentCMS.Repositories.EntityFramework;
 
 public class Repository<TEntity, TContext>(TContext context, ILogger<Repository<TEntity, TContext>> logger) : IRepository<TEntity> where TEntity : class, IEntity where TContext : DbContext
 {
@@ -8,16 +6,6 @@ public class Repository<TEntity, TContext>(TContext context, ILogger<Repository<
             throw new ArgumentNullException(nameof(context));
 
     protected readonly DbSet<TEntity> DbSet = context.Set<TEntity>();
-
-    public virtual async Task<TEntity> Remove(Guid id, CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        var entity = await DbSet.FindAsync([id], cancellationToken) ??
-            throw new RepositoryException<TEntity>($"Entity {typeof(TEntity).Name} with id {id} not found.");
-
-        return await Remove(entity, cancellationToken);
-    }
 
     public virtual async Task<TEntity> Add(TEntity entity, CancellationToken cancellationToken = default)
     {
@@ -31,6 +19,8 @@ public class Repository<TEntity, TContext>(TContext context, ILogger<Repository<
 
             await Context.AddAsync(entity, cancellationToken);
             await Context.SaveChangesAsync(cancellationToken);
+
+            logger.LogInformation("Entity {EntityType} with id {EntityId} added", typeof(TEntity).Name, entity.Id);
         }
         catch (Exception ex)
         {
@@ -54,6 +44,8 @@ public class Repository<TEntity, TContext>(TContext context, ILogger<Repository<
             }
             await Context.AddRangeAsync(entities, cancellationToken);
             await Context.SaveChangesAsync(cancellationToken);
+
+            logger.LogInformation("Entities {EntityType} added", typeof(TEntity).Name);
         }
         catch (Exception ex)
         {
@@ -90,7 +82,19 @@ public class Repository<TEntity, TContext>(TContext context, ILogger<Repository<
             throw new RepositoryException<TEntity>($"Unable to Remove entity {typeof(TEntity).Name} with id {entity.Id}", ex);
         }
 
+        logger.LogInformation("Entity {EntityType} with id {EntityId} removed", typeof(TEntity).Name, entity.Id);
+
         return entity;
+    }
+
+    public virtual async Task<TEntity> Remove(Guid id, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var entity = await DbSet.FindAsync([id], cancellationToken) ??
+            throw new RepositoryException<TEntity>($"Entity {typeof(TEntity).Name} with id {id} not found.");
+
+        return await Remove(entity, cancellationToken);
     }
 
     public virtual async Task<TEntity> Update(TEntity entity, CancellationToken cancellationToken = default)
@@ -102,6 +106,8 @@ public class Repository<TEntity, TContext>(TContext context, ILogger<Repository<
         {
             DbSet.Update(entity);
             await Context.SaveChangesAsync(cancellationToken);
+
+            logger.LogInformation("Entity {EntityType} with id {EntityId} updated", typeof(TEntity).Name, entity.Id);
         }
         catch (Exception ex)
         {
