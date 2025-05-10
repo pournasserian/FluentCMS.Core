@@ -20,9 +20,6 @@ public class Role<TRoleClaim> : IdentityRole<Guid>, IAuditableEntity where TRole
     public DateTime? UpdatedAt { get; set; }
     public int Version { get; set; }
 
-    // Claims collection
-    public ICollection<TRoleClaim> Claims { get; set; } = [];
-
     public Role()
     {
     }

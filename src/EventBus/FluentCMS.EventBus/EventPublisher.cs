@@ -22,7 +22,7 @@ public class EventPublisher(IServiceProvider serviceProvider) : IEventPublisher
             _logger.LogWarning("No subscribers found for event type {EventType}.", typeof(TEvent).Name);
             return;
         }
-            
+
 
         // Create a list to hold any exceptions that occur during handler execution
         var exceptions = new List<Exception>();

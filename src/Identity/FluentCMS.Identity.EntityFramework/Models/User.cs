@@ -24,15 +24,6 @@ public class User<TUserClaim, TUserLogin, TUserToken> : IdentityUser<Guid>, IAud
     public bool Enabled { get; set; } = true;
     public string? AuthenticatorKey { get; set; }
 
-    // Claims collection
-    public ICollection<TUserClaim> Claims { get; set; } = [];
-
-    // Logins collection
-    public ICollection<TUserLogin> Logins { get; set; } = [];
-
-    // Tokens collection
-    public ICollection<TUserToken> Tokens { get; set; } = [];
-
     public User()
     {
     }

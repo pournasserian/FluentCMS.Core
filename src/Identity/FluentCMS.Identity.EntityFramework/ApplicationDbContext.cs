@@ -32,6 +32,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<UserLogin>(entity =>
         {
             entity.ToTable("UserLogins");
+            entity.HasKey(e => new { e.LoginProvider, e.ProviderKey, e.UserId });
         });
 
         builder.Entity<RoleClaim>(entity =>
@@ -43,5 +44,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         {
             entity.ToTable("UserTokens");
         });
+
     }
 }
