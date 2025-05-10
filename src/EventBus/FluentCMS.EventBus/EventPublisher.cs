@@ -17,7 +17,12 @@ public class EventPublisher(IServiceProvider serviceProvider) : IEventPublisher
         var subscribers = ServiceProvider.GetServices<IEventSubscriber<TEvent>>().ToList();
 
         if (subscribers.Count == 0)
+        {
+            // No subscribers found, log a warning and return
+            _logger.LogWarning("No subscribers found for event type {EventType}.", typeof(TEvent).Name);
             return;
+        }
+            
 
         // Create a list to hold any exceptions that occur during handler execution
         var exceptions = new List<Exception>();
