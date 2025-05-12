@@ -8,16 +8,14 @@ public class RolesController(IRoleService roleService, IMapper mapper)
     public async Task<ApiPagedResult<RoleResponse>> GetAll(CancellationToken cancellationToken = default)
     {
         var roles = await roleService.GetAll(cancellationToken);
-        var rolesResponse = new ApiPagedResult<RoleResponse>(mapper.Map<IEnumerable<RoleResponse>>(roles));
-        return rolesResponse;
+        return mapper.ToPagedApiResult<RoleResponse>(roles);
     }
 
     [HttpGet("{id:guid}")]
     public async Task<ApiResult<RoleResponse>> GetById(Guid id, CancellationToken cancellationToken = default)
     {
         var role = await roleService.GetById(id, cancellationToken);
-        var roleResponse = mapper.Map<RoleResponse>(role);
-        return new ApiResult<RoleResponse>(roleResponse);
+        return mapper.ToApiResult<RoleResponse>(role);
     }
 
     [HttpPost]
@@ -26,8 +24,7 @@ public class RolesController(IRoleService roleService, IMapper mapper)
         var role = mapper.Map<Role>(request);
         role.Type = RoleTypes.UserDefined;
         await roleService.Add(role, cancellationToken);
-        var roleResponse = mapper.Map<RoleResponse>(role);
-        return new ApiResult<RoleResponse>(roleResponse);
+        return mapper.ToApiResult<RoleResponse>(role);
     }
 
     [HttpPut("{id:guid}")]
@@ -38,22 +35,22 @@ public class RolesController(IRoleService roleService, IMapper mapper)
             throw new EnhancedException("Role.CanNotUpdate", "Cannot update a built-in role.");
 
         mapper.Map<Role>(request);
-        
+
         await roleService.Update(role, cancellationToken);
 
-        var roleResponse = mapper.Map<RoleResponse>(role);
-        return new ApiResult<RoleResponse>(roleResponse);
+        return mapper.ToApiResult<RoleResponse>(role);
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<ApiResult> Delete(Guid id, CancellationToken cancellationToken = default)
     {
         var role = await roleService.GetById(id, cancellationToken);
-        
+
         if (role.Type != RoleTypes.UserDefined)
             throw new EnhancedException("Role.CanNotDelete", "Cannot delete a built-in role.");
 
         await roleService.Remove(id, cancellationToken);
         return new ApiResult();
     }
+
 }
