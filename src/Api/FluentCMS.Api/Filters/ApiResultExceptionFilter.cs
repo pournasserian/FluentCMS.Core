@@ -10,6 +10,8 @@ public class ApiResultExceptionFilter : IExceptionFilter
         var executionContext = context.HttpContext.RequestServices.GetService<IApplicationExecutionContext>() ??
             throw new InvalidOperationException("ApiExecutionContext is not registered in the service collection.");
 
+        var exception = context.Exception;
+
         var apiResult = new ApiResult
         {
             Duration = (DateTime.UtcNow - executionContext.StartDate).TotalMilliseconds,
@@ -18,9 +20,9 @@ public class ApiResultExceptionFilter : IExceptionFilter
             UniqueId = executionContext.UniqueId,
             Status = 500,
             IsSuccess = false,
+            ExceptionDetails = context.Exception.ToString()
         };
 
-        var exception = context.Exception;
         apiResult.Errors.Add(new ApiError { Code = "Unknown", Description = exception.Message });
 
         context.Result = new ObjectResult(apiResult)

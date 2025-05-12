@@ -9,6 +9,7 @@ public interface IApiResult
     double Duration { get; set; }
     int Status { get; set; }
     bool IsSuccess { get; set; }
+    string ExceptionDetails { get; set; }
 }
 public interface IApiResult<TData> : IApiResult
 {
@@ -24,6 +25,7 @@ public class ApiResult : IApiResult
     public double Duration { get; set; } = 0;
     public int Status { get; set; } = 200;
     public bool IsSuccess { get; set; } = true;
+    public string ExceptionDetails { get; set; } = string.Empty;
 }
 
 public class ApiResult<TData> : ApiResult, IApiResult<TData>
