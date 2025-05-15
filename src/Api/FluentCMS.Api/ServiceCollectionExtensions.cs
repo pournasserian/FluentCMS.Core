@@ -17,8 +17,8 @@ public static class ServiceCollectionExtensions
         services.AddExecutionContext();
 
         //services.AddApplicationServices();
-        services.AddOptions<JwtOptions>()
-            .BindConfiguration("JwtOptions");
+        //services.AddOptions<JwtOptions>()
+        //    .BindConfiguration("JwtOptions");
 
         services
             .AddControllers(config =>

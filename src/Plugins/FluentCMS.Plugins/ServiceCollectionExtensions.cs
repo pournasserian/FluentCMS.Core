@@ -12,6 +12,7 @@ public static class ServiceCollectionExtensions
     public static IApplicationBuilder UsePlugins(this IApplicationBuilder app)
     {
         var pluginLoader = app.ApplicationServices.GetRequiredService<IPluginManager>();
+        pluginLoader.Initialize(app);
         pluginLoader.Configure(app);
         return app;
     }

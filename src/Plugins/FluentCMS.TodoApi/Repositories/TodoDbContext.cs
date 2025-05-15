@@ -10,6 +10,8 @@ public class TodoDbContext(DbContextOptions<TodoDbContext> options) : BaseDbCont
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         // Configure the Todo entity
         modelBuilder.Entity<Todo>()
             .HasKey(t => t.Id);

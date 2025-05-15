@@ -1,5 +1,4 @@
 using FluentCMS.Api;
-using FluentCMS.DynamicOptionsProvider;
 using FluentCMS.EventBus;
 using FluentCMS.Plugins;
 using FluentCMS.Repositories.EntityFramework;
@@ -7,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
+using FluentCMS.Options.EntityFramework;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,8 +22,10 @@ Log.Logger = new LoggerConfiguration()
 var connectionstring = builder.Configuration.GetConnectionString("DefaultConnection") ??
     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-builder.AddDynamicConfiguration();
-builder.Services.AddDynamicOptions<JwtOptions>(config => 
+
+builder.Services.AddDbConfigOptions();
+
+builder.Services.AddDbOptions<JwtOptions>(config =>
 {
     config.Issuer = "test";
 });
@@ -46,7 +48,6 @@ builder.Services.AddFluentCmsApi();
 
 var app = builder.Build();
 
-await app.InitializeDynamicOptions();
 var x = app.Services.GetService<IOptions<JwtOptions>>();
 
 app.UseFluentCmsApi();

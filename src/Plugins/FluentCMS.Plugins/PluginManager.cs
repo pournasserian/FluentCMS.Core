@@ -31,10 +31,7 @@ internal class PluginManager : IPluginManager
                 var plugin = Activator.CreateInstance(pluginType) as IPlugin ??
                     throw new InvalidOperationException($"Failed to create instance of plugin {pluginMetaData.Name}");
 
-                _pluginInstances.Add(plugin);
-
-                // Call the ConfigureServices method on the plugin
-                plugin.ConfigureServices(builder);
+                _pluginInstances.Add(plugin);                
 
                 //_logger.LogInformation("Successfully configured services for plugin: {PluginName}", pluginMetaData.Name);
             }
@@ -44,11 +41,37 @@ internal class PluginManager : IPluginManager
                 //_logger.LogError(ex, "Failed to configure services for plugin {PluginName} ({PluginFileName}): {ErrorMessage}", pluginMetaData.Name, pluginMetaData.FileName, ex.Message);
             }
         }
+
+        foreach (var pluginInstance in _pluginInstances.OrderBy(x=> x.Order))
+        {
+            // Call the ConfigureServices method on the plugin
+            pluginInstance.ConfigureServices(builder);
+        }
+    }
+
+    public void Initialize(IApplicationBuilder app)
+    {
+        foreach (var pluginInstance in _pluginInstances.OrderBy(x => x.Order))
+        {
+            try
+            {
+                //_logger.LogInformation("Initializing plugin: {PluginType}", pluginInstance.GetType().FullName);
+
+                // Call the Configure method on the plugin
+                pluginInstance.Initialize(app);
+
+                //_logger.LogInformation("Successfully initialized plugin: {PluginType}", pluginInstance.GetType().FullName);
+            }
+            catch (Exception)
+            {
+                //_logger.LogError(ex, "Failed to initialize plugin {PluginType}: {ErrorMessage}", pluginInstance.GetType().FullName, ex.Message);
+            }
+        }
     }
 
     public void Configure(IApplicationBuilder app)
     {
-        foreach (var pluginInstance in _pluginInstances)
+        foreach (var pluginInstance in _pluginInstances.OrderBy(x => x.Order))
         {
             try
             {

@@ -176,4 +176,23 @@ public static class ServiceCollectionExtensions
             }
         }
     }
+
+    public static async Task InitializeDbContext<TContext>(this IServiceProvider serviceProvider, CancellationToken cancellationToken = default) where TContext : DbContext
+    {
+        using var scope = serviceProvider.CreateScope();
+        using var dbContext = scope.ServiceProvider.GetRequiredService<TContext>();
+
+        if (!await dbContext.Database.CanConnectAsync(cancellationToken))
+            await dbContext.Database.EnsureCreatedAsync(cancellationToken);
+
+        try
+        {
+            // Check if tables exist, if not, create them
+            var script = dbContext.Database.GenerateCreateScript();
+            dbContext.Database.ExecuteSqlRaw(script);
+        }
+        catch (Exception)
+        {
+        }
+    }
 }
