@@ -39,15 +39,10 @@ public class OptionsRegistry
     private readonly Dictionary<Type, string> _registeredOptions = [];
 
     // Register an options type with the registry
-    public void RegisterOptions<T>(string? configSectionPath = null) where T : class, new()
+    public void RegisterOptions<T>() where T : class, new()
     {
         var type = typeof(T);
-
-        // Use type name as section path if none provided
-        if (string.IsNullOrEmpty(configSectionPath))
-        {
-            configSectionPath = type.Name;
-        }
+        var configSectionPath = type.Name;
 
         // Register or update the options type
         if (!_registeredOptions.TryAdd(type, configSectionPath))
@@ -75,7 +70,7 @@ public class OptionsRegistry
     }
 }
 
-public class OptionsInitializer(ConfigDbContext dbContext, IConfiguration configuration, OptionsRegistry optionsRegistry)
+public class OptionsInitializer(ConfigDbContext dbContext, OptionsRegistry optionsRegistry)
 {
 
     // Initialize all registered options that don't exist in the database
@@ -110,34 +105,7 @@ public class OptionsInitializer(ConfigDbContext dbContext, IConfiguration config
                 continue;
             }
 
-            // Try to get from appsettings.json
-            object optionInstance = null;
-
-            if (!string.IsNullOrEmpty(sectionPath))
-            {
-                // Get configuration section
-                var section = configuration.GetSection(sectionPath);
-
-                if (section.Exists())
-                {
-                    // Use reflection to call the generic Get method
-                    var method = typeof(ConfigurationBinder)
-                        .GetMethod(nameof(ConfigurationBinder.Get), new[] { typeof(IConfiguration), typeof(Action<BinderOptions>) })
-                        .MakeGenericMethod(optionType);
-
-                    optionInstance = method.Invoke(null, new object[]
-                    {
-                            section,
-                            new Action<BinderOptions>(options => options.BindNonPublicProperties = true)
-                    });
-                }
-            }
-
-            // If not found in appsettings, create default instance
-            if (optionInstance == null)
-            {
-                optionInstance = Activator.CreateInstance(optionType);
-            }
+            object optionInstance = Activator.CreateInstance(optionType);
 
             // Serialize and prepare to add to database
             var serializedValue = JsonSerializer.Serialize(optionInstance, jsonOptions);
@@ -210,7 +178,7 @@ public class ConfigurationChangeTokenProvider<T>(DatabaseConfigurationProvider p
 // Custom change token for configuration changes
 public class ConfigurationChangeToken(DatabaseConfigurationProvider provider) : IChangeToken
 {
-    private static readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
+    private static readonly CancellationTokenSource _tokenSource = new();
 
     public bool HasChanged => false;
 
@@ -306,8 +274,7 @@ public class ConfigurationService(ConfigDbContext dbContext, DatabaseConfigurati
             config = new ConfigOption
             {
                 TypeName = typeName,
-                Value = serializedValue,
-                LastUpdated = DateTime.UtcNow
+                Value = serializedValue
             };
 
             dbContext.ConfigOptions.Add(config);
@@ -315,7 +282,6 @@ public class ConfigurationService(ConfigDbContext dbContext, DatabaseConfigurati
         else
         {
             config.Value = serializedValue;
-            config.LastUpdated = DateTime.UtcNow;
         }
 
         await dbContext.SaveChangesAsync();
@@ -415,8 +381,7 @@ public static class DynamicConfigurationExtensions
 
     // Register options with the registry and set up for change notification
     public static IServiceCollection AddDynamicOptions<TOptions>(
-        this IServiceCollection services,
-        string? configSectionPath = null)
+        this IServiceCollection services)
         where TOptions : class, new()
     {
         // Get the options registry
@@ -424,7 +389,7 @@ public static class DynamicConfigurationExtensions
         var optionsRegistry = serviceProvider.GetRequiredService<OptionsRegistry>();
 
         // Register the options type with the registry
-        optionsRegistry.RegisterOptions<TOptions>(configSectionPath);
+        optionsRegistry.RegisterOptions<TOptions>();
 
         // Get the configuration provider
         var configProvider = serviceProvider.GetRequiredService<DatabaseConfigurationProvider>();
