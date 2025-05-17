@@ -2,7 +2,7 @@
 
 public class RepositoryEventBusPublisherInterceptor(IServiceProvider serviceProvider, ILogger<RepositoryEventBusPublisherInterceptor> logger) : BaseSaveChangesInterceptor<IEventPublisherDbContext>
 {
-    public override async Task AfterSaveChanges(DbContextEventData eventData , CancellationToken cancellationToken = default)
+    public override async Task AfterSaveChanges(DbContextEventData eventData, CancellationToken cancellationToken = default)
     {
         var publisher = serviceProvider.GetService<IRepositortyEventPublisher>();
         if (publisher == null)

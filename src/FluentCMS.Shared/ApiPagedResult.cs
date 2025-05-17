@@ -23,7 +23,7 @@ public class ApiPagedResult<TData> : ApiResult<IEnumerable<TData>>, IApiPagedRes
     public bool HasPrevious { get; }
     public bool HasNext { get; }
 
-    public ApiPagedResult(IEnumerable<TData> data) 
+    public ApiPagedResult(IEnumerable<TData> data)
     {
         var totalCount = data.Count();
         Data = data;
@@ -39,7 +39,7 @@ public class ApiPagedResult<TData> : ApiResult<IEnumerable<TData>>, IApiPagedRes
     {
     }
 
-    public ApiPagedResult(IEnumerable<TData> data, long totalCount, int pageNumber , long pageSize) : base(data)
+    public ApiPagedResult(IEnumerable<TData> data, long totalCount, int pageNumber, long pageSize) : base(data)
     {
         PageNumber = pageNumber;
         PageSize = pageSize;
