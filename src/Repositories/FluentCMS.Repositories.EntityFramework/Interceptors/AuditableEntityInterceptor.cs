@@ -1,26 +1,10 @@
 ﻿namespace FluentCMS.Repositories.EntityFramework.Interceptors;
 
-public class AuditableEntityInterceptor(IApplicationExecutionContext executionContext) : SaveChangesInterceptor
+public class AuditableEntityInterceptor(IApplicationExecutionContext executionContext) : BaseSaveChangesInterceptor<DbContext>
 {
-    public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
+    public override Task BeforeSaveChanges(DbContextEventData eventData, CancellationToken cancellationToken = default)
     {
-        BeforeSaveChanges(eventData.Context);
-        var saveChangeResult = base.SavingChanges(eventData, result);
-        return saveChangeResult;
-    }
-
-    public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
-    {
-        BeforeSaveChanges(eventData.Context, cancellationToken);
-        var saveChangeResult = await base.SavingChangesAsync(eventData, result, cancellationToken);
-        return saveChangeResult;
-    }
-
-    private void BeforeSaveChanges(DbContext? context, CancellationToken cancellationToken = default)
-    {
-        if (context == null) return;
-
-        foreach (var entry in context.ChangeTracker.Entries<IAuditableEntity>())
+        foreach (var entry in eventData.Context!.ChangeTracker.Entries<IAuditableEntity>())
         {
             var entity = entry.Entity;
             switch (entry.State)
@@ -47,5 +31,6 @@ public class AuditableEntityInterceptor(IApplicationExecutionContext executionCo
                     break;
             }
         }
+        return Task.CompletedTask;
     }
 }

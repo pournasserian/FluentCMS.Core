@@ -23,3 +23,4 @@ global using FluentCMS.Plugins.IdentityManager.Services;
 global using AutoMapper;
 global using FluentCMS.Plugins.IdentityManager.Controllers;
 global using Microsoft.AspNetCore.Mvc;
+global using FluentCMS.Repositories.EntityFramework.Interceptors;

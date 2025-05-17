@@ -1,10 +1,10 @@
 using FluentCMS.Api;
 using FluentCMS.EventBus;
 using FluentCMS.Plugins;
-using FluentCMS.Repositories.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
+using FluentCMS.Repositories.EntityFramework;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,10 +23,7 @@ var connectionstring = builder.Configuration.GetConnectionString("DefaultConnect
 // Add plugin system
 builder.AddPlugins(["FluentCMS"]);
 
-builder.Services.AddDatabase((sp, options) =>
-{
-    options.UseSqlite(connectionstring);
-});
+builder.Services.AddSqliteDatabase(connectionstring);
 
 // Add Serilog to the application
 builder.Host.UseSerilog();

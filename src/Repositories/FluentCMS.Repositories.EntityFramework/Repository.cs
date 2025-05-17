@@ -1,6 +1,8 @@
 ﻿namespace FluentCMS.Repositories.EntityFramework;
 
-public class Repository<TEntity, TContext>(TContext context, ILogger<Repository<TEntity, TContext>> logger) : IRepository<TEntity> where TEntity : class, IEntity where TContext : DbContext
+public class Repository<TEntity, TContext>(TContext context, ILogger<Repository<TEntity, TContext>> logger) : IRepository<TEntity>
+    where TEntity : class, IEntity
+    where TContext : DbContext
 {
     protected readonly TContext Context = context ??
             throw new ArgumentNullException(nameof(context));
@@ -14,9 +16,6 @@ public class Repository<TEntity, TContext>(TContext context, ILogger<Repository<
 
         try
         {
-            if (entity.Id == Guid.Empty)
-                entity.Id = Guid.NewGuid();
-
             await Context.AddAsync(entity, cancellationToken);
             await Context.SaveChangesAsync(cancellationToken);
 
@@ -37,11 +36,6 @@ public class Repository<TEntity, TContext>(TContext context, ILogger<Repository<
 
         try
         {
-            foreach (var entity in entities)
-            {
-                if (entity.Id == Guid.Empty)
-                    entity.Id = Guid.NewGuid();
-            }
             await Context.AddRangeAsync(entities, cancellationToken);
             await Context.SaveChangesAsync(cancellationToken);
 

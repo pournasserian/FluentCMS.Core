@@ -15,7 +15,7 @@ public class TodoPlugin : IPlugin
     {
         builder.Services.AddScoped<ITodoService, TodoService>();
         builder.Services.AddScoped<ITodoRepository, TodoRepository>();
-        builder.Services.AddCoreDbContext<TodoDbContext>();
+        builder.Services.AddGlobalDbContext<TodoDbContext>();
     }
 
     public void Configure(IApplicationBuilder app)
