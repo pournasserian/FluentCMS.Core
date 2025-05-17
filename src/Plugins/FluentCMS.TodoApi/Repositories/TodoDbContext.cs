@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FluentCMS.TodoApi.Repositories;
 
-public class TodoDbContext(DbContextOptions<TodoDbContext> options) : BaseDbContext(options)
+public class TodoDbContext(DbContextOptions<TodoDbContext> options) : DbContext(options), IAutoIdGeneratorDbContext, IAuditableEntityInterceptorDbContext, IEventPublisherDbContext
 {
     public DbSet<Todo> Todos { get; set; } = null!;
 
