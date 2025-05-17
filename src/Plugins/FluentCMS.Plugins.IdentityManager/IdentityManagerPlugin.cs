@@ -18,7 +18,7 @@ public class IdentityManagerPlugin : IPlugin
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 
-        services.AddCoreDbContext<ApplicationDbContext>();
+        services.AddGlobalDbContext<ApplicationDbContext>();
 
         services.AddIdentity<User, Role>()
             .AddEntityFrameworkStores<ApplicationDbContext>()

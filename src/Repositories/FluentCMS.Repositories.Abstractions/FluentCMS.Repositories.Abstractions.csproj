@@ -6,6 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   
+  <ItemGroup>    
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />    
+  </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\..\EventBus\FluentCMS.EventBus.Abstractions\FluentCMS.EventBus.Abstractions.csproj" />
     <ProjectReference Include="..\..\FluentCMS.Shared\FluentCMS.Shared.csproj" />

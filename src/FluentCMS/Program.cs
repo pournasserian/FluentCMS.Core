@@ -23,10 +23,7 @@ var connectionstring = builder.Configuration.GetConnectionString("DefaultConnect
 // Add plugin system
 builder.AddPlugins(["FluentCMS"]);
 
-builder.Services.AddDatabase((sp, options) =>
-{
-    options.UseSqlite(connectionstring);
-});
+builder.Services.AddSqliteDatabase(connectionstring);
 
 // Add Serilog to the application
 builder.Host.UseSerilog();
