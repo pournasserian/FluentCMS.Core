@@ -1,14 +1,21 @@
-﻿global using FluentCMS.Api.Filters;
-global using FluentCMS.Api.Middlewares;
-global using Microsoft.AspNetCore.Authentication;
-global using Microsoft.AspNetCore.Authentication.JwtBearer;
-global using Microsoft.AspNetCore.Builder;
+﻿global using System;
+global using System.Collections.Generic;
+global using System.IO;
+global using System.Linq;
+global using System.Threading;
+global using System.Threading.Tasks;
+
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Mvc;
-global using Microsoft.AspNetCore.Mvc.Filters;
+global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.DependencyInjection;
-global using Microsoft.OpenApi.Models;
-global using Swashbuckle.AspNetCore.SwaggerUI;
-global using System.Security.Claims;
-global using System.Text.Json.Serialization;
-global using System.Web;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.Options;
+
+global using FluentCMS.Providers;
+global using FluentCMS.Providers.Abstractions;
+global using FluentCMS.Providers.Data;
+global using FluentCMS.Providers.Data.Models;
+global using FluentCMS.Providers.DI;
+global using FluentCMS.Providers.Loading;
+global using FluentCMS.Providers.Options;
