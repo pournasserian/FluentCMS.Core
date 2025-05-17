@@ -2,7 +2,9 @@
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) :
     IdentityDbContext<User, Role, Guid, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>(options),
-    IEventPublisherDbContext
+    IEventPublisherDbContext,
+    IAutoIdGeneratorDbContext,
+    IAuditableEntityInterceptorDbContext
 {
     protected override void OnModelCreating(ModelBuilder builder)
     {

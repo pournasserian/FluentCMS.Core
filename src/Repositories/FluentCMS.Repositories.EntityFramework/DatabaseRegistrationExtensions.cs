@@ -7,6 +7,8 @@ public static class DatabaseRegistrationExtensions
     {
         return services.AddDbContext<TContext>((provider, options) =>
         {
+            options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+
             var interceptors = provider.GetServices<IInterceptor>().ToList();
             foreach (var interceptor in interceptors)
             {

@@ -1,6 +1,6 @@
 ﻿namespace FluentCMS.Repositories.EntityFramework.Interceptors;
 
-public class AuditableEntityInterceptor(IApplicationExecutionContext executionContext) : BaseSaveChangesInterceptor<DbContext>
+public class AuditableEntityInterceptor(IApplicationExecutionContext executionContext) : BaseSaveChangesInterceptor<IAuditableEntityInterceptorDbContext>
 {
     public override Task BeforeSaveChanges(DbContextEventData eventData, CancellationToken cancellationToken = default)
     {

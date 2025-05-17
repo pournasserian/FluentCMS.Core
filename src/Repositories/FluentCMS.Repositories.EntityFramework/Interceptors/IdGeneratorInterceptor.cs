@@ -1,6 +1,6 @@
 ﻿namespace FluentCMS.Repositories.EntityFramework.Interceptors;
 
-public class IdGeneratorInterceptor : BaseSaveChangesInterceptor<DbContext>
+public class IdGeneratorInterceptor : BaseSaveChangesInterceptor<IAutoIdGeneratorDbContext>
 {
     public override Task BeforeSaveChanges(DbContextEventData eventData, CancellationToken cancellationToken = default)
     {
