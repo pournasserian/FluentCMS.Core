@@ -10,6 +10,7 @@
     <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.4" />
+    <PackageReference Include="System.Reflection.MetadataLoadContext" Version="9.0.5" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +20,7 @@
     <ProjectReference Include="..\Plugins\FluentCMS.Plugins.IdentityManager\FluentCMS.Plugins.IdentityManager.csproj" />
     <ProjectReference Include="..\Plugins\FluentCMS.Plugins\FluentCMS.Plugins.csproj" />
     <ProjectReference Include="..\Plugins\FluentCMS.TodoApi\FluentCMS.TodoApi.csproj" />
+    <ProjectReference Include="..\Providers\Email\FluentCMS.Providers.EmailProvider.Smtp\FluentCMS.Providers.EmailProvider.Smtp.csproj" />
   </ItemGroup>
 
 </Project>

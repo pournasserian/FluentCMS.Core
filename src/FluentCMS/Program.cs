@@ -17,13 +17,18 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.File("logs/myapp-.log", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
+
+var x = new FluentCMS.Providers.ProviderScanner(null, ["FluentCMS"]);
+var y = x.FindAssembliesImplementingInterface();
+
 var connectionstring = builder.Configuration.GetConnectionString("DefaultConnection") ??
     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+builder.Services.AddSqliteDatabase(connectionstring);
 
 // Add plugin system
 builder.AddPlugins(["FluentCMS"]);
 
-builder.Services.AddSqliteDatabase(connectionstring);
 
 // Add Serilog to the application
 builder.Host.UseSerilog();

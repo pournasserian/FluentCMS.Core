@@ -6,7 +6,7 @@ namespace FluentCMS.TodoApi.Repositories;
 
 public class TodoDbContext(DbContextOptions<TodoDbContext> options) : DbContext(options), IAutoIdGeneratorDbContext, IAuditableEntityInterceptorDbContext, IEventPublisherDbContext
 {
-    public DbSet<Todo> Todos { get; set; } = null!;
+    public DbSet<Todo> Todos { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
