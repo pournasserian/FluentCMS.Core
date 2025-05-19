@@ -11,8 +11,6 @@ public class ProviderException : Exception
     public ProviderException(string message) : base(message) { }
 
     public ProviderException(string message, Exception innerException) : base(message, innerException) { }
-
-    protected ProviderException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }
 
 /// <summary>
@@ -26,8 +24,6 @@ public class ProviderNotFoundException : ProviderException
     public ProviderNotFoundException(string message) : base(message) { }
 
     public ProviderNotFoundException(string message, Exception innerException) : base(message, innerException) { }
-
-    protected ProviderNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }
 
 /// <summary>
@@ -41,8 +37,6 @@ public class ProviderActivationException : ProviderException
     public ProviderActivationException(string message) : base(message) { }
 
     public ProviderActivationException(string message, Exception innerException) : base(message, innerException) { }
-
-    protected ProviderActivationException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }
 
 /// <summary>
@@ -56,8 +50,6 @@ public class ProviderLoadException : ProviderException
     public ProviderLoadException(string message) : base(message) { }
 
     public ProviderLoadException(string message, Exception innerException) : base(message, innerException) { }
-
-    protected ProviderLoadException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }
 
 /// <summary>
@@ -70,27 +62,22 @@ public class ProviderConfigurationException : ProviderException
 
     public ProviderConfigurationException() : base("The provider configuration is invalid.") 
     {
-        ConfigurationErrors = Array.Empty<string>();
+        ConfigurationErrors = [];
     }
 
     public ProviderConfigurationException(string message) : base(message) 
     {
-        ConfigurationErrors = Array.Empty<string>();
+        ConfigurationErrors = [];
     }
 
     public ProviderConfigurationException(string message, string[] configurationErrors) : base(message)
     {
-        ConfigurationErrors = configurationErrors ?? Array.Empty<string>();
+        ConfigurationErrors = configurationErrors ?? [];
     }
 
     public ProviderConfigurationException(string message, Exception innerException) : base(message, innerException)
     {
         ConfigurationErrors = [];
-    }
-
-    protected ProviderConfigurationException(SerializationInfo info, StreamingContext context) : base(info, context)
-    {
-        ConfigurationErrors = (string[])info.GetValue(nameof(ConfigurationErrors), typeof(string[])) ?? [];
     }
 
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -111,8 +98,6 @@ public class ProviderAlreadyActiveException : ProviderException
     public ProviderAlreadyActiveException(string message) : base(message) { }
 
     public ProviderAlreadyActiveException(string message, Exception innerException) : base(message, innerException) { }
-
-    protected ProviderAlreadyActiveException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }
 
 /// <summary>
@@ -126,6 +111,4 @@ public class ProviderUninstallException : ProviderException
     public ProviderUninstallException(string message) : base(message) { }
 
     public ProviderUninstallException(string message, Exception innerException) : base(message, innerException) { }
-
-    protected ProviderUninstallException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }

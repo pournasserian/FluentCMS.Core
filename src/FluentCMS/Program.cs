@@ -19,7 +19,7 @@ Log.Logger = new LoggerConfiguration()
 
 
 var x = new FluentCMS.Providers.ProviderScanner(null, ["FluentCMS"]);
-var y = x.FindAssembliesImplementingInterface();
+var y = x.FindProviders();
 
 var connectionstring = builder.Configuration.GetConnectionString("DefaultConnection") ??
     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");

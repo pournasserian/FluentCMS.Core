@@ -4,28 +4,8 @@ namespace FluentCMS.Providers.Abstractions;
 /// Abstract base class for provider implementations.
 /// This class provides default implementations for common provider functionality.
 /// </summary>
-public abstract class ProviderBase : IProvider, IProviderLifecycle, IProviderHealth
+public abstract class ProviderBase : IProvider //, IProviderLifecycle, IProviderHealth
 {
-    /// <summary>
-    /// Gets the unique identifier for this provider implementation.
-    /// </summary>
-    public string Id { get; protected set; } = null!;
-
-    /// <summary>
-    /// Gets the display name of this provider implementation.
-    /// </summary>
-    public string Name { get; protected set; } = null!;
-
-    /// <summary>
-    /// Gets the description of this provider implementation.
-    /// </summary>
-    public string? Description { get; protected set; }
-
-    /// <summary>
-    /// Gets the version of this provider implementation.
-    /// </summary>
-    public string Version { get; protected set; } = "1.0.0";
-
     /// <summary>
     /// Called when the provider is first initialized.
     /// </summary>

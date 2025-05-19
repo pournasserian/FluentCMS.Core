@@ -1,9 +1,11 @@
+using FluentCMS.Providers.Abstractions;
+
 namespace FluentCMS.Providers.EmailProvider.Abstractions;
 
 /// <summary>
 /// Interface for email providers.
 /// </summary>
-public interface IEmailProvider 
+public interface IEmailProvider : IProvider
 {
     /// <summary>
     /// Sends an email.

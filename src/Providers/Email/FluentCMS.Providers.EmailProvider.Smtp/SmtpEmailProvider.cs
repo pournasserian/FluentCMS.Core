@@ -1,12 +1,11 @@
-using System.Net;
-using System.Net.Mail;
-using FluentCMS.Providers.EmailProvider.Abstractions;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-
 namespace FluentCMS.Providers.EmailProvider.Smtp;
 
-[Provider]
+[ProviderMetadata<IEmailProvider>(
+    category: "Email", 
+    name: "Smtp Server",
+    description: "Smtp email provider",
+    version: "1.0.0", 
+    isDefault: true)]
 public class SmtpEmailProvider(ILogger<SmtpEmailProvider> logger, IOptionsMonitor<SmtpEmailOptions> options) : IEmailProvider
 {
     private readonly SmtpEmailOptions emailOptions = options.CurrentValue;
@@ -40,6 +39,6 @@ public class SmtpEmailProvider(ILogger<SmtpEmailProvider> logger, IOptionsMonito
         {
             // Log the error and rethrow or handle it as needed
             logger.LogError("Failed to send email to {To}. Subject: {Subject}. Error: {Error}", to, subject, ex.Message);
-        }        
+        }
     }
 }
