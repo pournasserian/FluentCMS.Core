@@ -1,10 +1,15 @@
 using FluentCMS.Api;
 using FluentCMS.EventBus;
 using FluentCMS.Plugins;
+using FluentCMS.Providers.Repositories;
+using FluentCMS.Providers.Repositories.EntityFramework;
 using FluentCMS.Repositories.EntityFramework;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,14 +22,13 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.File("logs/myapp-.log", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
-
-var x = new FluentCMS.Providers.ProviderScanner(null, ["FluentCMS"]);
-var y = x.FindProviders();
-
 var connectionstring = builder.Configuration.GetConnectionString("DefaultConnection") ??
     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 builder.Services.AddSqliteDatabase(connectionstring);
+
+// provider section
+builder.Services.AddProviderSystem(connectionstring, ["FluentCMS."] );
 
 // Add plugin system
 builder.AddPlugins(["FluentCMS"]);

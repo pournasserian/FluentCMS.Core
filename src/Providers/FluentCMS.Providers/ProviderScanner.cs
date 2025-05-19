@@ -1,8 +1,8 @@
 ﻿namespace FluentCMS.Providers;
 
-public class ProviderScanner(ILogger<ProviderScanner>? logger, string[] namespacePrefixes)
+public class ProviderScanner(ILogger? logger, string[] namespacePrefixes)
 {
-    public IEnumerable<ProviderInterfaceMetaData> FindProviders()
+    public IEnumerable<ProviderScannerInterfaceMetaData> FindProviders()
     {
         var executablePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
 
@@ -19,7 +19,7 @@ public class ProviderScanner(ILogger<ProviderScanner>? logger, string[] namespac
         ]);
 
 
-        var providerInterfaces = new Dictionary<string, ProviderInterfaceMetaData>(); // key is the interface full name, value is interface type
+        var providerInterfaces = new Dictionary<string, ProviderScannerInterfaceMetaData>(); // key is the interface full name, value is interface type
 
         // Create resolver for dependencies
         var resolver = new PathAssemblyResolver(assemblyFiles);
@@ -55,9 +55,9 @@ public class ProviderScanner(ILogger<ProviderScanner>? logger, string[] namespac
                             var interfaceType = providerAttrData.AttributeType.GetGenericArguments()[0];
                             var dictKey = interfaceType.FullName!;
 
-                            var providerMetaData = new ProviderMetaData(providerType, providerAttrData);
+                            var providerMetaData = new ProviderScannerMetaData(providerType, providerAttrData);
 
-                            providerInterfaces.TryAdd(dictKey, new ProviderInterfaceMetaData(interfaceType));
+                            providerInterfaces.TryAdd(dictKey, new ProviderScannerInterfaceMetaData(interfaceType));
 
                             // Check id there is any existing implementation which is default.
                             if (providerInterfaces[dictKey].Implementations.Any(x => x.IsDefault))
@@ -88,16 +88,15 @@ public class ProviderScanner(ILogger<ProviderScanner>? logger, string[] namespac
     }
 }
 
-public class ProviderInterfaceMetaData(Type type)
+public class ProviderScannerInterfaceMetaData(Type type)
 {
-    public string TypeName { get; set; } = type.Name;
-    public string TypeFullName { get; set; } = type.FullName ?? throw new InvalidOperationException("Type full name is null.");
-    public string Assembly { get; set; } = type.Assembly.FullName ?? throw new InvalidOperationException("Assembly full name is null.");
+    public string TypeName { get; set; } = type.FullName ?? throw new InvalidOperationException("Type full name is null.");
+    public string AssemblyName { get; set; } = type.Assembly.FullName ?? throw new InvalidOperationException("Assembly full name is null.");
     public string AssemblyFile { get; set; } = Path.GetFileName(type.Assembly.Location) ?? throw new InvalidOperationException("Assembly location is null.");
-    public List<ProviderMetaData> Implementations { get; } = [];
+    public List<ProviderScannerMetaData> Implementations { get; } = [];
 }
 
-public class ProviderMetaData(Type type, CustomAttributeData customAttributeData)
+public class ProviderScannerMetaData(Type type, CustomAttributeData customAttributeData)
 {
     public string Category { get; set; } = customAttributeData.ConstructorArguments[0].Value as string ?? throw new InvalidOperationException("Category is null.");
     public string Name { get; set; } = customAttributeData.ConstructorArguments[1].Value as string ?? throw new InvalidOperationException("Name is null.");
@@ -105,8 +104,7 @@ public class ProviderMetaData(Type type, CustomAttributeData customAttributeData
     public string Version { get; set; } = customAttributeData.ConstructorArguments[3].Value as string ?? throw new InvalidOperationException("Version is null.");
     public bool IsDefault { get; set; } = (bool)customAttributeData.ConstructorArguments[4].Value!;
 
-    public string TypeName { get; set; } = type.Name;
-    public string TypeFullName { get; set; } = type.FullName ?? throw new InvalidOperationException("Type full name is null.");
+    public string TypeName { get; set; } = type.FullName ?? throw new InvalidOperationException("Type full name is null.");
     public string AssemblyFile { get; set; } = Path.GetFileName(type.Assembly.Location) ?? throw new InvalidOperationException("Assembly location is null.");
-    public string Assembly { get; set; } = type.Assembly.FullName ?? throw new InvalidOperationException("Assembly full name is null.");
+    public string AssemblyName { get; set; } = type.Assembly.FullName ?? throw new InvalidOperationException("Assembly full name is null.");
 }
