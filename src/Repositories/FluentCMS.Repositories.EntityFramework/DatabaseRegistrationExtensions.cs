@@ -26,9 +26,9 @@ public static class DatabaseRegistrationExtensions
 
     public static IServiceCollection AddSqliteDatabase(this IServiceCollection services, string connectionString)
     {
-        services.AddScoped<IRepositortyEventPublisher, RepositortyEventPublisher>();
+        services.AddScoped<IRepositoryEventPublisher, RepositoryEventPublisher>();
 
-        services.AddScoped<IInterceptor, IdGeneratorInterceptor>();
+        // This should be first, interceptors orders are important
         services.AddScoped<IInterceptor, AuditableEntityInterceptor>();
         services.AddScoped<IInterceptor, RepositoryEventBusPublisherInterceptor>();
 

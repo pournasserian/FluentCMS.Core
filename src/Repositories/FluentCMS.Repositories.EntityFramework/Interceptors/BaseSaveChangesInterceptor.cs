@@ -1,13 +1,13 @@
 ﻿namespace FluentCMS.Repositories.EntityFramework.Interceptors;
 
-public abstract class BaseSaveChangesInterceptor<TInterface> : SaveChangesInterceptor
+public abstract class BaseSaveChangesInterceptor : SaveChangesInterceptor
 {
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
         var context = eventData.Context;
 
         // Check if dbContext implements IEventPublisherDbContext
-        if (context != null && context is TInterface)
+        if (context != null)
         {
             BeforeSaveChanges(eventData).Wait();
             var saveChangeResult = base.SavingChanges(eventData, result);
@@ -21,7 +21,7 @@ public abstract class BaseSaveChangesInterceptor<TInterface> : SaveChangesInterc
     {
         var context = eventData.Context;
         // Check if dbContext implements IEventPublisherDbContext
-        if (context != null && context is TInterface)
+        if (context != null)
         {
             await BeforeSaveChanges(eventData, cancellationToken);
             var saveChangeResult = await base.SavingChangesAsync(eventData, result, cancellationToken);

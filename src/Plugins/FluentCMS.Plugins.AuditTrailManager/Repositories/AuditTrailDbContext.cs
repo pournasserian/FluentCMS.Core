@@ -1,6 +1,6 @@
 ﻿namespace FluentCMS.Plugins.AuditTrailManager.Repositories;
 
-public class AuditTrailDbContext(DbContextOptions<AuditTrailDbContext> options) : DbContext(options), IAutoIdGeneratorDbContext
+public class AuditTrailDbContext(DbContextOptions<AuditTrailDbContext> options) : DbContext(options)
 {
     public DbSet<AuditTrailInternal> AuditTrails { get; set; } = null!;
 

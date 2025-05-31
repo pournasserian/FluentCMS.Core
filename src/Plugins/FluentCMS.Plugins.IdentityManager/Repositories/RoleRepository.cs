@@ -4,10 +4,8 @@ public interface IRoleRepository : IRepository<Role>
 {
 }
 
-public class RoleRepository(
-    ApplicationDbContext context,
-    ILogger<Repository<Role, ApplicationDbContext>> logger) :
-    Repository<Role, ApplicationDbContext>(context, logger),
+public class RoleRepository(ApplicationDbContext context) :
+    Repository<Role, ApplicationDbContext>(context),
     IRoleRepository
 {
 }

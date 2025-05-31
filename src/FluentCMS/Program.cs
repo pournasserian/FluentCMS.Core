@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 
-var builder = WebApplication.CreateBuilder(args);
-
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
@@ -17,16 +15,17 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.File("logs/myapp-.log", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
-var connectionstring = builder.Configuration.GetConnectionString("DefaultConnection") ??
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog();
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 // Add plugin system
 builder.AddPlugins(["FluentCMS"]);
 
-builder.Services.AddSqliteDatabase(connectionstring);
-
-// Add Serilog to the application
-builder.Host.UseSerilog();
+builder.Services.AddSqliteDatabase(connectionString);
 
 builder.Services.AddEventPublisher();
 
@@ -34,6 +33,8 @@ builder.Services.AddEventPublisher();
 builder.Services.AddFluentCmsApi();
 
 var app = builder.Build();
+
+StaticLoggerFactory.Initialize(app.Services.GetRequiredService<ILoggerFactory>());
 
 app.UseFluentCmsApi();
 

@@ -13,7 +13,6 @@ public class AuditTrailService(IAuditTrailRepository repository, IApplicationExe
         {
             var auditTrail = new AuditTrail
             {
-                Id = Guid.NewGuid(),
                 EventType = eventType,
                 Timestamp = DateTime.UtcNow,
                 Entity = auditableEntity,

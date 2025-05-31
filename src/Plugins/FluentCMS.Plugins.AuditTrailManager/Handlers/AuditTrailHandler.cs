@@ -14,7 +14,8 @@ public class AuditTrailHandler(IAuditTrailService service, ILogger<AuditTrailHan
 
         try
         {
-            await service.Add(domainEvent.Data, domainEvent.EventType, cancellationToken);
+            if (domainEvent.Data is IAuditableEntity)
+                await service.Add(domainEvent.Data, domainEvent.EventType, cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

@@ -1,14 +1,14 @@
 ﻿namespace FluentCMS.Repositories.EntityFramework.Interceptors;
 
-public class RepositoryEventBusPublisherInterceptor(IServiceProvider serviceProvider, ILogger<RepositoryEventBusPublisherInterceptor> logger) : BaseSaveChangesInterceptor<IEventPublisherDbContext>
+public class RepositoryEventBusPublisherInterceptor(IServiceProvider serviceProvider, ILogger<RepositoryEventBusPublisherInterceptor> logger) : BaseSaveChangesInterceptor
 {
     public override async Task AfterSaveChanges(DbContextEventData eventData, CancellationToken cancellationToken = default)
     {
-        var publisher = serviceProvider.GetService<IRepositortyEventPublisher>();
+        var publisher = serviceProvider.GetService<IRepositoryEventPublisher>();
         if (publisher == null)
         {
             // Log error: IEventPublisher not found in DI container
-            logger.LogError("IRepositortyEventPublisher not found in DI container.");
+            logger.LogError("IRepositoryEventPublisher not found in DI container.");
             return;
         }
 

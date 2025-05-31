@@ -1,10 +1,9 @@
-﻿using FluentCMS.Repositories.EntityFramework;
-using FluentCMS.TodoApi.Models;
+﻿using FluentCMS.TodoApi.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FluentCMS.TodoApi.Repositories;
 
-public class TodoDbContext(DbContextOptions<TodoDbContext> options) : DbContext(options), IAutoIdGeneratorDbContext, IAuditableEntityInterceptorDbContext, IEventPublisherDbContext
+public class TodoDbContext(DbContextOptions<TodoDbContext> options) : DbContext(options)
 {
     public DbSet<Todo> Todos { get; set; } = null!;
 

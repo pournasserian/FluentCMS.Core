@@ -44,7 +44,7 @@ public class RoleRequest
     public string Description { get; set; } = default!;
 }
 
-public class RoleResponse : AuditableEntity
+public class RoleResponse : Entity
 {
     public string Name { get; set; } = default!;
     public string Description { get; set; } = default!;
