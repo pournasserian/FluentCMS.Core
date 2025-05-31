@@ -7,7 +7,7 @@ public static class StaticLoggerFactory
 
     public static void Initialize(ILoggerFactory loggerFactory)
     {
-        _loggerFactory = loggerFactory ?? 
+        _loggerFactory = loggerFactory ??
             throw new ArgumentNullException(nameof(loggerFactory));
         _initialized = true;
     }

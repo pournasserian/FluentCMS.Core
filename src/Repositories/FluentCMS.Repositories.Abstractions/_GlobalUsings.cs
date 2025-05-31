@@ -1,3 +1,3 @@
-﻿global using System.Linq.Expressions;
+﻿global using FluentCMS.EventBus.Abstractions;
 global using Microsoft.EntityFrameworkCore;
-global using FluentCMS.EventBus.Abstractions;
+global using System.Linq.Expressions;
