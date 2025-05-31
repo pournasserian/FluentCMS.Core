@@ -1,4 +1,6 @@
-﻿namespace FluentCMS.Repositories.EntityFramework;
+﻿using Microsoft.Extensions.Logging;
+
+namespace FluentCMS.Logging;
 
 public static class StaticLoggerFactory
 {

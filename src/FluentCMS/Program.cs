@@ -1,5 +1,6 @@
 using FluentCMS.Api;
 using FluentCMS.EventBus;
+using FluentCMS.Logging;
 using FluentCMS.Plugins;
 using FluentCMS.Repositories.EntityFramework;
 using Microsoft.EntityFrameworkCore;
