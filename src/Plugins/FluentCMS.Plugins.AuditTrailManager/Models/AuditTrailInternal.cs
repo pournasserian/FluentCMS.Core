@@ -6,7 +6,7 @@ public class AuditTrailInternal : Entity
     public string Entity { get; set; } = default!; // Json string representation of the entity
     public string EntityType { get; set; } = default!; // Type of the entity
     public string EventType { get; set; } = default!;
-    public int EventVersion { get; set; }
+    public int EntityVersion { get; set; }
     public DateTime Timestamp { get; set; }
 
     // IApplicationExecutionContext fields

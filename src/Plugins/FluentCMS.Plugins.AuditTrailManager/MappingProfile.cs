@@ -14,7 +14,7 @@ public class MappingProfile : Profile
         CreateMap<AuditTrail, AuditTrailInternal>()
             .IncludeMembers(src => src.Context)
             .ForMember(dest => dest.EntityId, opt => opt.MapFrom(src => ((IAuditableEntity)src.Entity).Id))
-            .ForMember(dest => dest.EventVersion, opt => opt.MapFrom(src => ((IAuditableEntity)src.Entity).Version))
+            .ForMember(dest => dest.EntityVersion, opt => opt.MapFrom(src => ((IAuditableEntity)src.Entity).Version))
             .ForMember(dest => dest.Entity, opt => opt.MapFrom(src => JsonSerializer.Serialize(src.Entity, options)))
             .ForMember(dest => dest.EntityType, opt => opt.MapFrom(src => src.Entity.GetType().FullName));
 
