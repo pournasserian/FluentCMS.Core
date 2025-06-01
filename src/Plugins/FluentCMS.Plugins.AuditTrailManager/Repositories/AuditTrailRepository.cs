@@ -15,6 +15,6 @@ public class AuditTrailRepository(AuditTrailDbContext auditTrailDbContext, IMapp
         await auditTrailDbContext.AuditTrails.AddAsync(internalEntity, cancellationToken);
         await auditTrailDbContext.SaveChangesAsync(cancellationToken);
 
-        return mapper.Map<AuditTrail>(entity);
+        return mapper.Map<AuditTrail>(internalEntity);
     }
 }
