@@ -1,5 +1,5 @@
-﻿using FluentCMS.TodoApi.Models;
-using FluentCMS.TodoApi.Repositories;
+﻿using FluentCMS.Repositories.Abstractions;
+using FluentCMS.TodoApi.Models;
 
 namespace FluentCMS.TodoApi.Services;
 
@@ -12,7 +12,7 @@ public interface ITodoService
     Task<Todo> Update(Todo entity, CancellationToken cancellationToken = default);
 }
 
-public class TodoService(ITodoRepository todoRepository) : ITodoService
+public class TodoService(IRepository<Todo> todoRepository) : ITodoService
 {
     public async Task<Todo> Add(Todo entity, CancellationToken cancellationToken = default)
     {

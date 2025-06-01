@@ -6,7 +6,7 @@ public class AuditTrailManagerPlugin : IPlugin
     {
         var services = builder.Services;
 
-        services.AddGlobalDbContext<AuditTrailDbContext>();
+        services.AddEfDbContext<AuditTrailDbContext>();
         services.AddTransient<IEventSubscriber<RepositoryEntityCreatedEvent>, AuditTrailHandler>();
         services.AddTransient<IEventSubscriber<RepositoryEntityUpdatedEvent>, AuditTrailHandler>();
         services.AddTransient<IEventSubscriber<RepositoryEntityRemovedEvent>, AuditTrailHandler>();

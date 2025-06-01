@@ -2,10 +2,16 @@
 
 public static class DatabaseRegistrationExtensions
 {
-    // Distinct, explicit name instead of overriding the standard method
-    public static IServiceCollection AddGlobalDbContext<TContext>(this IServiceCollection services, Action<DbContextOptionsBuilder>? additionalConfiguration = null) where TContext : DbContext
+    public static IServiceCollection AddGenericRepository<TEntity, TContext>(this IServiceCollection services, Action<DbContextOptionsBuilder>? additionalConfiguration = null) where TEntity : class, IEntity where TContext : DbContext
     {
-        return services.AddDbContext<TContext>((provider, options) =>
+        services.AddEfDbContext<TContext>(additionalConfiguration);
+        services.AddScoped<IRepository<TEntity>, Repository<TEntity, TContext>>();
+        return services;
+    }
+
+    public static IServiceCollection AddEfDbContext<TContext>(this IServiceCollection services, Action<DbContextOptionsBuilder>? additionalConfiguration = null) where TContext : DbContext
+    {
+        services.AddDbContext<TContext>((provider, options) =>
         {
             options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 
@@ -22,6 +28,8 @@ public static class DatabaseRegistrationExtensions
             // Then apply context-specific configuration if provided
             additionalConfiguration?.Invoke(options);
         });
+
+        return services;
     }
 
     public static IServiceCollection AddSqliteDatabase(this IServiceCollection services, string connectionString)
