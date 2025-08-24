@@ -24,20 +24,21 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>
         if (entity.Id == Guid.Empty)
             entity.Id = Guid.NewGuid();
 
+
         try
         {
             await Context.AddAsync(entity, cancellationToken);
             await Context.SaveChangesAsync(cancellationToken);
 
             Logger.LogInformation("Entity {EntityType} with id {EntityId} added", typeof(TEntity).Name, entity.Id);
+            return entity;
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Unable to Add entity {EntityType} with id {EntityId}", typeof(TEntity).Name, entity.Id);
-            throw new RepositoryException<TEntity>($"Unable to Add entity {typeof(TEntity).Name} with id {entity.Id}", ex);
+            Logger.LogError(ex, "Unable to add entity {EntityType} with id {EntityId}", typeof(TEntity).Name, entity.Id);
+            throw RepositoryException<TEntity>.ForEntityOperation("Add", entity.Id, $"Unable to add entity {typeof(TEntity).Name} with id {entity.Id}", ex);
         }
 
-        return entity;
     }
 
     public virtual async Task<IEnumerable<TEntity>> AddMany(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
@@ -56,14 +57,13 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>
             await Context.SaveChangesAsync(cancellationToken);
 
             Logger.LogInformation("Entities {EntityType} added", typeof(TEntity).Name);
+            return entities;
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Unable to AddMany entity {EntityType}", typeof(TEntity).Name);
-            throw new RepositoryException<TEntity>($"Unable to AddMany entity {typeof(TEntity).Name}", ex);
+            throw RepositoryException<TEntity>.ForOperation("AddMany", $"Unable to AddMany entity {typeof(TEntity).Name}", ex);
         }
-
-        return entities;
     }
 
     public virtual async Task<TEntity> Remove(TEntity entity, CancellationToken cancellationToken = default)
@@ -78,23 +78,22 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>
             if (affectedRows == 0)
             {
                 Logger.LogError("Unable to Remove entity {EntityType} with id {EntityId}", typeof(TEntity).Name, entity.Id);
-                throw new RepositoryException<TEntity>($"Unable to Remove entity {typeof(TEntity).Name} with id {entity.Id}");
+                throw RepositoryException<TEntity>.ForEntityOperation("Remove", entity.Id, $"Unable to Remove entity {typeof(TEntity).Name} with id {entity.Id}");
             }
             else if (affectedRows > 1)
             {
                 Logger.LogError("More than one entity was removed for entity {EntityType} with id {EntityId}", typeof(TEntity).Name, entity.Id);
-                throw new RepositoryException<TEntity>($"More than one entity was removed for Entity {typeof(TEntity).Name} with id {entity.Id}");
+                throw RepositoryException<TEntity>.ForEntityOperation("Remove", entity.Id, $"More than one entity was removed for Entity {typeof(TEntity).Name} with id {entity.Id}");
             }
+
+            Logger.LogInformation("Entity {EntityType} with id {EntityId} removed", typeof(TEntity).Name, entity.Id);
+            return entity;
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Unable to Remove entity {EntityType} with id {EntityId}", typeof(TEntity).Name, entity.Id);
-            throw new RepositoryException<TEntity>($"Unable to Remove entity {typeof(TEntity).Name} with id {entity.Id}", ex);
+            throw RepositoryException<TEntity>.ForEntityOperation("Remove", entity.Id, $"Unable to Remove entity {typeof(TEntity).Name} with id {entity.Id}", ex);
         }
-
-        Logger.LogInformation("Entity {EntityType} with id {EntityId} removed", typeof(TEntity).Name, entity.Id);
-
-        return entity;
     }
 
     public virtual async Task<TEntity> Remove(Guid id, CancellationToken cancellationToken = default)
@@ -102,7 +101,7 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>
         cancellationToken.ThrowIfCancellationRequested();
 
         var entity = await DbSet.FindAsync([id], cancellationToken) ??
-            throw new RepositoryException<TEntity>($"Entity {typeof(TEntity).Name} with id {id} not found.");
+            throw RepositoryException<TEntity>.ForEntityOperation("Remove", id, $"Entity {typeof(TEntity).Name} with id {id} not found.");
 
         return await Remove(entity, cancellationToken);
     }
@@ -118,14 +117,13 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>
             await Context.SaveChangesAsync(cancellationToken);
 
             Logger.LogInformation("Entity {EntityType} with id {EntityId} updated", typeof(TEntity).Name, entity.Id);
+            return entity;
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Unable to Update entity {EntityType} with id {EntityId}", typeof(TEntity).Name, entity.Id);
-            throw new RepositoryException<TEntity>($"Unable to Update entity {typeof(TEntity).Name} with id {entity.Id}", ex);
+            throw RepositoryException<TEntity>.ForEntityOperation("Update", entity.Id, $"Unable to Update entity {typeof(TEntity).Name} with id {entity.Id}", ex);
         }
-
-        return entity;
     }
 
     public virtual async Task<TEntity?> GetById(Guid id, CancellationToken cancellationToken = default)
@@ -139,7 +137,7 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>
         catch (Exception ex)
         {
             Logger.LogError(ex, "Unable in GetById for entity {EntityType} with id {EntityId}", typeof(TEntity).Name, id);
-            throw new RepositoryException<TEntity>($"Unable in GetById for entity {typeof(TEntity).Name} with id {id}", ex);
+            throw RepositoryException<TEntity>.ForEntityOperation("GetById", id, $"Unable in GetById for entity {typeof(TEntity).Name} with id {id}", ex);
         }
     }
 
@@ -158,7 +156,7 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>
         catch (Exception ex)
         {
             Logger.LogError(ex, "Unable in Any for entity {EntityType}", typeof(TEntity).Name);
-            throw new RepositoryException<TEntity>($"Unable in Any for entity {typeof(TEntity).Name}", ex);
+            throw RepositoryException<TEntity>.ForOperation("Any", $"Unable in Any for entity {typeof(TEntity).Name}", ex);
         }
     }
 
@@ -177,7 +175,7 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>
         catch (Exception ex)
         {
             Logger.LogError(ex, "Unable in Count for entity {EntityType}", typeof(TEntity).Name);
-            throw new RepositoryException<TEntity>($"Unable in Count for entity {typeof(TEntity).Name}", ex);
+            throw RepositoryException<TEntity>.ForOperation("Count", $"Unable in Count for entity {typeof(TEntity).Name}", ex);
         }
     }
 
@@ -193,7 +191,7 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>
         catch (Exception ex)
         {
             Logger.LogError(ex, "Unable in Find for entity {EntityType}", typeof(TEntity).Name);
-            throw new RepositoryException<TEntity>($"Unable in Find for entity {typeof(TEntity).Name}", ex);
+            throw RepositoryException<TEntity>.ForOperation("Find", $"Unable in Find for entity {typeof(TEntity).Name}", ex);
         }
     }
 
@@ -208,7 +206,7 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>
         catch (Exception ex)
         {
             Logger.LogError(ex, "Unable in GetAll for entity {EntityType}", typeof(TEntity).Name);
-            throw new RepositoryException<TEntity>($"Unable in GetAll for entity {typeof(TEntity).Name}", ex);
+            throw RepositoryException<TEntity>.ForOperation("GetAll", $"Unable in GetAll for entity {typeof(TEntity).Name}", ex);
         }
     }
 }
