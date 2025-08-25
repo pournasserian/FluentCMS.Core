@@ -6,6 +6,7 @@ global using FluentCMS.Repositories.EntityFramework.Configurations;
 global using FluentCMS.Repositories.EntityFramework.Interceptors;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.EntityFrameworkCore.Diagnostics;
+global using Microsoft.EntityFrameworkCore.Storage;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
 global using System.Linq.Expressions;

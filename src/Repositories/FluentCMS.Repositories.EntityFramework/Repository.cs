@@ -1,12 +1,13 @@
 ﻿namespace FluentCMS.Repositories.EntityFramework;
 
-public class Repository<TEntity, TContext> : IRepository<TEntity>
+public class Repository<TEntity, TContext> : IRepository<TEntity>, ITransactionalRepository<TEntity>
     where TEntity : class, IEntity
     where TContext : DbContext
 {
     protected readonly ILogger Logger = default!;
     protected readonly TContext Context = default!;
     protected readonly DbSet<TEntity> DbSet = default!;
+    private IDbContextTransaction? _currentTransaction;
 
     public Repository(TContext context)
     {
@@ -14,6 +15,76 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>
         Context = context ??
             throw new ArgumentNullException(nameof(context));
         DbSet = Context.Set<TEntity>();
+    }
+
+    public bool IsTransactionActive => _currentTransaction != null;
+
+    protected virtual async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        // Only save changes if not in a transaction
+        if (!IsTransactionActive)
+        {
+            await Context.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    protected virtual async Task<int> SaveChangesWithAffectedRowsAsync(CancellationToken cancellationToken = default)
+    {
+        // Only save changes if not in a transaction
+        if (!IsTransactionActive)
+        {
+            return await Context.SaveChangesAsync(cancellationToken);
+        }
+        return 0; // No affected rows when in transaction
+    }
+
+    public virtual async Task BeginTransaction(CancellationToken cancellationToken = default)
+    {
+        if (_currentTransaction != null)
+        {
+            throw new RepositoryException<TEntity>("A transaction is already active.");
+        }
+
+        _currentTransaction = await Context.Database.BeginTransactionAsync(cancellationToken);
+        Logger.LogInformation("Transaction started for {EntityType}", typeof(TEntity).Name);
+    }
+
+    public virtual async Task Commit(CancellationToken cancellationToken = default)
+    {
+        if (_currentTransaction == null)
+        {
+            throw new RepositoryException<TEntity>("No active transaction to commit.");
+        }
+
+        try
+        {
+            await _currentTransaction.CommitAsync(cancellationToken);
+            Logger.LogInformation("Transaction committed for {EntityType}", typeof(TEntity).Name);
+        }
+        finally
+        {
+            await _currentTransaction.DisposeAsync();
+            _currentTransaction = null;
+        }
+    }
+
+    public virtual async Task Rollback(CancellationToken cancellationToken = default)
+    {
+        if (_currentTransaction == null)
+        {
+            throw new RepositoryException<TEntity>("No active transaction to rollback.");
+        }
+
+        try
+        {
+            await _currentTransaction.RollbackAsync(cancellationToken);
+            Logger.LogInformation("Transaction rolled back for {EntityType}", typeof(TEntity).Name);
+        }
+        finally
+        {
+            await _currentTransaction.DisposeAsync();
+            _currentTransaction = null;
+        }
     }
 
     public virtual async Task<TEntity> Add(TEntity entity, CancellationToken cancellationToken = default)
@@ -28,7 +99,7 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>
         try
         {
             await Context.AddAsync(entity, cancellationToken);
-            await Context.SaveChangesAsync(cancellationToken);
+            await SaveChangesAsync(cancellationToken);
 
             Logger.LogInformation("Entity {EntityType} with id {EntityId} added", typeof(TEntity).Name, entity.Id);
             return entity;
@@ -54,7 +125,7 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>
         try
         {
             await Context.AddRangeAsync(entities, cancellationToken);
-            await Context.SaveChangesAsync(cancellationToken);
+            await SaveChangesAsync(cancellationToken);
 
             Logger.LogInformation("Entities {EntityType} added", typeof(TEntity).Name);
             return entities;
@@ -74,7 +145,7 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>
         try
         {
             DbSet.Remove(entity);
-            var affectedRows = await Context.SaveChangesAsync(cancellationToken);
+            var affectedRows = await SaveChangesWithAffectedRowsAsync(cancellationToken);
             if (affectedRows == 0)
             {
                 Logger.LogError("Unable to Remove entity {EntityType} with id {EntityId}", typeof(TEntity).Name, entity.Id);
@@ -114,7 +185,7 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>
         try
         {
             DbSet.Update(entity);
-            await Context.SaveChangesAsync(cancellationToken);
+            await SaveChangesAsync(cancellationToken);
 
             Logger.LogInformation("Entity {EntityType} with id {EntityId} updated", typeof(TEntity).Name, entity.Id);
             return entity;
