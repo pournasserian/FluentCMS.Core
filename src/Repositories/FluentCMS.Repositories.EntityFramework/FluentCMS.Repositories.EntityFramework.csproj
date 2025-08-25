@@ -16,7 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Logging\FluentCMS.Logging\FluentCMS.Logging.csproj" />
     <ProjectReference Include="..\FluentCMS.Repositories.Abstractions\FluentCMS.Repositories.Abstractions.csproj" />
   </ItemGroup>
 

@@ -4,14 +4,14 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>, ITransactiona
     where TEntity : class, IEntity
     where TContext : DbContext
 {
-    protected readonly ILogger Logger = default!;
+    protected readonly ILogger<Repository<TEntity, TContext>> Logger = default!;
     protected readonly TContext Context = default!;
     protected readonly DbSet<TEntity> DbSet = default!;
     private IDbContextTransaction? _currentTransaction;
 
-    public Repository(TContext context)
+    public Repository(TContext context, ILogger<Repository<TEntity, TContext>> logger)
     {
-        Logger = StaticLoggerFactory.CreateLogger(GetType());
+        Logger = logger;
         Context = context ??
             throw new ArgumentNullException(nameof(context));
         DbSet = Context.Set<TEntity>();

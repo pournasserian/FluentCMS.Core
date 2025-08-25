@@ -1,7 +1,3 @@
-using FluentCMS.Logging;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-
 namespace FluentCMS.Repositories.Tests.Fixtures;
 
 public class ServiceProviderFixture
@@ -54,7 +50,6 @@ public class ServiceProviderFixture
     {
         // Ensure database is created
         var serviceScope = ServiceProvider.CreateScope();
-        StaticLoggerFactory.Initialize(serviceScope.ServiceProvider.GetRequiredService<ILoggerFactory>());
         var dbContext = serviceScope.ServiceProvider.GetRequiredService<TestDbContext>();
         dbContext.Database.OpenConnection();
         dbContext.Database.EnsureCreated();

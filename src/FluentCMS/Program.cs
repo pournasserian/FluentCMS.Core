@@ -1,6 +1,5 @@
 using FluentCMS.Api;
 using FluentCMS.EventBus;
-using FluentCMS.Logging;
 using FluentCMS.Plugins;
 using FluentCMS.Repositories.EntityFramework;
 using Microsoft.EntityFrameworkCore;
@@ -34,8 +33,6 @@ builder.Services.AddEventPublisher();
 builder.Services.AddFluentCmsApi();
 
 var app = builder.Build();
-
-StaticLoggerFactory.Initialize(app.Services.GetRequiredService<ILoggerFactory>());
 
 app.UseFluentCmsApi();
 
