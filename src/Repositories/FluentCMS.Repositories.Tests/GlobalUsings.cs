@@ -1,0 +1,10 @@
+global using Xunit;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.Extensions.DependencyInjection;
+global using FluentCMS.Repositories.Abstractions;
+global using FluentCMS.Repositories.EntityFramework;
+global using FluentCMS.Repositories.Tests.Fixtures;
+global using FluentCMS.Repositories.Tests.TestEntities;
+global using FluentCMS.EventBus;
+global using Serilog;
+global using Serilog.Events;
