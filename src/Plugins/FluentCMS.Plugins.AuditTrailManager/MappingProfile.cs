@@ -6,8 +6,6 @@ public class MappingProfile : Profile
     {
         var options = new JsonSerializerOptions { WriteIndented = true };
 
-        CreateMap<AuditTrail, AuditTrailResponse>();
-
         CreateMap<IApplicationExecutionContext, AuditTrailInternal>().ReverseMap();
 
         // Map from AuditTrail to AuditTrailInternal
