@@ -6,7 +6,7 @@ public class IdentityManagerPlugin : IPlugin
     {
         var services = builder.Services;
 
-        services.AddAutoMapper(typeof(MappingProfile));
+        services.AddAutoMapper(cfg => { }, typeof(MappingProfile));
 
         // Services registration
         //services.AddScoped<IUserService, UserService>();

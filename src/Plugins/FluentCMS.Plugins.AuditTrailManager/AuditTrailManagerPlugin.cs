@@ -19,7 +19,7 @@ public class AuditTrailManagerPlugin : IPlugin
 
         services.AddScoped<IAuditTrailService, AuditTrailService>();
         services.AddScoped<IAuditTrailRepository, AuditTrailRepository>();
-        services.AddAutoMapper(typeof(MappingProfile));
+        services.AddAutoMapper(cfg => { }, typeof(MappingProfile));
     }
 
     public void Configure(IApplicationBuilder app)
