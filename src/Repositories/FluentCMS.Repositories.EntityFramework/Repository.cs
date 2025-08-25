@@ -25,6 +25,7 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>, ITransactiona
         if (!IsTransactionActive)
         {
             await Context.SaveChangesAsync(cancellationToken);
+            Logger.LogInformation("Changes saved for {EntityType}", typeof(TEntity).Name);
         }
     }
 
@@ -33,7 +34,9 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>, ITransactiona
         // Only save changes if not in a transaction
         if (!IsTransactionActive)
         {
-            return await Context.SaveChangesAsync(cancellationToken);
+            var result = await Context.SaveChangesAsync(cancellationToken);
+            Logger.LogInformation("Changes saved for {EntityType} with {AffectedRows} affected rows", typeof(TEntity).Name, result);
+            return result;
         }
         return 0; // No affected rows when in transaction
     }
@@ -42,6 +45,7 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>, ITransactiona
     {
         if (_currentTransaction != null)
         {
+            Logger.LogError("A transaction is already active for {EntityType}", typeof(TEntity).Name);
             throw new RepositoryException<TEntity>("A transaction is already active.");
         }
 
@@ -53,6 +57,7 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>, ITransactiona
     {
         if (_currentTransaction == null)
         {
+            Logger.LogError("No active transaction to commit for {EntityType}", typeof(TEntity).Name);
             throw new RepositoryException<TEntity>("No active transaction to commit.");
         }
 
@@ -64,6 +69,7 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>, ITransactiona
         finally
         {
             await _currentTransaction.DisposeAsync();
+            Logger.LogInformation("Transaction disposed for {EntityType}", typeof(TEntity).Name);
             _currentTransaction = null;
         }
     }
@@ -72,6 +78,7 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>, ITransactiona
     {
         if (_currentTransaction == null)
         {
+            Logger.LogError("No active transaction to rollback for {EntityType}", typeof(TEntity).Name);
             throw new RepositoryException<TEntity>("No active transaction to rollback.");
         }
 
@@ -83,6 +90,7 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>, ITransactiona
         finally
         {
             await _currentTransaction.DisposeAsync();
+            Logger.LogInformation("Transaction disposed for {EntityType}", typeof(TEntity).Name);
             _currentTransaction = null;
         }
     }
@@ -94,7 +102,6 @@ public class Repository<TEntity, TContext> : IRepository<TEntity>, ITransactiona
 
         if (entity.Id == Guid.Empty)
             entity.Id = Guid.NewGuid();
-
 
         try
         {
