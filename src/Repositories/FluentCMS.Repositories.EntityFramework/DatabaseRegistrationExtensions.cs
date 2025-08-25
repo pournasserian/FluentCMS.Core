@@ -6,6 +6,7 @@ public static class DatabaseRegistrationExtensions
     {
         services.AddEfDbContext<TContext>(additionalConfiguration);
         services.AddScoped<IRepository<TEntity>, Repository<TEntity, TContext>>();
+        services.AddScoped<ITransactionalRepository<TEntity>, Repository<TEntity, TContext>>();
         return services;
     }
 
