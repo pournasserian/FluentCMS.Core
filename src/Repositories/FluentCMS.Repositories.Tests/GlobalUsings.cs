@@ -8,3 +8,4 @@ global using FluentCMS.Repositories.Tests.TestEntities;
 global using FluentCMS.EventBus;
 global using Serilog;
 global using Serilog.Events;
+global using System.Linq.Expressions;

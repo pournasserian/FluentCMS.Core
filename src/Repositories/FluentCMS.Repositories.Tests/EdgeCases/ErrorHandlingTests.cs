@@ -1,16 +1,12 @@
-using System.Linq.Expressions;
-
 namespace FluentCMS.Repositories.Tests.EdgeCases;
 
 public class ErrorHandlingTests(ServiceProviderFixture fixture) : IClassFixture<ServiceProviderFixture>
 {
-    private readonly IServiceProvider _serviceProvider = fixture.ServiceProvider;
-
     [Fact]
     public async Task Add_NullEntity_ShouldThrowArgumentNullException()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
         TestEntity? nullEntity = null;
 
@@ -25,7 +21,7 @@ public class ErrorHandlingTests(ServiceProviderFixture fixture) : IClassFixture<
     public async Task Update_NullEntity_ShouldThrowArgumentNullException()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
         TestEntity? nullEntity = null;
 
@@ -40,7 +36,7 @@ public class ErrorHandlingTests(ServiceProviderFixture fixture) : IClassFixture<
     public async Task Remove_NullEntity_ShouldThrowArgumentNullException()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
         TestEntity? nullEntity = null;
 
@@ -55,7 +51,7 @@ public class ErrorHandlingTests(ServiceProviderFixture fixture) : IClassFixture<
     public async Task Find_NullPredicate_ShouldThrowArgumentNullException()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
         Expression<Func<TestEntity, bool>>? nullPredicate = null;
 
@@ -70,7 +66,7 @@ public class ErrorHandlingTests(ServiceProviderFixture fixture) : IClassFixture<
     public async Task Remove_NonExistentEntity_ShouldThrowRepositoryException()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
         var nonExistentEntity = new TestEntity { Id = Guid.NewGuid() };
 
@@ -85,7 +81,7 @@ public class ErrorHandlingTests(ServiceProviderFixture fixture) : IClassFixture<
     public async Task Remove_NonExistentId_ShouldThrowRepositoryException()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
 
         // Act & Assert
@@ -99,7 +95,7 @@ public class ErrorHandlingTests(ServiceProviderFixture fixture) : IClassFixture<
     public async Task Transactional_Commit_WithoutBegin_ShouldThrowRepositoryException()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<ITransactionalRepository<TestEntity>>();
 
         // Act & Assert
@@ -113,7 +109,7 @@ public class ErrorHandlingTests(ServiceProviderFixture fixture) : IClassFixture<
     public async Task Transactional_Rollback_WithoutBegin_ShouldThrowRepositoryException()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<ITransactionalRepository<TestEntity>>();
 
         // Act & Assert
@@ -127,7 +123,7 @@ public class ErrorHandlingTests(ServiceProviderFixture fixture) : IClassFixture<
     public async Task Concurrent_AddOperations_ShouldHandleGracefully()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
 
         var tasks = new List<Task<TestEntity>>();
@@ -154,7 +150,7 @@ public class ErrorHandlingTests(ServiceProviderFixture fixture) : IClassFixture<
     public async Task EmptyDatabase_Operations_ShouldWorkCorrectly()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
 
         // Clear all existing data
@@ -177,7 +173,7 @@ public class ErrorHandlingTests(ServiceProviderFixture fixture) : IClassFixture<
     public async Task LargeDataSet_Operations_ShouldWorkEfficiently()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
 
         var entities = new List<TestEntity>();

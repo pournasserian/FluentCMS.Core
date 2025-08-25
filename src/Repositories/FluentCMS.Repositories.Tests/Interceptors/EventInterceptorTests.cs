@@ -2,13 +2,11 @@ namespace FluentCMS.Repositories.Tests.Interceptors;
 
 public class EventInterceptorTests(ServiceProviderFixture fixture) : IClassFixture<ServiceProviderFixture>
 {
-    private readonly IServiceProvider _serviceProvider = fixture.ServiceProvider;
-
     [Fact]
     public async Task Add_Entity_ShouldPublishCreatedEvent()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
         var entity = new TestEntity
         {
@@ -31,7 +29,7 @@ public class EventInterceptorTests(ServiceProviderFixture fixture) : IClassFixtu
     public async Task Update_Entity_ShouldPublishUpdatedEvent()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
         var entity = new TestEntity
         {
@@ -56,7 +54,7 @@ public class EventInterceptorTests(ServiceProviderFixture fixture) : IClassFixtu
     public async Task Remove_Entity_ShouldPublishRemovedEvent()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
         var entity = new TestEntity
         {
@@ -81,7 +79,7 @@ public class EventInterceptorTests(ServiceProviderFixture fixture) : IClassFixtu
     public async Task Transactional_Add_ShouldPublishEventsOnCommit()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<ITransactionalRepository<TestEntity>>();
 
         await repository.BeginTransaction();
@@ -105,7 +103,7 @@ public class EventInterceptorTests(ServiceProviderFixture fixture) : IClassFixtu
     public async Task Transactional_Update_ShouldPublishEventsOnCommit()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<ITransactionalRepository<TestEntity>>();
 
         // Add entity first
@@ -134,7 +132,7 @@ public class EventInterceptorTests(ServiceProviderFixture fixture) : IClassFixtu
     public async Task Transactional_Remove_ShouldNotPublishEventsOnRollback()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<ITransactionalRepository<TestEntity>>();
 
         await repository.BeginTransaction();

@@ -2,13 +2,11 @@ namespace FluentCMS.Repositories.Tests.Repositories;
 
 public class RepositoryTests(ServiceProviderFixture fixture) : IClassFixture<ServiceProviderFixture>
 {
-    private readonly IServiceProvider _serviceProvider = fixture.ServiceProvider;
-
     [Fact]
     public async Task Add_ShouldAddEntityAndReturnIt()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
         var entity = new TestEntity
         {
@@ -32,7 +30,7 @@ public class RepositoryTests(ServiceProviderFixture fixture) : IClassFixture<Ser
     public async Task AddMany_ShouldAddMultipleEntities()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
         var entities = new List<TestEntity>
         {
@@ -54,7 +52,7 @@ public class RepositoryTests(ServiceProviderFixture fixture) : IClassFixture<Ser
     public async Task GetById_ShouldReturnEntityWhenFound()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
         var entity = new TestEntity
         {
@@ -77,7 +75,7 @@ public class RepositoryTests(ServiceProviderFixture fixture) : IClassFixture<Ser
     public async Task GetById_ShouldReturnNullWhenNotFound()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
 
         // Act
@@ -91,7 +89,7 @@ public class RepositoryTests(ServiceProviderFixture fixture) : IClassFixture<Ser
     public async Task GetAll_ShouldReturnAllEntities()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
 
         // Add some test entities
@@ -110,7 +108,7 @@ public class RepositoryTests(ServiceProviderFixture fixture) : IClassFixture<Ser
     public async Task Find_ShouldReturnMatchingEntities()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
 
         // Add test entities
@@ -131,7 +129,7 @@ public class RepositoryTests(ServiceProviderFixture fixture) : IClassFixture<Ser
     public async Task Update_ShouldUpdateEntity()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
         var entity = new TestEntity
         {
@@ -158,7 +156,7 @@ public class RepositoryTests(ServiceProviderFixture fixture) : IClassFixture<Ser
     public async Task Remove_ByEntity_ShouldRemoveEntity()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
         var entity = new TestEntity
         {
@@ -184,7 +182,7 @@ public class RepositoryTests(ServiceProviderFixture fixture) : IClassFixture<Ser
     public async Task Remove_ById_ShouldRemoveEntity()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
         var entity = new TestEntity
         {
@@ -210,7 +208,7 @@ public class RepositoryTests(ServiceProviderFixture fixture) : IClassFixture<Ser
     public async Task Count_ShouldReturnCorrectCount()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
 
         // Clear existing data and add test entities
@@ -236,7 +234,7 @@ public class RepositoryTests(ServiceProviderFixture fixture) : IClassFixture<Ser
     public async Task Any_ShouldReturnCorrectBoolean()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
 
         // Clear existing data and add test entity

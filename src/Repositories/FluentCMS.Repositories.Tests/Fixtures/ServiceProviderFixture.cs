@@ -1,4 +1,5 @@
 using FluentCMS.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace FluentCMS.Repositories.Tests.Fixtures;
@@ -31,24 +32,34 @@ public class ServiceProviderFixture
         });
 
         // Add SQLite in-memory database
-        services.AddSqliteDatabase("DataSource=:memory:");
+        services.AddSqliteDatabase("Data Source=:memory:");
 
         // Add repository for TestEntity
         services.AddGenericRepository<TestEntity, TestDbContext>();
 
-        //// Add DbContext
-        //services.AddDbContext<TestDbContext>(options =>
-        //{
-        //    options.UseSqlite("DataSource=:memory:");
-        //});
-
         ServiceProvider = services.BuildServiceProvider();
 
+        //var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
+        //var entity = new TestEntity
+        //{
+        //    Name = "Test Entity",
+        //    Description = "Test Description",
+        //    Value = 42
+        //};
+        //var addedEntity = repository.Add(entity).Result;
+        //dbContext.SaveChanges();
+    }
+
+    public IServiceScope CreateScope()
+    {
         // Ensure database is created
-        using var scope = ServiceProvider.CreateScope();
-        StaticLoggerFactory.Initialize(scope.ServiceProvider.GetRequiredService<ILoggerFactory>());
-        var dbContext = scope.ServiceProvider.GetRequiredService<TestDbContext>();
+        var serviceScope = ServiceProvider.CreateScope();
+        StaticLoggerFactory.Initialize(serviceScope.ServiceProvider.GetRequiredService<ILoggerFactory>());
+        var dbContext = serviceScope.ServiceProvider.GetRequiredService<TestDbContext>();
         dbContext.Database.OpenConnection();
         dbContext.Database.EnsureCreated();
+        dbContext.SaveChanges();
+        return serviceScope;
     }
+
 }

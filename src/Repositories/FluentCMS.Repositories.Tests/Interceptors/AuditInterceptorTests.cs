@@ -2,13 +2,11 @@ namespace FluentCMS.Repositories.Tests.Interceptors;
 
 public class AuditInterceptorTests(ServiceProviderFixture fixture) : IClassFixture<ServiceProviderFixture>
 {
-    private readonly IServiceProvider _serviceProvider = fixture.ServiceProvider;
-
     [Fact]
     public async Task Add_Entity_ShouldSetAuditProperties()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
         var entity = new TestEntity
         {
@@ -34,7 +32,7 @@ public class AuditInterceptorTests(ServiceProviderFixture fixture) : IClassFixtu
     public async Task Update_Entity_ShouldUpdateAuditProperties()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
         var entity = new TestEntity
         {
@@ -68,7 +66,7 @@ public class AuditInterceptorTests(ServiceProviderFixture fixture) : IClassFixtu
     public async Task AddMany_Entities_ShouldSetAuditProperties()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository<TestEntity>>();
         var entities = new List<TestEntity>
         {
@@ -98,7 +96,7 @@ public class AuditInterceptorTests(ServiceProviderFixture fixture) : IClassFixtu
     public async Task Transactional_Add_ShouldSetAuditProperties()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<ITransactionalRepository<TestEntity>>();
 
         await repository.BeginTransaction();
@@ -125,7 +123,7 @@ public class AuditInterceptorTests(ServiceProviderFixture fixture) : IClassFixtu
     public async Task Transactional_Update_ShouldUpdateAuditProperties()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<ITransactionalRepository<TestEntity>>();
 
         // Add entity first

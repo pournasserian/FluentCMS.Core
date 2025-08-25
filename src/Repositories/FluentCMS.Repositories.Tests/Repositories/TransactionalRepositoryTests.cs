@@ -1,23 +1,12 @@
-using Microsoft.Extensions.DependencyInjection;
-using FluentCMS.Repositories.Tests.Fixtures;
-using FluentCMS.Repositories.Tests.TestEntities;
-
 namespace FluentCMS.Repositories.Tests.Repositories;
 
-public class TransactionalRepositoryTests : IClassFixture<ServiceProviderFixture>
+public class TransactionalRepositoryTests(ServiceProviderFixture fixture) : IClassFixture<ServiceProviderFixture>
 {
-    private readonly IServiceProvider _serviceProvider;
-
-    public TransactionalRepositoryTests(ServiceProviderFixture fixture)
-    {
-        _serviceProvider = fixture.ServiceProvider;
-    }
-
     [Fact]
     public async Task BeginTransaction_ShouldStartTransaction()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<ITransactionalRepository<TestEntity>>();
 
         // Act
@@ -31,7 +20,7 @@ public class TransactionalRepositoryTests : IClassFixture<ServiceProviderFixture
     public async Task Commit_ShouldSaveChanges()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<ITransactionalRepository<TestEntity>>();
 
         await repository.BeginTransaction();
@@ -59,7 +48,7 @@ public class TransactionalRepositoryTests : IClassFixture<ServiceProviderFixture
     public async Task Rollback_ShouldDiscardChanges()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<ITransactionalRepository<TestEntity>>();
 
         await repository.BeginTransaction();
@@ -86,7 +75,7 @@ public class TransactionalRepositoryTests : IClassFixture<ServiceProviderFixture
     public async Task TransactionalOperations_ShouldWorkTogether()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<ITransactionalRepository<TestEntity>>();
 
         // Act & Assert
@@ -116,7 +105,7 @@ public class TransactionalRepositoryTests : IClassFixture<ServiceProviderFixture
     public async Task RollbackAfterPartialOperations_ShouldDiscardAll()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<ITransactionalRepository<TestEntity>>();
 
         await repository.BeginTransaction();
@@ -141,7 +130,7 @@ public class TransactionalRepositoryTests : IClassFixture<ServiceProviderFixture
     public async Task BeginTransaction_WhenAlreadyActive_ShouldThrowException()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<ITransactionalRepository<TestEntity>>();
 
         await repository.BeginTransaction();
@@ -157,7 +146,7 @@ public class TransactionalRepositoryTests : IClassFixture<ServiceProviderFixture
     public async Task Commit_WhenNoActiveTransaction_ShouldThrowException()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<ITransactionalRepository<TestEntity>>();
 
         // Act & Assert
@@ -171,7 +160,7 @@ public class TransactionalRepositoryTests : IClassFixture<ServiceProviderFixture
     public async Task Rollback_WhenNoActiveTransaction_ShouldThrowException()
     {
         // Arrange
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = fixture.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<ITransactionalRepository<TestEntity>>();
 
         // Act & Assert

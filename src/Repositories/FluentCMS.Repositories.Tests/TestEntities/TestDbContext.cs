@@ -1,11 +1,7 @@
 namespace FluentCMS.Repositories.Tests.TestEntities;
 
-public class TestDbContext : DbContext
+public class TestDbContext(DbContextOptions<TestDbContext> options) : DbContext(options)
 {
-    public TestDbContext(DbContextOptions<TestDbContext> options) : base(options)
-    {
-    }
-
     public DbSet<TestEntity> TestEntities { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
