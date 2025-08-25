@@ -11,6 +11,12 @@ public static class DatabaseRegistrationExtensions
 
     public static IServiceCollection AddEfDbContext<TContext>(this IServiceCollection services, Action<DbContextOptionsBuilder>? additionalConfiguration = null) where TContext : DbContext
     {
+        services.AddScoped<IRepositoryEventPublisher, RepositoryEventPublisher>();
+
+        // This should be first, interceptors orders are important
+        services.AddScoped<IInterceptor, AuditableEntityInterceptor>();
+        services.AddScoped<IInterceptor, RepositoryEventBusPublisherInterceptor>();
+
         services.AddDbContext<TContext>((provider, options) =>
         {
             options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
@@ -34,15 +40,18 @@ public static class DatabaseRegistrationExtensions
 
     public static IServiceCollection AddSqliteDatabase(this IServiceCollection services, string connectionString)
     {
-        services.AddScoped<IRepositoryEventPublisher, RepositoryEventPublisher>();
-
-        // This should be first, interceptors orders are important
-        services.AddScoped<IInterceptor, AuditableEntityInterceptor>();
-        services.AddScoped<IInterceptor, RepositoryEventBusPublisherInterceptor>();
-
         services.AddSingleton<IDatabaseConfiguration>(sp =>
         {
             return new SqliteDatabaseConfiguration(connectionString);
+        });
+        return services;
+    }
+
+    public static IServiceCollection AddSqlServerDatabase(this IServiceCollection services, string connectionString)
+    {
+        services.AddSingleton<IDatabaseConfiguration>(sp =>
+        {
+            return new SqlServerDatabaseConfiguration(connectionString);
         });
         return services;
     }
