@@ -1,4 +1,4 @@
-﻿namespace FluentCMS.Caching.Abstractions;
+﻿namespace FluentCMS.Providers.Caching.Abstractions;
 
 /// <summary>
 /// Provides a generic interface for cache operations

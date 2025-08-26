@@ -1,7 +1,7 @@
-﻿using FluentCMS.Caching.Abstractions;
+﻿using FluentCMS.Providers.Caching.Abstractions;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace FluentCMS.Caching.InMemory;
+namespace FluentCMS.Providers.Caching.InMemory;
 
 /// <summary>
 /// In-memory implementation of ICacheProvider using Microsoft.Extensions.Caching.Memory

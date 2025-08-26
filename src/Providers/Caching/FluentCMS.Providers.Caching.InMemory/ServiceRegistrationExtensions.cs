@@ -1,8 +1,8 @@
-﻿using FluentCMS.Caching.Abstractions;
+﻿using FluentCMS.Providers.Caching.Abstractions;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FluentCMS.Caching.InMemory;
+namespace FluentCMS.Providers.Caching.InMemory;
 
 /// <summary>
 /// Extension methods for setting up caching services in an IServiceCollection

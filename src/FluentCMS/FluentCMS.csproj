@@ -12,12 +12,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Api\FluentCMS.Api\FluentCMS.Api.csproj" />
-    <ProjectReference Include="..\Caching\FluentCMS.Caching.InMemory\FluentCMS.Caching.InMemory.csproj" />
     <ProjectReference Include="..\EventBus\FluentCMS.EventBus\FluentCMS.EventBus.csproj" />
     <ProjectReference Include="..\Plugins\FluentCMS.Plugins.AuditTrailManager\FluentCMS.Plugins.AuditTrailManager.csproj" />
     <ProjectReference Include="..\Plugins\FluentCMS.Plugins.IdentityManager\FluentCMS.Plugins.IdentityManager.csproj" />
     <ProjectReference Include="..\Plugins\FluentCMS.Plugins\FluentCMS.Plugins.csproj" />
     <ProjectReference Include="..\Plugins\FluentCMS.TodoApi\FluentCMS.TodoApi.csproj" />
+    <ProjectReference Include="..\Providers\Caching\FluentCMS.Providers.Caching.InMemory\FluentCMS.Providers.Caching.InMemory.csproj" />
     <ProjectReference Include="..\Repositories\FluentCMS.Repositories.SQLite\FluentCMS.Repositories.Sqlite.csproj" />
   </ItemGroup>
 

@@ -1,5 +1,5 @@
 using FluentCMS.Api;
-using FluentCMS.Caching.InMemory;
+using FluentCMS.Providers.Caching.InMemory;
 using FluentCMS.EventBus;
 using FluentCMS.Plugins;
 using FluentCMS.Repositories.Sqlite;

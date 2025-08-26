@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Caching\FluentCMS.Caching.Abstractions\FluentCMS.Caching.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Providers\Caching\FluentCMS.Providers.Caching.Abstractions\FluentCMS.Providers.Caching.Abstractions.csproj" />
     <ProjectReference Include="..\FluentCMS.Repositories.Abstractions\FluentCMS.Repositories.Abstractions.csproj" />
   </ItemGroup>
 

@@ -1,6 +1,4 @@
-﻿using FluentCMS.Caching.Abstractions;
-
-namespace FluentCMS.Repositories.EntityFramework;
+﻿namespace FluentCMS.Repositories.EntityFramework;
 
 public class CachedReporitory<TEntity, TContext>(TContext context, ICacheProvider cacheProvider, ILogger<CachedReporitory<TEntity, TContext>> logger) : Repository<TEntity, TContext>(context, logger),
     ICachedRepository<TEntity>
