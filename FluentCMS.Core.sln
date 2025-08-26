@@ -41,6 +41,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Plugins.IdentityM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Repositories.Tests", "src\Repositories\FluentCMS.Repositories.Tests\FluentCMS.Repositories.Tests.csproj", "{2268D881-07F4-38C9-F5BB-3C0FBD92B58E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Repositories.Sqlite", "src\Repositories\FluentCMS.Repositories.SQLite\FluentCMS.Repositories.Sqlite.csproj", "{CC53EC57-1FCC-4B7A-AD5C-AC3FBFB25846}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Repositories.SqlServer", "src\Repositories\FluentCMS.Repositories.SqlServer\FluentCMS.Repositories.SqlServer.csproj", "{AD2F8236-BD16-45F3-A2B2-AAD261302DFF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -219,6 +223,30 @@ Global
 		{2268D881-07F4-38C9-F5BB-3C0FBD92B58E}.Release|x64.Build.0 = Release|Any CPU
 		{2268D881-07F4-38C9-F5BB-3C0FBD92B58E}.Release|x86.ActiveCfg = Release|Any CPU
 		{2268D881-07F4-38C9-F5BB-3C0FBD92B58E}.Release|x86.Build.0 = Release|Any CPU
+		{CC53EC57-1FCC-4B7A-AD5C-AC3FBFB25846}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC53EC57-1FCC-4B7A-AD5C-AC3FBFB25846}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC53EC57-1FCC-4B7A-AD5C-AC3FBFB25846}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CC53EC57-1FCC-4B7A-AD5C-AC3FBFB25846}.Debug|x64.Build.0 = Debug|Any CPU
+		{CC53EC57-1FCC-4B7A-AD5C-AC3FBFB25846}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CC53EC57-1FCC-4B7A-AD5C-AC3FBFB25846}.Debug|x86.Build.0 = Debug|Any CPU
+		{CC53EC57-1FCC-4B7A-AD5C-AC3FBFB25846}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC53EC57-1FCC-4B7A-AD5C-AC3FBFB25846}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC53EC57-1FCC-4B7A-AD5C-AC3FBFB25846}.Release|x64.ActiveCfg = Release|Any CPU
+		{CC53EC57-1FCC-4B7A-AD5C-AC3FBFB25846}.Release|x64.Build.0 = Release|Any CPU
+		{CC53EC57-1FCC-4B7A-AD5C-AC3FBFB25846}.Release|x86.ActiveCfg = Release|Any CPU
+		{CC53EC57-1FCC-4B7A-AD5C-AC3FBFB25846}.Release|x86.Build.0 = Release|Any CPU
+		{AD2F8236-BD16-45F3-A2B2-AAD261302DFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD2F8236-BD16-45F3-A2B2-AAD261302DFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD2F8236-BD16-45F3-A2B2-AAD261302DFF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AD2F8236-BD16-45F3-A2B2-AAD261302DFF}.Debug|x64.Build.0 = Debug|Any CPU
+		{AD2F8236-BD16-45F3-A2B2-AAD261302DFF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AD2F8236-BD16-45F3-A2B2-AAD261302DFF}.Debug|x86.Build.0 = Debug|Any CPU
+		{AD2F8236-BD16-45F3-A2B2-AAD261302DFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD2F8236-BD16-45F3-A2B2-AAD261302DFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD2F8236-BD16-45F3-A2B2-AAD261302DFF}.Release|x64.ActiveCfg = Release|Any CPU
+		{AD2F8236-BD16-45F3-A2B2-AAD261302DFF}.Release|x64.Build.0 = Release|Any CPU
+		{AD2F8236-BD16-45F3-A2B2-AAD261302DFF}.Release|x86.ActiveCfg = Release|Any CPU
+		{AD2F8236-BD16-45F3-A2B2-AAD261302DFF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -236,6 +264,8 @@ Global
 		{18FCC40E-B1C4-4711-AE0E-36ADD129E018} = {B39501A4-7185-4951-8218-4AAAB84C8C09}
 		{523AF341-EB2A-45F0-8125-E67DB4756898} = {12288030-F57A-4F6C-A7F4-CD6126134C3E}
 		{2268D881-07F4-38C9-F5BB-3C0FBD92B58E} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{CC53EC57-1FCC-4B7A-AD5C-AC3FBFB25846} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{AD2F8236-BD16-45F3-A2B2-AAD261302DFF} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4A20D9D5-B268-4753-8057-813B6394829F}

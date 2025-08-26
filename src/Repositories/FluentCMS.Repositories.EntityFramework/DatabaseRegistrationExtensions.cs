@@ -11,15 +11,19 @@ public static class DatabaseRegistrationExtensions
 
     public static IServiceCollection AddEfDbContext<TContext>(this IServiceCollection services, Action<DbContextOptionsBuilder>? additionalConfiguration = null) where TContext : DbContext
     {
+        services.TryAddScoped<IRepositoryEventPublisher, RepositoryEventPublisher>();
+        services.TryAddScoped<AuditableEntityInterceptor>();
+        services.TryAddScoped<RepositoryEventBusPublisherInterceptor>();
+
         services.AddDbContext<TContext>((provider, options) =>
         {
             options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 
-            var interceptors = provider.GetServices<IInterceptor>().ToList();
-            foreach (var interceptor in interceptors)
-            {
-                options.AddInterceptors(interceptor);
-            }
+            var auditableEntityInterceptor = provider.GetRequiredService<AuditableEntityInterceptor>();
+            var eventBusPublisherInterceptor = provider.GetRequiredService<RepositoryEventBusPublisherInterceptor>();
+
+            options.AddInterceptors(auditableEntityInterceptor);
+            options.AddInterceptors(eventBusPublisherInterceptor);
 
             // Apply global configuration first
             var dbConfig = provider.GetRequiredService<IDatabaseConfiguration>();
@@ -29,36 +33,6 @@ public static class DatabaseRegistrationExtensions
             additionalConfiguration?.Invoke(options);
         });
 
-        return services;
-    }
-
-    public static IServiceCollection AddSqliteDatabase(this IServiceCollection services, string connectionString)
-    {
-        services.AddScoped<IRepositoryEventPublisher, RepositoryEventPublisher>();
-
-        // This should be first, interceptors orders are important
-        services.AddScoped<IInterceptor, AuditableEntityInterceptor>();
-        services.AddScoped<IInterceptor, RepositoryEventBusPublisherInterceptor>();
-
-        services.AddSingleton<IDatabaseConfiguration>(sp =>
-        {
-            return new SqliteDatabaseConfiguration(connectionString);
-        });
-        return services;
-    }
-
-    public static IServiceCollection AddSqlServerDatabase(this IServiceCollection services, string connectionString)
-    {
-        services.AddScoped<IRepositoryEventPublisher, RepositoryEventPublisher>();
-
-        // This should be first, interceptors orders are important
-        services.AddScoped<IInterceptor, AuditableEntityInterceptor>();
-        services.AddScoped<IInterceptor, RepositoryEventBusPublisherInterceptor>();
-
-        services.AddSingleton<IDatabaseConfiguration>(sp =>
-        {
-            return new SqlServerDatabaseConfiguration(connectionString);
-        });
         return services;
     }
 }

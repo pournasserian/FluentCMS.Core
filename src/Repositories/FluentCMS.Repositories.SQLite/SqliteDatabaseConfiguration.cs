@@ -1,4 +1,7 @@
-﻿namespace FluentCMS.Repositories.EntityFramework.Configurations;
+﻿using FluentCMS.Repositories.Abstractions;
+using Microsoft.EntityFrameworkCore;
+
+namespace FluentCMS.Repositories.Sqlite;
 
 public class SqliteDatabaseConfiguration(string connectionString) : IDatabaseConfiguration
 {

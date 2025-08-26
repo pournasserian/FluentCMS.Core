@@ -28,6 +28,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\EventBus\FluentCMS.EventBus\FluentCMS.EventBus.csproj" />
     <ProjectReference Include="..\FluentCMS.Repositories.EntityFramework\FluentCMS.Repositories.EntityFramework.csproj" />
+    <ProjectReference Include="..\FluentCMS.Repositories.SQLite\FluentCMS.Repositories.Sqlite.csproj" />
   </ItemGroup>
 
 </Project>

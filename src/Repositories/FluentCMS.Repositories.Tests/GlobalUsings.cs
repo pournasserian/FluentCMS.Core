@@ -6,6 +6,7 @@ global using FluentCMS.Repositories.Abstractions;
 global using FluentCMS.Repositories.EntityFramework;
 global using FluentCMS.Repositories.Tests.Fixtures;
 global using FluentCMS.Repositories.Tests.TestEntities;
+global using FluentCMS.Repositories.Sqlite;
 global using FluentCMS.EventBus;
 global using Serilog;
 global using Serilog.Events;

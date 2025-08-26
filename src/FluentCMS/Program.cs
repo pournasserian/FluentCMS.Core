@@ -1,7 +1,7 @@
 using FluentCMS.Api;
 using FluentCMS.EventBus;
 using FluentCMS.Plugins;
-using FluentCMS.Repositories.EntityFramework;
+using FluentCMS.Repositories.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
