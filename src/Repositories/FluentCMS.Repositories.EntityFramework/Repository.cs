@@ -1,21 +1,13 @@
 ﻿namespace FluentCMS.Repositories.EntityFramework;
 
-public class Repository<TEntity, TContext> : IRepository<TEntity>, ITransactionalRepository<TEntity>
+public class Repository<TEntity, TContext>(TContext context, ILogger<Repository<TEntity, TContext>> logger) : IRepository<TEntity>, ITransactionalRepository<TEntity>
     where TEntity : class, IEntity
     where TContext : DbContext
 {
-    protected readonly ILogger<Repository<TEntity, TContext>> Logger = default!;
-    protected readonly TContext Context = default!;
-    protected readonly DbSet<TEntity> DbSet = default!;
+    protected readonly ILogger<Repository<TEntity, TContext>> Logger = logger;
+    protected readonly TContext Context = context;
+    protected readonly DbSet<TEntity> DbSet = context.Set<TEntity>();
     private IDbContextTransaction? _currentTransaction;
-
-    public Repository(TContext context, ILogger<Repository<TEntity, TContext>> logger)
-    {
-        Logger = logger;
-        Context = context ??
-            throw new ArgumentNullException(nameof(context));
-        DbSet = Context.Set<TEntity>();
-    }
 
     public bool IsTransactionActive => _currentTransaction != null;
 

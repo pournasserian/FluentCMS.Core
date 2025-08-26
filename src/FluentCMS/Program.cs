@@ -5,6 +5,7 @@ using FluentCMS.Repositories.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
+using FluentCMS.Caching.InMemory;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -28,6 +29,8 @@ builder.AddPlugins(["FluentCMS"]);
 builder.Services.AddSqliteDatabase(connectionString);
 
 builder.Services.AddEventPublisher();
+
+builder.Services.AddInMemoryCaching();
 
 // Add services to the container.
 builder.Services.AddFluentCmsApi();
