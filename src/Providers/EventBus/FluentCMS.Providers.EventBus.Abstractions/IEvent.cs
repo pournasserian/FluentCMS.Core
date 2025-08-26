@@ -1,4 +1,4 @@
-namespace FluentCMS.EventBus.Abstractions;
+namespace FluentCMS.Providers.EventBus.Abstractions;
 
 // Base event interface
 public interface IEvent

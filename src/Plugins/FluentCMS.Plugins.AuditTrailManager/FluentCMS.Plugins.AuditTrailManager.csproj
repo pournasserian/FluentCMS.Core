@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Providers\EventBus\FluentCMS.Providers.EventBus.Abstractions\FluentCMS.Providers.EventBus.Abstractions.csproj" />
     <ProjectReference Include="..\..\Repositories\FluentCMS.Repositories.EntityFramework\FluentCMS.Repositories.EntityFramework.csproj" />
     <ProjectReference Include="..\FluentCMS.Plugins.Abstractions\FluentCMS.Plugins.Abstractions.csproj" />
   </ItemGroup>

@@ -1,4 +1,4 @@
-namespace FluentCMS.EventBus;
+namespace FluentCMS.Providers.EventBus.InMemory;
 
 public class EventPublisher(IServiceProvider serviceProvider) : IEventPublisher
 {

@@ -1,4 +1,4 @@
-global using FluentCMS.EventBus;
+global using FluentCMS.Providers.EventBus.InMemory;
 global using FluentCMS.Repositories.Abstractions;
 global using FluentCMS.Repositories.EntityFramework;
 global using FluentCMS.Repositories.Sqlite;

@@ -1,4 +1,4 @@
-namespace FluentCMS.EventBus.Abstractions;
+namespace FluentCMS.Providers.EventBus.Abstractions;
 
 // Generic event publisher interface
 public interface IEventPublisher
