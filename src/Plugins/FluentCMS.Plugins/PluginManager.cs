@@ -76,7 +76,7 @@ internal class PluginManager : IPluginManager
         return _pluginsMetaData;
     }
 
-    private IEnumerable<IPluginMetadata> ScanAssemblies(string folderPath, string[] pluginPrefixes)
+    private static IEnumerable<IPluginMetadata> ScanAssemblies(string folderPath, string[] pluginPrefixes)
     {
         // Get all DLL files in the specified directory
         var allDllFiles = Directory.GetFiles(folderPath, "*.dll", SearchOption.TopDirectoryOnly);
