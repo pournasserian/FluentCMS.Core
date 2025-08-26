@@ -1,11 +1,11 @@
 using FluentCMS.Api;
+using FluentCMS.Caching.InMemory;
 using FluentCMS.EventBus;
 using FluentCMS.Plugins;
 using FluentCMS.Repositories.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
-using FluentCMS.Caching.InMemory;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
