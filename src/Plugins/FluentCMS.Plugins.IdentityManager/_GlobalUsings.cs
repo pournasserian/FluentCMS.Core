@@ -1,11 +1,11 @@
 ﻿global using AutoMapper;
 global using FluentCMS.Exceptions;
 global using FluentCMS.Identity;
-global using FluentCMS.Providers.Plugins.Abstractions;
 global using FluentCMS.Plugins.IdentityManager.Controllers;
 global using FluentCMS.Plugins.IdentityManager.Options;
 global using FluentCMS.Plugins.IdentityManager.Repositories;
 global using FluentCMS.Plugins.IdentityManager.Services;
+global using FluentCMS.Providers.Plugins.Abstractions;
 global using FluentCMS.Repositories.Abstractions;
 global using FluentCMS.Repositories.EntityFramework;
 global using Microsoft.AspNetCore.Authentication.JwtBearer;
