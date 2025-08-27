@@ -1,4 +1,4 @@
-﻿namespace FluentCMS.Plugins;
+﻿namespace FluentCMS.Providers.Plugins;
 
 internal class PluginManager : IPluginManager
 {

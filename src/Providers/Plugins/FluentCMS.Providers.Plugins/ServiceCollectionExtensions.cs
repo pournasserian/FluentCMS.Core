@@ -1,4 +1,4 @@
-namespace FluentCMS.Plugins;
+namespace FluentCMS.Providers.Plugins;
 
 public static class ServiceCollectionExtensions
 {

@@ -7,9 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.8" />
-
+    <ProjectReference Include="..\FluentCMS.Providers.Plugins.Abstractions\FluentCMS.Providers.Plugins.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

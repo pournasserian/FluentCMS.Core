@@ -1,5 +1,5 @@
 ﻿global using AutoMapper;
-global using FluentCMS.Plugins.Abstractions;
+global using FluentCMS.Providers.Plugins.Abstractions;
 global using FluentCMS.Plugins.AuditTrailManager.Handlers;
 global using FluentCMS.Plugins.AuditTrailManager.Models;
 global using FluentCMS.Plugins.AuditTrailManager.Repositories;
