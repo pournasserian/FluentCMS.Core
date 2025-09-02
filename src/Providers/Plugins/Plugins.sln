@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Providers.Plugins", "FluentCMS.Providers.Plugins\FluentCMS.Providers.Plugins.csproj", "{0067C0BF-6E78-3604-D7EF-1E51A7486787}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Providers.Plugins.Abstractions", "FluentCMS.Providers.Plugins.Abstractions\FluentCMS.Providers.Plugins.Abstractions.csproj", "{318CBA34-7724-DEE0-FB29-019E162764DF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0067C0BF-6E78-3604-D7EF-1E51A7486787}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0067C0BF-6E78-3604-D7EF-1E51A7486787}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0067C0BF-6E78-3604-D7EF-1E51A7486787}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0067C0BF-6E78-3604-D7EF-1E51A7486787}.Release|Any CPU.Build.0 = Release|Any CPU
+		{318CBA34-7724-DEE0-FB29-019E162764DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{318CBA34-7724-DEE0-FB29-019E162764DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{318CBA34-7724-DEE0-FB29-019E162764DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{318CBA34-7724-DEE0-FB29-019E162764DF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {88A31E0A-848D-43C1-BD11-9E6B7363BF98}
+	EndGlobalSection
+EndGlobal

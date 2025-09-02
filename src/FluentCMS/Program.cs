@@ -3,6 +3,7 @@ using FluentCMS.Providers.Caching.InMemory;
 using FluentCMS.Providers.EventBus.InMemory;
 using FluentCMS.Providers.Plugins;
 using FluentCMS.Repositories.Sqlite;
+using FluentCMS.Providers;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
@@ -23,8 +24,19 @@ builder.Host.UseSerilog();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
+// Configure Identity options from appsettings.json
+//builder.Services.Configure<List<ProviderConfig>>(options =>
+//{
+//    builder.Configuration.GetSection("Providers").Bind(options);
+//});
+
+var t = builder.Configuration.GetSection("Providers").Get<ProvidersConfiguration>();
+
+
 // Add plugin system
 builder.AddPlugins(["FluentCMS"]);
+
+builder.AddProviders(["FluentCMS"]);
 
 builder.Services.AddSqliteDatabase(connectionString);
 
