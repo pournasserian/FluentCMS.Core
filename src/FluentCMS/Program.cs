@@ -22,19 +22,7 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-//builder.Services.AddDbContext<ConfigurationDbContext>((serviceProvider, options) =>
-//{
-//    // OR use SQLite
-//    options.UseSqlite(connectionString);
-//});
-
-//builder.Configuration.Add<EfConfigurationSource>(configurationSource =>
-//{
-//    configurationSource.Init(options =>
-//    {
-//        options.UseSqlite(connectionString);
-//    });
-//});
+builder.AddEfConfiguration(connectionString);
 
 builder.Host.UseSerilog();
 

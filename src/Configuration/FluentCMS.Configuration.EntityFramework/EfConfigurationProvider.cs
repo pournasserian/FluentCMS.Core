@@ -10,6 +10,16 @@ public class EfConfigurationProvider(DbContextOptions<ConfigurationDbContext> op
         var builder = new DbContextOptionsBuilder<ConfigurationDbContext>(options);
         using var dbContext =  new ConfigurationDbContext(builder.Options, configurationRoot);
 
+        if (!dbContext.Database.CanConnect())
+        {
+            dbContext.Database.EnsureCreated();
+        }
+        else
+        {
+            var script = dbContext.Database.GenerateCreateScript();
+            dbContext.Database.ExecuteSqlRaw(script);
+        }
+
         if (dbContext is ConfigurationDbContext configDbContext)
         {
             configDbContext.Database.EnsureCreated();
