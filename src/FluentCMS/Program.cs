@@ -1,4 +1,5 @@
 using FluentCMS.Api;
+using FluentCMS.Configuration.EntityFramework;
 using FluentCMS.Providers.Caching.InMemory;
 using FluentCMS.Providers.EventBus.InMemory;
 using FluentCMS.Providers.Plugins;
@@ -18,10 +19,12 @@ Log.Logger = new LoggerConfiguration()
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog();
-
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+builder.AddEfConfiguration(connectionString);
+
+builder.Host.UseSerilog();
 
 // Add plugin system
 builder.AddPlugins(["FluentCMS"]);
