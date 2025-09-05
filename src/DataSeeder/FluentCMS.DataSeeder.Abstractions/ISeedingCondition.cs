@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace FluentCMS.DataSeeder.Conditions;
+﻿namespace FluentCMS.DataSeeder.Abstractions;
 
 /// <summary>
 /// Interface for defining conditions that must be met before seeding occurs
@@ -10,9 +8,8 @@ public interface ISeedingCondition
     /// <summary>
     /// Checks if the condition is met for seeding to proceed
     /// </summary>
-    /// <param name="context">The database context</param>
     /// <returns>True if seeding should proceed, false otherwise</returns>
-    Task<bool> ShouldSeed(DbContext context);
+    Task<bool> ShouldSeed();
 
     /// <summary>
     /// Name of the condition for logging purposes

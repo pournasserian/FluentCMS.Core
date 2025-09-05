@@ -1,15 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace FluentCMS.DataSeeder.Conditions;
+﻿namespace FluentCMS.DataSeeder.EntityFramework;
 
 /// <summary>
 /// Condition that checks if the database exists
 /// </summary>
-public class DatabaseExistsCondition : ISeedingCondition
+public class DatabaseExistsCondition<TContext>(TContext context) : ISeedingCondition where TContext : DbContext
 {
     public string Name => "Database Exists";
 
-    public async Task<bool> ShouldSeed(DbContext context)
+    public async Task<bool> ShouldSeed()
     {
         try
         {

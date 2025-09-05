@@ -1,3 +1,4 @@
+using FluentCMS.DataSeeder.EntityFramework;
 using FluentCMS.Providers.Plugins.Abstractions;
 using FluentCMS.Repositories.EntityFramework;
 using FluentCMS.TodoApi.Models;
@@ -17,6 +18,11 @@ public class TodoPlugin : IPlugin
         builder.Services.AddScoped<ITodoService, TodoService>();
         builder.Services.AddGenericRepository<Todo, TodoDbContext>();
         builder.Services.AddEfDbContext<TodoDbContext>();
+
+        builder.Services.AddEfDataSeeding<TodoSeeder>(options =>
+        {
+            options.Conditions.Add(new TablesEmptyCondition<TodoDbContext>());
+        });
     }
 
     public void Configure(IApplicationBuilder app)

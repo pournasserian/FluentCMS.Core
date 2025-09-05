@@ -1,15 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace FluentCMS.DataSeeder.Conditions;
+﻿namespace FluentCMS.DataSeeder.EntityFramework;
 
 /// <summary>
 /// Condition that checks if specified tables are empty
 /// </summary>
-public class TablesEmptyCondition(params string[] tableNames) : ISeedingCondition
+public class TablesEmptyCondition<TContext>(TContext context, params string[] tableNames) : ISeedingCondition where TContext : DbContext
 {
     public string Name => $"Tables Empty: {string.Join(", ", tableNames)}";
 
-    public async Task<bool> ShouldSeed(DbContext context)
+    public async Task<bool> ShouldSeed()
     {
         try
         {

@@ -1,7 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-
-namespace FluentCMS.DataSeeder.Conditions;
+﻿namespace FluentCMS.DataSeeder;
 
 /// <summary>
 /// Condition that checks configuration settings
@@ -10,7 +7,7 @@ public class ConfigurationCondition(IConfiguration configuration, string configK
 {
     public string Name => $"Configuration: {configKey} = {expectedValue}";
 
-    public Task<bool> ShouldSeed(DbContext context)
+    public Task<bool> ShouldSeed()
     {
         try
         {

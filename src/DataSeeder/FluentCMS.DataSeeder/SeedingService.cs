@@ -1,24 +1,20 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System.Reflection;
-
-namespace FluentCMS.DataSeeder;
+﻿namespace FluentCMS.DataSeeder;
 
 /// <summary>
-/// Main service for orchestrating the database seeding process
+/// Main service for orchestrating the data seeding process
 /// </summary>
 public class SeedingService(IServiceProvider serviceProvider, SeedingOptions options, ILogger<SeedingService> logger) : ISeedingService
 {
     protected readonly ILogger<SeedingService>? Logger = options.EnableLogging ? logger : null;
 
-    public async Task ExecuteSeeding(DbContext context)
+    public async Task ExecuteSeeding()
     {
-        Logger?.LogInformation("Starting database seeding process");
+        Logger?.LogInformation("Starting data seeding process");
 
         try
         {
             // Check conditions
-            if (!await CanSeed(context))
+            if (!await CanSeed())
             {
                 Logger?.LogInformation("Seeding conditions not met, skipping seeding");
                 return;
@@ -27,22 +23,22 @@ public class SeedingService(IServiceProvider serviceProvider, SeedingOptions opt
             // Ensure schema exists
             if (options.EnsureSchemaCreated)
             {
-                await EnsureSchema(context);
+                await EnsureSchema();
             }
 
             // Seed data
-            await SeedData(context);
+            await SeedData();
 
-            Logger?.LogInformation("Database seeding completed successfully");
+            Logger?.LogInformation("Data seeding completed successfully");
         }
         catch (Exception ex)
         {
-            Logger?.LogError(ex, "Error occurred during database seeding");
+            Logger?.LogError(ex, "Error occurred during data seeding");
             throw new SeedingException("Failed to execute seeding process", ex);
         }
     }
 
-    public async Task<bool> CanSeed(DbContext context)
+    public async Task<bool> CanSeed()
     {
         if (options.Conditions.Count == 0)
             return true;
@@ -51,7 +47,7 @@ public class SeedingService(IServiceProvider serviceProvider, SeedingOptions opt
         {
             foreach (var condition in options.Conditions)
             {
-                var result = await condition.ShouldSeed(context);
+                var result = await condition.ShouldSeed();
 
                 Logger?.LogDebug("Condition '{ConditionName}' result: {Result}", condition.Name, result);
 
@@ -67,13 +63,12 @@ public class SeedingService(IServiceProvider serviceProvider, SeedingOptions opt
         }
     }
 
-    public virtual async Task EnsureSchema(DbContext context)
+    public virtual async Task EnsureSchema()
     {
         try
         {
             Logger?.LogInformation("Ensuring database schema exists");
 
-            await context.Database.EnsureCreatedAsync();
 
             Logger?.LogInformation("Database schema ensured");
         }
@@ -84,7 +79,7 @@ public class SeedingService(IServiceProvider serviceProvider, SeedingOptions opt
         }
     }
 
-    public async Task SeedData(DbContext context)
+    public virtual async Task SeedData()
     {
         try
         {
@@ -97,21 +92,21 @@ public class SeedingService(IServiceProvider serviceProvider, SeedingOptions opt
 
             if (options.UseTransaction)
             {
-                using var transaction = await context.Database.BeginTransactionAsync();
-                try
-                {
-                    await ExecuteSeeders(orderedSeeders, context);
-                    await transaction.CommitAsync();
-                }
-                catch
-                {
-                    await transaction.RollbackAsync();
-                    throw;
-                }
+                //using var transaction = await context.Database.BeginTransactionAsync();
+                //try
+                //{
+                //    await ExecuteSeeders(orderedSeeders, context);
+                //    await transaction.CommitAsync();
+                //}
+                //catch
+                //{
+                //    await transaction.RollbackAsync();
+                //    throw;
+                //}
             }
             else
             {
-                await ExecuteSeeders(orderedSeeders, context);
+                //await ExecuteSeeders(orderedSeeders, context);
             }
 
             Logger?.LogInformation("Data seeding completed");
@@ -123,7 +118,7 @@ public class SeedingService(IServiceProvider serviceProvider, SeedingOptions opt
         }
     }
 
-    private async Task ExecuteSeeders(List<SeederInfo> seeders, DbContext context)
+    private async Task ExecuteSeeders(List<SeederInfo> seeders)
     {
         foreach (var seederInfo in seeders)
         {
@@ -138,7 +133,7 @@ public class SeedingService(IServiceProvider serviceProvider, SeedingOptions opt
                     if (seeder != null)
                     {
                         var seedMethod = seederInfo.SeederType.GetMethod("Seed");
-                        await (Task)seedMethod!.Invoke(seeder, [context])!;
+                        //await (Task)seedMethod!.Invoke(seeder, [context])!;
                     }
 
                     break; // Success, exit retry loop

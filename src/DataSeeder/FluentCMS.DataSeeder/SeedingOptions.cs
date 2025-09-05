@@ -1,6 +1,4 @@
-﻿using FluentCMS.DataSeeder.Conditions;
-
-namespace FluentCMS.DataSeeder;
+﻿namespace FluentCMS.DataSeeder;
 
 /// <summary>
 /// Configuration options for the database seeding process
@@ -36,9 +34,4 @@ public class SeedingOptions
     /// Whether to log seeding operations
     /// </summary>
     public bool EnableLogging { get; set; } = true;
-
-    /// <summary>
-    /// Assemblies to scan for seeder implementations
-    /// </summary>
-    public List<string> AssembliesToScan { get; set; } = [];
 }

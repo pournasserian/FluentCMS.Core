@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace FluentCMS.DataSeeder.Sqlite;
 
-
 /// <summary>
 /// Extension methods for IServiceCollection to register database seeding services
 /// </summary>

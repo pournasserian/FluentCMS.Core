@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace FluentCMS.DataSeeder.Conditions;
+﻿namespace FluentCMS.DataSeeder;
 
 /// <summary>
 /// Condition that combines multiple conditions with AND/OR logic
@@ -11,7 +9,7 @@ public class CompositeCondition(bool useAndLogic, params ISeedingCondition[] con
 
     public string Name => $"Composite ({(useAndLogic ? "AND" : "OR")}): {string.Join(", ", _conditions.Select(c => c.Name))}";
 
-    public async Task<bool> ShouldSeed(DbContext context)
+    public async Task<bool> ShouldSeed()
     {
         if (_conditions.Count == 0)
             return true;
@@ -23,7 +21,7 @@ public class CompositeCondition(bool useAndLogic, params ISeedingCondition[] con
                 // AND logic - all conditions must be true
                 foreach (var condition in _conditions)
                 {
-                    if (!await condition.ShouldSeed(context))
+                    if (!await condition.ShouldSeed())
                         return false;
                 }
                 return true;
@@ -33,7 +31,7 @@ public class CompositeCondition(bool useAndLogic, params ISeedingCondition[] con
                 // OR logic - at least one condition must be true
                 foreach (var condition in _conditions)
                 {
-                    if (await condition.ShouldSeed(context))
+                    if (await condition.ShouldSeed())
                         return true;
                 }
                 return false;

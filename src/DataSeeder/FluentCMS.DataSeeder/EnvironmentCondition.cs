@@ -1,7 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-
-namespace FluentCMS.DataSeeder.Conditions;
+﻿namespace FluentCMS.DataSeeder;
 
 /// <summary>
 /// Condition that checks the current hosting environment
@@ -10,7 +7,7 @@ public class EnvironmentCondition(IHostEnvironment environment, Func<IHostEnviro
 {
     public string Name => "Environment Condition";
 
-    public Task<bool> ShouldSeed(DbContext context)
+    public Task<bool> ShouldSeed()
     {
         try
         {
