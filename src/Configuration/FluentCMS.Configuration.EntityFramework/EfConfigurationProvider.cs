@@ -16,8 +16,14 @@ public class EfConfigurationProvider(DbContextOptions<ConfigurationDbContext> op
         }
         else
         {
-            var script = dbContext.Database.GenerateCreateScript();
-            dbContext.Database.ExecuteSqlRaw(script);
+            try
+            {
+                var script = dbContext.Database.GenerateCreateScript();
+                dbContext.Database.ExecuteSqlRaw(script);
+            }
+            catch (Exception)
+            {
+            }
         }
 
         if (dbContext is ConfigurationDbContext configDbContext)

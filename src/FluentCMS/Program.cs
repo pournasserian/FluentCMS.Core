@@ -1,5 +1,7 @@
 using FluentCMS.Api;
 using FluentCMS.Configuration.EntityFramework;
+using FluentCMS.DataSeeder;
+using FluentCMS.DataSeeder.Sqlite;
 using FluentCMS.Providers.Caching.InMemory;
 using FluentCMS.Providers.EventBus.InMemory;
 using FluentCMS.Providers.Plugins;
@@ -18,25 +20,39 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
+var services = builder.Services;
+
+builder.Host.UseSerilog();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 builder.AddEfConfiguration(connectionString);
 
-builder.Host.UseSerilog();
-
 // Add plugin system
 builder.AddPlugins(["FluentCMS"]);
 
-builder.Services.AddSqliteDatabase(connectionString);
+// Set sqlite db to the repositories
+services.AddSqliteDatabase(connectionString);
 
-builder.Services.AddEventPublisher();
-
-builder.Services.AddInMemoryCaching();
+// Register providers
+services.AddEventPublisher();
+services.AddInMemoryCaching();
 
 // Add services to the container.
-builder.Services.AddFluentCmsApi();
+services.AddFluentCmsApi();
+
+// Data seeding dependencies
+services.AddSqliteDatabaseManager(connectionString);
+builder.AddDataSeeding(options =>
+{
+    options.AssemblyPrefixesToScan.Add("FluentCMS");
+
+    // Only create scheman and seed data in Development environment
+    options.Conditions.Add(new EnvironmentCondition(
+        builder.Environment,
+        env => env.IsDevelopment()));
+});
 
 var app = builder.Build();
 
