@@ -5,7 +5,7 @@ using System.Data;
 
 namespace FluentCMS.DataSeeder.Sqlite;
 
-public sealed class SqliteDatabaseManager : IDatabaseManager
+internal sealed class SqliteDatabaseManager : IDatabaseManager
 {
     private readonly string _connectionString;
     private readonly string _dataSource;           // parsed Data Source
