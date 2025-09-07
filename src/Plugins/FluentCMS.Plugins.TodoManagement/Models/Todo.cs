@@ -1,4 +1,4 @@
-namespace FluentCMS.TodoApi.Models;
+namespace FluentCMS.Plugins.TodoManagement.Models;
 
 public class Todo : AuditableEntity
 {

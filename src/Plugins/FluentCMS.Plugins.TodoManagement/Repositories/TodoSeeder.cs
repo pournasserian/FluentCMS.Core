@@ -1,16 +1,18 @@
 ﻿using FluentCMS.DataSeeder.Abstractions;
-using FluentCMS.TodoApi.Models;
+using FluentCMS.Plugins.TodoManagement.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace FluentCMS.TodoApi.Repositories;
+namespace FluentCMS.Plugins.TodoManagement.Repositories;
 
 public class TodoSeeder(TodoDbContext dbContext, IDatabaseManager databaseManager) : ISeeder
 {
     public int Order => 1000;
 
-    public Task<bool> ShouldCreateSchema(CancellationToken cancellationToken = default)
+    public async Task<bool> ShouldCreateSchema(CancellationToken cancellationToken = default)
     {
-        return databaseManager.DatabaseExists(cancellationToken);
+        if (!await databaseManager.DatabaseExists(cancellationToken))
+            return true;
+        return !await databaseManager.TablesExist(["Todos"], cancellationToken);
     }
 
     public async Task CreateSchema(CancellationToken cancellationToken = default)

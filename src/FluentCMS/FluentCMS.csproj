@@ -12,11 +12,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Api\FluentCMS.Api\FluentCMS.Api.csproj" />
-    <ProjectReference Include="..\Configuration\FluentCMS.Configuration.EntityFramework\FluentCMS.Configuration.EntityFramework.csproj" />
+    <ProjectReference Include="..\Configuration\FluentCMS.Configuration.Sqlite\FluentCMS.Configuration.Sqlite.csproj" />
     <ProjectReference Include="..\DataSeeder\FluentCMS.DataSeeder.Sqlite\FluentCMS.DataSeeder.Sqlite.csproj" />
     <ProjectReference Include="..\Plugins\FluentCMS.Plugins.AuditTrailManager\FluentCMS.Plugins.AuditTrailManager.csproj" />
     <ProjectReference Include="..\Plugins\FluentCMS.Plugins.IdentityManager\FluentCMS.Plugins.IdentityManager.csproj" />
-    <ProjectReference Include="..\Plugins\FluentCMS.TodoApi\FluentCMS.TodoApi.csproj" />
+    <ProjectReference Include="..\Plugins\FluentCMS.Plugins.TodoManagement\FluentCMS.Plugins.TodoManagement.csproj" />
     <ProjectReference Include="..\Providers\Caching\FluentCMS.Providers.Caching.InMemory\FluentCMS.Providers.Caching.InMemory.csproj" />
     <ProjectReference Include="..\Providers\EventBus\FluentCMS.Providers.EventBus.InMemory\FluentCMS.Providers.EventBus.InMemory.csproj" />
     <ProjectReference Include="..\Providers\Plugins\FluentCMS.Providers.Plugins\FluentCMS.Providers.Plugins.csproj" />

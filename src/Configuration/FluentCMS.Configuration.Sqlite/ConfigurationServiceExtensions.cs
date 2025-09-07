@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FluentCMS.Configuration.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace FluentCMS.Configuration.EntityFramework;
+namespace FluentCMS.Configuration.Sqlite;
 
 public static class ConfigurationServiceExtensions
 {
@@ -11,7 +12,6 @@ public static class ConfigurationServiceExtensions
     {
         builder.Services.AddDbContext<ConfigurationDbContext>((serviceProvider, options) =>
         {
-            // OR use SQLite
             options.UseSqlite(connectionString);
         });
 

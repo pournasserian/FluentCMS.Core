@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FluentCMS.DataSeeder.Abstractions\FluentCMS.DataSeeder.Abstractions.csproj" />
+    <ProjectReference Include="..\FluentCMS.DataSeeder\FluentCMS.DataSeeder.csproj" />
   </ItemGroup>
 
 </Project>

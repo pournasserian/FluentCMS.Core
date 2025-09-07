@@ -1,14 +1,14 @@
 ﻿namespace FluentCMS.DataSeeder;
 
-public static class RegistrationExtensions
+public static class ServiceCollectionExtensions
 {
     /// Call this ONCE in the main app (Program.cs) to enable runtime, blocking seeding
-    public static IHostApplicationBuilder AddDataSeeding(this IHostApplicationBuilder builder, Action<SeedingOptions>? configure = null)
+    public static IServiceCollection AddDataSeeding(this IServiceCollection services, Action<SeedingOptions>? configure = null)
     {
         // Configure options
         var opts = new SeedingOptions();
         configure?.Invoke(opts);
-        builder.Services.AddSingleton(opts);
+        services.AddSingleton(opts);
 
         // TODO: Replace with real logger
         var discoveryLogger = NullLoggerFactory.Instance.CreateLogger<SeedingDiscovery>();
@@ -16,14 +16,14 @@ public static class RegistrationExtensions
         var seeders = discovery.GetSeerders();
         foreach (var seederType in seeders)
         {
-            builder.Services.AddTransient(typeof(ISeeder), seederType);
+            services.AddTransient(typeof(ISeeder), seederType);
         }
-        
-        builder.Services.AddTransient<SeedingService>();
 
-        builder.Services.AddSingleton<SeedingHostedService>();
-        builder.Services.AddHostedService<SeedingHostedService>();
+        services.AddTransient<SeedingService>();
 
-        return builder;
+        services.AddSingleton<SeedingHostedService>();
+        services.AddHostedService<SeedingHostedService>();
+
+        return services;
     }
 }
