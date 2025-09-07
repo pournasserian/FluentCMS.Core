@@ -31,10 +31,22 @@ public class EfConfigurationProvider(DbContextOptions<ConfigurationDbContext> op
                 .AsNoTracking()
                 .ToList();
 
-            Data = settings.ToDictionary(
-                c => c.Key,
-                c => c.Value,
-                StringComparer.OrdinalIgnoreCase);
+            Data = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
+            foreach (var setting in settings)
+            {
+                if (setting.Value is not null)
+                {
+                    // If the value is JSON, flatten it into multiple keys
+                    foreach (var (k, v) in JsonConfigFlattener.ToDictionary(setting.Value, setting.Key))
+                    {
+                        Data.Add(k, v);
+                    }
+                }
+                else
+                {
+                    Data[setting.Key] = null;
+                }
+            }
 
             logger?.LogInformation("Loaded {Count} configuration settings", Data.Count);
         }
