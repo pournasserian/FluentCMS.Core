@@ -5,13 +5,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
+  
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="9.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.8" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FluentCMS.DataSeeder\FluentCMS.DataSeeder.csproj" />
+    <ProjectReference Include="..\FluentCMS.Configuration.EntityFramework\FluentCMS.Configuration.EntityFramework.csproj" />
   </ItemGroup>
 
 </Project>

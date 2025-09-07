@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace FluentCMS.TodoApi.Controllers;
+namespace FluentCMS.Plugins.TodoManagement.Controllers;
 
 [ApiController]
 [Produces("application/json")]

@@ -1,6 +1,4 @@
-﻿using FluentCMS.DataSeeder.Abstractions;
-
-namespace FluentCMS.Plugins.IdentityManager.Repositories;
+﻿namespace FluentCMS.Plugins.IdentityManager.Repositories;
 
 public class AuditTrailSeeder(ApplicationDbContext dbContext, IDatabaseManager databaseManager) : ISeeder
 {
@@ -18,9 +16,11 @@ public class AuditTrailSeeder(ApplicationDbContext dbContext, IDatabaseManager d
         return Task.CompletedTask;
     }
 
-    public Task<bool> ShouldCreateSchema(CancellationToken cancellationToken = default)
+    public async Task<bool> ShouldCreateSchema(CancellationToken cancellationToken = default)
     {
-        return databaseManager.DatabaseExists(cancellationToken);
+        if (!await databaseManager.DatabaseExists(cancellationToken))
+            return true;
+        return !await databaseManager.TablesExist(["Users", "Roles"], cancellationToken);
     }
 
     public Task<bool> ShouldSeed(CancellationToken cancellationToken = default)

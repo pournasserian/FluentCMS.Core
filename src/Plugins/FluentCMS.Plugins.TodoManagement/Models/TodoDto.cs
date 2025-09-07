@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace FluentCMS.TodoApi.Models;
+namespace FluentCMS.Plugins.TodoManagement.Models;
 
 public class TodoCreateDto
 {

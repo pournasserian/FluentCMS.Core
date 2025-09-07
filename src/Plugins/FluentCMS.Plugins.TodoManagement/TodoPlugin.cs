@@ -1,13 +1,13 @@
+using FluentCMS.Plugins.TodoManagement.Models;
+using FluentCMS.Plugins.TodoManagement.Repositories;
+using FluentCMS.Plugins.TodoManagement.Services;
 using FluentCMS.Providers.Plugins.Abstractions;
 using FluentCMS.Repositories.EntityFramework;
-using FluentCMS.TodoApi.Models;
-using FluentCMS.TodoApi.Repositories;
-using FluentCMS.TodoApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace FluentCMS.TodoApi;
+namespace FluentCMS.Plugins.TodoManagement;
 
 public class TodoPlugin : IPlugin
 {

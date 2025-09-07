@@ -1,7 +1,7 @@
-﻿using FluentCMS.Repositories.Abstractions;
-using FluentCMS.TodoApi.Models;
+﻿using FluentCMS.Plugins.TodoManagement.Models;
+using FluentCMS.Repositories.Abstractions;
 
-namespace FluentCMS.TodoApi.Services;
+namespace FluentCMS.Plugins.TodoManagement.Services;
 
 public interface ITodoService
 {

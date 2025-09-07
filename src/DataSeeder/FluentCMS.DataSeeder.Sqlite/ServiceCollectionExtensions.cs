@@ -9,10 +9,7 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Registers the SqliteDatabaseManager as a scoped service in the dependency injection container.
     /// </summary>
-    /// <param name="services">The IServiceCollection to add the service to.</param>
-    /// <param name="connectionString">The SQLite connection string.</param>
-    /// <returns>The updated IServiceCollection.</returns>
-    public static IServiceCollection AddSqliteDatabaseManager(this IServiceCollection services, string connectionString)
+    public static IServiceCollection AddSqliteDatabaseManager(this IServiceCollection services, string connectionString, Action<SeedingOptions>? configure = null)
     {
         if (string.IsNullOrWhiteSpace(connectionString))
         {
@@ -24,6 +21,8 @@ public static class ServiceCollectionExtensions
             var logger = provider.GetRequiredService<ILogger<SqliteDatabaseManager>>();
             return new SqliteDatabaseManager(connectionString, logger);
         });
+
+        services.AddDataSeeding(configure);
 
         return services;
     }

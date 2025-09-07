@@ -1,5 +1,5 @@
 using FluentCMS.Api;
-using FluentCMS.Configuration.EntityFramework;
+using FluentCMS.Configuration.Sqlite;
 using FluentCMS.DataSeeder;
 using FluentCMS.DataSeeder.Sqlite;
 using FluentCMS.Providers.Caching.InMemory;
@@ -43,8 +43,7 @@ services.AddInMemoryCaching();
 services.AddFluentCmsApi();
 
 // Data seeding dependencies
-services.AddSqliteDatabaseManager(connectionString);
-builder.AddDataSeeding(options =>
+services.AddSqliteDatabaseManager(connectionString, options =>
 {
     options.AssemblyPrefixesToScan.Add("FluentCMS");
 

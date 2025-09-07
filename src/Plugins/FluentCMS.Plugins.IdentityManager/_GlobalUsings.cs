@@ -2,6 +2,7 @@
 global using FluentCMS.Exceptions;
 global using FluentCMS.Identity;
 global using FluentCMS.Plugins.IdentityManager.Controllers;
+global using FluentCMS.DataSeeder.Abstractions;
 global using FluentCMS.Plugins.IdentityManager.Options;
 global using FluentCMS.Plugins.IdentityManager.Repositories;
 global using FluentCMS.Plugins.IdentityManager.Services;
