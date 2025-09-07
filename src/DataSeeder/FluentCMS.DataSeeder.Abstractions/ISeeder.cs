@@ -8,8 +8,22 @@ public interface ISeeder
     /// <summary>
     /// Seeds data into the target data store
     /// </summary>
-    /// <returns>A task representing the asynchronous operation</returns>
-    Task Seed();
+    Task SeedData(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Checks if seeding conditions are met
+    /// </summary>
+    Task<bool> ShouldSeed(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Checks if the database schema needs to be created
+    /// </summary>
+    Task<bool> ShouldCreateSchema(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Creates the database schema
+    /// </summary>
+    Task CreateSchema(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Execution order for this seeder (lower values execute first)

@@ -1,219 +1,81 @@
 ﻿namespace FluentCMS.DataSeeder;
 
-/// <summary>
-/// Main service for orchestrating the data seeding process
-/// </summary>
-public class SeedingService(IServiceProvider serviceProvider, SeedingOptions options, ILogger<SeedingService> logger) : ISeedingService
+internal class SeedingService(IEnumerable<ISeeder> seeders, ILogger<SeedingService> logger, SeedingOptions seedingOptions)
 {
-    protected readonly ILogger<SeedingService>? Logger = options.EnableLogging ? logger : null;
+    private readonly ILogger<SeedingService>? _logger = seedingOptions.EnableLogging ? logger : null;
 
-    public async Task ExecuteSeeding()
+    public async Task EnsureSchema(CancellationToken cancellationToken)
     {
-        Logger?.LogInformation("Starting data seeding process");
-
-        try
+        foreach (var seedingCondition in seedingOptions.Conditions)
         {
-            // Check conditions
-            if (!await CanSeed())
+            if (!await seedingCondition.ShouldSeed())
             {
-                Logger?.LogInformation("Seeding conditions not met, skipping seeding");
+                _logger?.LogInformation("Seeding condition '{ConditionName}' not met. Skipping seeding process.", seedingCondition.Name);
                 return;
             }
-
-            // Ensure schema exists
-            if (options.EnsureSchemaCreated)
-            {
-                await EnsureSchema();
-            }
-
-            // Seed data
-            await SeedData();
-
-            Logger?.LogInformation("Data seeding completed successfully");
         }
-        catch (Exception ex)
+
+        foreach (var seeder in seeders)
         {
-            Logger?.LogError(ex, "Error occurred during data seeding");
-            throw new SeedingException("Failed to execute seeding process", ex);
+            _logger?.LogInformation("Processing seeder '{SeederName}' with order {Order}.", seeder.GetType().Name, seeder.Order);
+            try
+            {
+                if (await seeder.ShouldCreateSchema(cancellationToken))
+                {
+                    await CreateSchema(seeder, cancellationToken);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error occurred while creating schema for seeder '{SeederName}'.", seeder.GetType().Name);
+
+                if (!seedingOptions.IgnoreExceptions)
+                    throw;
+            }
         }
     }
 
-    public async Task<bool> CanSeed()
+    public async Task EnsureSeedData(CancellationToken cancellationToken)
     {
-        if (options.Conditions.Count == 0)
-            return true;
-
-        try
+        foreach (var seedingCondition in seedingOptions.Conditions)
         {
-            foreach (var condition in options.Conditions)
+            if (!await seedingCondition.ShouldSeed())
             {
-                var result = await condition.ShouldSeed();
-
-                Logger?.LogDebug("Condition '{ConditionName}' result: {Result}", condition.Name, result);
-
-                if (!result)
-                    return false;
+                _logger?.LogInformation("Seeding condition '{ConditionName}' not met. Skipping seeding process.", seedingCondition.Name);
+                return;
             }
-            return true;
         }
-        catch (Exception ex)
+
+        foreach (var seeder in seeders)
         {
-            Logger?.LogError(ex, "Error checking seeding conditions");
-            return false;
-        }
-    }
-
-    public virtual async Task EnsureSchema()
-    {
-        try
-        {
-            Logger?.LogInformation("Ensuring database schema exists");
-
-
-            Logger?.LogInformation("Database schema ensured");
-        }
-        catch (Exception ex)
-        {
-            Logger?.LogError(ex, "Error ensuring database schema");
-            throw new SeedingException("Failed to ensure database schema", ex);
-        }
-    }
-
-    public virtual async Task SeedData()
-    {
-        try
-        {
-            Logger?.LogInformation("Starting data seeding");
-
-            var seeders = DiscoverSeeders();
-            var orderedSeeders = seeders.OrderBy(s => s.Order).ToList();
-
-            Logger?.LogInformation("Found {SeederCount} seeders", orderedSeeders.Count);
-
-            if (options.UseTransaction)
-            {
-                //using var transaction = await context.Database.BeginTransactionAsync();
-                //try
-                //{
-                //    await ExecuteSeeders(orderedSeeders, context);
-                //    await transaction.CommitAsync();
-                //}
-                //catch
-                //{
-                //    await transaction.RollbackAsync();
-                //    throw;
-                //}
-            }
-            else
-            {
-                //await ExecuteSeeders(orderedSeeders, context);
-            }
-
-            Logger?.LogInformation("Data seeding completed");
-        }
-        catch (Exception ex)
-        {
-            Logger?.LogError(ex, "Error during data seeding");
-            throw new SeedingException("Failed to seed data", ex);
-        }
-    }
-
-    private async Task ExecuteSeeders(List<SeederInfo> seeders)
-    {
-        foreach (var seederInfo in seeders)
-        {
-            var attempts = 0;
-            while (attempts < options.MaxRetryAttempts)
+            if (await seeder.ShouldSeed(cancellationToken))
             {
                 try
                 {
-                    Logger?.LogDebug("Executing seeder: {SeederType} (Order: {Order})", seederInfo.SeederType.Name, seederInfo.Order);
-
-                    var seeder = serviceProvider.GetService(seederInfo.SeederType);
-                    if (seeder != null)
-                    {
-                        var seedMethod = seederInfo.SeederType.GetMethod("Seed");
-                        //await (Task)seedMethod!.Invoke(seeder, [context])!;
-                    }
-
-                    break; // Success, exit retry loop
+                    await SeedData(seeder, cancellationToken);
                 }
                 catch (Exception ex)
                 {
-                    attempts++;
-                    if (attempts >= options.MaxRetryAttempts)
-                    {
-                        Logger?.LogError(ex, "Failed to execute seeder {SeederType} after {Attempts} attempts", seederInfo.SeederType.Name, attempts);
+                    _logger?.LogError(ex, "Error occurred while seeding data for seeder '{SeederName}'.", seeder.GetType().Name);
+
+                    if (!seedingOptions.IgnoreExceptions)
                         throw;
-                    }
-
-                    Logger?.LogWarning(ex, "Seeder {SeederType} failed, attempt {Attempt}/{MaxAttempts}", seederInfo.SeederType.Name, attempts, options.MaxRetryAttempts);
-
-                    await Task.Delay(options.RetryDelayMs);
                 }
             }
         }
     }
 
-    private List<SeederInfo> DiscoverSeeders()
+    private async Task CreateSchema(ISeeder seeder, CancellationToken cancellationToken)
     {
-        var seeders = new List<SeederInfo>();
-        var assemblies = GetAssembliesToScan();
-
-        foreach (var assembly in assemblies)
-        {
-            var seederTypes = assembly.GetTypes()
-                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISeeder<>)))
-                .Where(t => !t.IsAbstract && !t.IsInterface);
-
-            foreach (var seederType in seederTypes)
-            {
-                try
-                {
-                    var instance = Activator.CreateInstance(seederType);
-                    if (instance != null)
-                    {
-                        var orderProperty = seederType.GetProperty("Order");
-                        var order = (int)(orderProperty?.GetValue(instance) ?? 0);
-                        seeders.Add(new SeederInfo(seederType, order));
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger?.LogWarning(ex, "Failed to create instance of seeder {SeederType}", seederType.Name);
-                }
-            }
-        }
-
-        return seeders;
+        _logger?.LogInformation("Creating schema for seeder '{SeederName}'.", seeder.GetType().Name);
+        await seeder.CreateSchema(cancellationToken);
+        _logger?.LogInformation("Schema created for seeder '{SeederName}'.", seeder.GetType().Name);
     }
 
-    private List<Assembly> GetAssembliesToScan()
+    private async Task SeedData(ISeeder seeder, CancellationToken cancellationToken)
     {
-        var assemblies = new List<Assembly>();
-
-        if (options.AssembliesToScan.Count != 0)
-        {
-            foreach (var assemblyName in options.AssembliesToScan)
-            {
-                try
-                {
-                    assemblies.Add(Assembly.LoadFrom(assemblyName));
-                }
-                catch (Exception ex)
-                {
-                    Logger?.LogWarning(ex, "Failed to load assembly {AssemblyName}", assemblyName);
-                }
-            }
-        }
-        else
-        {
-            // Default to scanning the calling assembly
-            assemblies.Add(Assembly.GetCallingAssembly());
-        }
-
-        return assemblies;
+        _logger?.LogInformation("Seeding data for seeder '{SeederName}'.", seeder.GetType().Name);
+        await seeder.SeedData(cancellationToken);
+        _logger?.LogInformation("Data seeded for seeder '{SeederName}'.", seeder.GetType().Name);
     }
-
-    private record SeederInfo(Type SeederType, int Order);
 }
