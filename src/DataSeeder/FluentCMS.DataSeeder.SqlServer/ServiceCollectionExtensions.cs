@@ -7,10 +7,10 @@ namespace FluentCMS.DataSeeder.SqlServer;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Registers the SqliteDatabaseManager as a scoped service in the dependency injection container.
+    /// Registers the SqlServerDatabaseManager as a scoped service in the dependency injection container.
     /// </summary>
     /// <param name="services">The IServiceCollection to add the service to.</param>
-    /// <param name="connectionString">The SQLite connection string.</param>
+    /// <param name="connectionString">The Sql Server connection string.</param>
     /// <returns>The updated IServiceCollection.</returns>
     public static IServiceCollection AddSqlServerDatabaseManager(this IServiceCollection services, string connectionString)
     {
