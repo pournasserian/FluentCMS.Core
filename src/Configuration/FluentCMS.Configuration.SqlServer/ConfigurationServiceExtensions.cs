@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace FluentCMS.Configuration.Sqlite;
+namespace FluentCMS.Configuration.SqlServer;
 
 public static class ConfigurationServiceExtensions
 {
