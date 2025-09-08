@@ -8,8 +8,10 @@ namespace FluentCMS.Configuration.Sqlite;
 
 public static class ConfigurationServiceExtensions
 {
-    public static void AddEfConfiguration(this IHostApplicationBuilder builder, string connectionString)
+    public static void AddSqliteConfiguration(this IHostApplicationBuilder builder, string connectionString)
     {
+        builder.Services.AddConfigurationSevices();
+
         builder.Services.AddDbContext<ConfigurationDbContext>((serviceProvider, options) =>
         {
             options.UseSqlite(connectionString);

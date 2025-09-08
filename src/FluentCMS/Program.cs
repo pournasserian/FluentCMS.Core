@@ -27,7 +27,7 @@ builder.Host.UseSerilog();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-builder.AddEfConfiguration(connectionString);
+builder.AddSqliteConfiguration(connectionString);
 
 // Add plugin system
 builder.AddPlugins(["FluentCMS"]);

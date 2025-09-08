@@ -1,8 +1,8 @@
-﻿namespace FluentCMS.Plugins.IdentityManager.Repositories;
+﻿namespace FluentCMS.Plugins.AuditTrailManager;
 
-public class AuditTrailSeeder(ApplicationDbContext dbContext, IDatabaseManager databaseManager) : ISeeder
+public class AuditTrailSeeder(AuditTrailDbContext dbContext, IDatabaseManager databaseManager) : ISeeder
 {
-    public int Order => 100;
+    public int Order => 10;
 
     public async Task CreateSchema(CancellationToken cancellationToken = default)
     {
@@ -20,11 +20,11 @@ public class AuditTrailSeeder(ApplicationDbContext dbContext, IDatabaseManager d
     {
         if (!await databaseManager.DatabaseExists(cancellationToken))
             return true;
-        return !await databaseManager.TablesExist(["Users", "Roles"], cancellationToken);
+        return !await databaseManager.TablesExist(["AuditTrails"], cancellationToken);
     }
 
     public Task<bool> ShouldSeed(CancellationToken cancellationToken = default)
     {
-        return databaseManager.TablesEmpty(["Users", "Roles"], cancellationToken);
+        return databaseManager.TablesEmpty(["AuditTrails"], cancellationToken);
     }
 }

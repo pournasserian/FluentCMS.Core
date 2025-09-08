@@ -1,7 +1,7 @@
 ﻿using FluentCMS.Plugins.TodoManagement.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace FluentCMS.Plugins.TodoManagement.Repositories;
+namespace FluentCMS.Plugins.TodoManager.Repositories;
 
 public class TodoDbContext(DbContextOptions<TodoDbContext> options) : DbContext(options)
 {

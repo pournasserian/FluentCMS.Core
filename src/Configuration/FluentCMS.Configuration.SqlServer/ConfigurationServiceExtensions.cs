@@ -8,8 +8,10 @@ namespace FluentCMS.Configuration.SqlServer;
 
 public static class ConfigurationServiceExtensions
 {
-    public static void AddEfConfiguration(this IHostApplicationBuilder builder, string connectionString)
+    public static void AddSqlServerConfiguration(this IHostApplicationBuilder builder, string connectionString)
     {
+        builder.Services.AddConfigurationSevices();
+
         builder.Services.AddDbContext<ConfigurationDbContext>((serviceProvider, options) =>
         {
             options.UseSqlServer(connectionString);

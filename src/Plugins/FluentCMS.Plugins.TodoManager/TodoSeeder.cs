@@ -1,12 +1,13 @@
 ﻿using FluentCMS.DataSeeder.Abstractions;
 using FluentCMS.Plugins.TodoManagement.Models;
+using FluentCMS.Plugins.TodoManager.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace FluentCMS.Plugins.TodoManagement.Repositories;
+namespace FluentCMS.Plugins.TodoManager;
 
 public class TodoSeeder(TodoDbContext dbContext, IDatabaseManager databaseManager) : ISeeder
 {
-    public int Order => 1000;
+    public int Order => 10000;
 
     public async Task<bool> ShouldCreateSchema(CancellationToken cancellationToken = default)
     {

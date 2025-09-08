@@ -1,8 +1,8 @@
 using FluentCMS.Plugins.TodoManagement.Models;
-using FluentCMS.Plugins.TodoManagement.Services;
+using FluentCMS.Plugins.TodoManager.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FluentCMS.Plugins.TodoManagement.Controllers;
+namespace FluentCMS.Plugins.TodoManager.Controllers;
 
 public class TodosController(ITodoService service) : BaseController
 {

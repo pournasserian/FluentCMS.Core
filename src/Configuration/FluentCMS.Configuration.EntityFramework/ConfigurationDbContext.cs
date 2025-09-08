@@ -7,13 +7,13 @@ public class ConfigurationDbContext(DbContextOptions<ConfigurationDbContext> opt
 {
     private readonly IConfigurationRoot? _configurationRoot = configuration as IConfigurationRoot;
 
-    public DbSet<ConfigurationSetting> Settings { get; set; }
+    public DbSet<SettingDbModel> Settings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<ConfigurationSetting>(entity =>
+        modelBuilder.Entity<SettingDbModel>(entity =>
         {
             entity.HasKey(e => e.Id);
             entity.HasIndex(e => e.Key).IsUnique();
