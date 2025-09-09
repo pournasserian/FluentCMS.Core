@@ -1,6 +1,5 @@
 ﻿using FluentCMS.Options.Repositories;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System.Text.Json;
 
 namespace FluentCMS.Options.Services;
@@ -9,11 +8,10 @@ public interface IOptionsService
 {
     Task<T?> Get<T>(string alias, CancellationToken cancellationToken = default) where T : class, new();
     Task Update<T>(string alias, T value, CancellationToken cancellationToken = default) where T : class, new();
-    Task<string> Get(string alias, CancellationToken cancellationToken = default);
+    Task<string> Get(string alias, string typeName, CancellationToken cancellationToken = default);
     Task Bind<T>(string alias, T options, CancellationToken cancellationToken = default) where T : class, new();
     Task<bool> Exists(string alias, string typeName, CancellationToken cancellationToken = default);
 }
-
 
 internal class OptionsService(IOptionsRepository optionsRepository, ILogger<OptionsService> logger) : IOptionsService
 {
@@ -24,15 +22,22 @@ internal class OptionsService(IOptionsRepository optionsRepository, ILogger<Opti
         PropertyNameCaseInsensitive = true,
     };
 
-    public Task Bind<T>(string alias, T options, CancellationToken cancellationToken = default) where T : class, new()
+    public async Task Bind<T>(string alias, T options, CancellationToken cancellationToken = default) where T : class, new()
     {
         ArgumentNullException.ThrowIfNull(alias, nameof(alias));
         ArgumentNullException.ThrowIfNull(options, nameof(options));
 
-        var jsonOptions = Get(alias, cancellationToken).GetAwaiter().GetResult();
-        if (!string.IsNullOrEmpty(jsonOptions))
-            UpdateFromJson(options, jsonOptions);
-        return Task.CompletedTask;
+        try
+        {
+            var jsonOptions = await Get(alias, options.GetType().FullName!, cancellationToken);
+            if (!string.IsNullOrEmpty(jsonOptions))
+                UpdateFromJson(options, jsonOptions);
+        }
+        catch (KeyNotFoundException)
+        {
+            // No existing options found, use default values
+            logger.LogDebug("No existing options found for alias: {Alias}, using default values", alias);
+        }
     }
 
     public async Task<T?> Get<T>(string alias, CancellationToken cancellationToken = default) where T : class, new()
@@ -41,7 +46,7 @@ internal class OptionsService(IOptionsRepository optionsRepository, ILogger<Opti
 
         try
         {
-            var options = await optionsRepository.GetByAlias(alias, cancellationToken);
+            var options = await optionsRepository.GetByAliasType(alias, typeof(T).FullName!, cancellationToken);
 
             if (options == null || string.IsNullOrEmpty(options.Value))
             {
@@ -63,13 +68,13 @@ internal class OptionsService(IOptionsRepository optionsRepository, ILogger<Opti
         }
     }
 
-    public async Task<string> Get(string alias, CancellationToken cancellationToken = default)
+    public async Task<string> Get(string alias, string typeName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(alias, nameof(alias));
 
         try
         {
-            var options = await optionsRepository.GetByAlias(alias, cancellationToken);
+            var options = await optionsRepository.GetByAliasType(alias, typeName, cancellationToken);
 
             if (options == null || string.IsNullOrEmpty(options.Value))
             {
@@ -94,7 +99,7 @@ internal class OptionsService(IOptionsRepository optionsRepository, ILogger<Opti
 
         try
         {
-            var options = await optionsRepository.GetByAlias(alias, cancellationToken);
+            var options = await optionsRepository.GetByAliasType(alias, value.GetType().FullName!, cancellationToken);
             if (options == null)
             {
                 options = new OptionsDbModel
@@ -125,7 +130,7 @@ internal class OptionsService(IOptionsRepository optionsRepository, ILogger<Opti
         }
     }
 
-    internal static void UpdateFromJson<T>(T target, string json)
+    internal void UpdateFromJson<T>(T target, string json)
     {
         try
         {
@@ -146,8 +151,7 @@ internal class OptionsService(IOptionsRepository optionsRepository, ILogger<Opti
         }
         catch (Exception ex)
         {
-            // Log the error before rethrowing
-            Console.WriteLine($"An error occurred while updating from JSON: {ex.Message}");
+            logger.LogError(ex, "An error occurred while updating object of type {Type} from JSON.", typeof(T).FullName);
             throw;
         }
     }
