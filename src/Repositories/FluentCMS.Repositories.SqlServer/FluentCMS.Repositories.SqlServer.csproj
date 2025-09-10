@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FluentCMS.Repositories.Abstractions\FluentCMS.Repositories.Abstractions.csproj" />
+    <ProjectReference Include="..\FluentCMS.Repositories.SQLite\FluentCMS.Repositories.Sqlite.csproj" />
   </ItemGroup>
 
 </Project>

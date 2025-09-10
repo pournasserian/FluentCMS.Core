@@ -1,11 +1,12 @@
 using FluentCMS.Api;
+using FluentCMS.Configuration;
+using FluentCMS.Configuration.Sqlite;
 using FluentCMS.DataSeeder;
 using FluentCMS.DataSeeder.Sqlite;
 using FluentCMS.Providers.Caching.InMemory;
 using FluentCMS.Providers.EventBus.InMemory;
 using FluentCMS.Providers.Plugins;
 using FluentCMS.Repositories.Sqlite;
-using FluentCMS.Options;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
@@ -20,20 +21,21 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
-var services = builder.Services;
-
-builder.Host.UseSerilog();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+var services = builder.Services;
+
+builder.AddSqliteOptions(connectionString);
+
+builder.Host.UseSerilog();
 
 // Add plugin system
 builder.AddPlugins(["FluentCMS"]);
 
 // Set sqlite db to the repositories
 services.AddSqliteDatabase(connectionString);
-
-services.AddDbOptionsServices();
 
 // Register providers
 services.AddEventPublisher();
