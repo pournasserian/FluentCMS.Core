@@ -19,7 +19,7 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static OptionsBuilder<T> AddDbOptions<T>(this IServiceCollection services, string alias, string configSection) where T : class, new()
+    public static OptionsBuilder<T> AddDbOptions1<T>(this IServiceCollection services, string alias, string configSection) where T : class, new()
     {
         services.AddDbOptionsServices();
 
@@ -48,7 +48,7 @@ public static class ServiceCollectionExtensions
                     });
     }
 
-    public static OptionsBuilder<T> AddDbOptions<T>(this IServiceCollection services, string alias) where T : class, new()
+    public static OptionsBuilder<T> AddDbOptions1<T>(this IServiceCollection services, string alias) where T : class, new()
     {
         services.AddSingleton(new OptionsDescriptor(
             Alias: alias,
