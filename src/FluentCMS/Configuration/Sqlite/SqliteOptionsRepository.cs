@@ -2,15 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace FluentCMS.Configuration;
-
-public interface IOptionsRepository
-{
-    Task EnsureCreated(CancellationToken cancellationToken = default);
-    Task Upsert(OptionRegistration registration, object options, CancellationToken cancellationToken = default);
-    Task<Dictionary<string, string?>> GetAllSections(CancellationToken cancellationToken = default);
-
-}
+namespace FluentCMS.Configuration.Sqlite;
 
 internal class SqliteOptionsRepository(string connectionString) : IOptionsRepository
 {
@@ -20,7 +12,7 @@ internal class SqliteOptionsRepository(string connectionString) : IOptionsReposi
         );";
 
     private const string SelectAllSql = "SELECT * FROM Options;";
-    
+
     private const string UpsertSql = @"INSERT INTO Options (Section, Value)
             VALUES ($section, $value)
             ON CONFLICT(Section) DO NOTHING;";
@@ -65,9 +57,18 @@ internal class SqliteOptionsRepository(string connectionString) : IOptionsReposi
         return data;
     }
 
-    public Task Upsert(OptionRegistration registration, object options, CancellationToken cancellationToken = default)
+    public async Task<int> Upsert(OptionRegistration registration, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        using var conn = new SqliteConnection(connectionString);
+        conn.Open();
+
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = UpsertSql;
+        cmd.Parameters.AddWithValue("$section", registration.Section);
+        cmd.Parameters.AddWithValue("$value", registration.DefaultValue);
+        var affetedRows = await cmd.ExecuteNonQueryAsync(cancellationToken);
+
+        return affetedRows;
     }
 
     private static void FlattenJson(Dictionary<string, string?> data, string prefix, JsonObject obj)

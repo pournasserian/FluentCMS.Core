@@ -1,5 +1,6 @@
 using FluentCMS.Api;
 using FluentCMS.Configuration;
+using FluentCMS.Configuration.Sqlite;
 using FluentCMS.DataSeeder;
 using FluentCMS.DataSeeder.Sqlite;
 using FluentCMS.Providers.Caching.InMemory;
