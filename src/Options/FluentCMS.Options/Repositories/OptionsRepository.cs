@@ -7,19 +7,12 @@ namespace FluentCMS.Options.Repositories;
 
 public interface IOptionsRepository : IRepository<OptionsDbModel>
 {
-    Task<OptionsDbModel?> GetByAlias(string alias, CancellationToken cancellationToken = default);
     Task<OptionsDbModel?> GetByAliasType(string alias, string typeName, CancellationToken cancellationToken = default);
 }
 
-internal class OptionsRepository(OptionsDbContext context, ICacheProvider cacheProvider, ILogger<OptionsRepository> logger) : CachedReporitory<OptionsDbModel, OptionsDbContext>(context, cacheProvider, logger), IOptionsRepository
+internal class OptionsRepository(OptionsDbContext context, ICacheProvider cacheProvider, ILogger<OptionsRepository> logger) : CachedRepository<OptionsDbModel, OptionsDbContext>(context, cacheProvider, logger), IOptionsRepository
 {
     // TODO: implement caching for options by key
-    public async Task<OptionsDbModel?> GetByAlias(string alias, CancellationToken cancellationToken = default)
-    {
-        var results = await GetAll(cancellationToken);
-        return results.FirstOrDefault(o => string.Equals(o.Alias, alias, StringComparison.OrdinalIgnoreCase));
-    }
-
     public async Task<OptionsDbModel?> GetByAliasType(string alias, string typeName, CancellationToken cancellationToken = default)
     {
         var results = await GetAll(cancellationToken);

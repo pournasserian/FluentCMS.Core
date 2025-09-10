@@ -3,6 +3,7 @@
 internal class SeedingService(IEnumerable<ISeeder> seeders, ILogger<SeedingService> logger, SeedingOptions seedingOptions)
 {
     private readonly ILogger<SeedingService>? _logger = seedingOptions.EnableLogging ? logger : null;
+    private readonly IEnumerable<ISeeder> seeders = seeders.OrderBy(s => s.Order);
 
     public async Task EnsureSchema(CancellationToken cancellationToken)
     {
