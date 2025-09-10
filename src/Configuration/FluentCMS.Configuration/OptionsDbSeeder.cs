@@ -13,10 +13,17 @@ internal sealed class OptionsDbSeeder(ILogger<OptionsDbSeeder> logger, IOptionsC
 
             foreach (var reg in registrations.All)
             {
-                var rows = await source.Repository.Upsert(reg, cancellationToken);
-                if (rows > 0)
+                try
                 {
-                    logger.LogInformation("Seeded options for {Section}", reg.Section);
+                    var rows = await source.Repository.Upsert(reg, cancellationToken);
+                    if (rows > 0)
+                    {
+                        logger.LogInformation("Seeded options for {Section}", reg.Section);
+                    }
+                }
+                catch (Exception)
+                {
+                    logger.LogWarning("Failed seeding options for {Section}", reg.Section);
                 }
             }
 
