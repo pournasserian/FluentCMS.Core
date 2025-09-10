@@ -55,8 +55,6 @@ services.AddSqliteDatabaseManager(connectionString, options =>
         env => env.IsDevelopment()));
 });
 
-services.AddDbOptions<JwtOptions>(builder.Configuration, "JwtOptions");
-
 var app = builder.Build();
 
 app.UseFluentCmsApi();

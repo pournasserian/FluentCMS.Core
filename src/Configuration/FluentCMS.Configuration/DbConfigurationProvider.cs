@@ -1,4 +1,6 @@
-﻿namespace FluentCMS.Configuration;
+﻿using Microsoft.Extensions.Configuration;
+
+namespace FluentCMS.Configuration;
 
 /// <summary>
 /// Loads configuration from a table where each row = one section, stored as JSON.

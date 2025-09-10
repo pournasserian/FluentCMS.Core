@@ -1,4 +1,8 @@
-﻿namespace FluentCMS.Configuration.Sqlite;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+namespace FluentCMS.Configuration.Sqlite;
 
 public static class SqliteExtensions
 {

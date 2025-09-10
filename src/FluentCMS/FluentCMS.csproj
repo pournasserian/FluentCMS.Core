@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Api\FluentCMS.Api\FluentCMS.Api.csproj" />
+    <ProjectReference Include="..\Configuration\FluentCMS.Configuration.Sqlite\FluentCMS.Configuration.Sqlite.csproj" />
     <ProjectReference Include="..\DataSeeder\FluentCMS.DataSeeder.Sqlite\FluentCMS.DataSeeder.Sqlite.csproj" />
     <ProjectReference Include="..\Plugins\FluentCMS.Plugins.AuditTrailManager\FluentCMS.Plugins.AuditTrailManager.csproj" />
     <ProjectReference Include="..\Plugins\FluentCMS.Plugins.IdentityManager\FluentCMS.Plugins.IdentityManager.csproj" />

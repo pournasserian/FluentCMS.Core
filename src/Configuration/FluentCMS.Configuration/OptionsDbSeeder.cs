@@ -1,6 +1,9 @@
-﻿namespace FluentCMS.Configuration;
+﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
-public sealed class OptionsDbSeeder(ILogger<OptionsDbSeeder> logger, IOptionsCatalog registrations, DbConfigurationSource source, IConfiguration configuration) : IHostedService
+namespace FluentCMS.Configuration;
+
+internal sealed class OptionsDbSeeder(ILogger<OptionsDbSeeder> logger, IOptionsCatalog registrations, DbConfigurationSource source) : IHostedService
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {

@@ -1,4 +1,6 @@
-﻿namespace FluentCMS.Configuration;
+﻿using Microsoft.Extensions.Configuration;
+
+namespace FluentCMS.Configuration;
 
 public sealed class DbConfigurationSource : IConfigurationSource
 {

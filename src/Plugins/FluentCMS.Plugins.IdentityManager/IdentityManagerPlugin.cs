@@ -25,8 +25,7 @@ public class IdentityManagerPlugin : IPlugin
             .AddDefaultTokenProviders();
 
         // Configure Identity options from appsettings.json
-        //services.AddDbOptions<IdentityOptions>("IdentityOptions", "IdentityOptions");
-        //services.AddDbOptions<JwtOptions>("JwtOptions", "JwtOptions");
+        services.AddDbOptions<JwtOptions>(builder.Configuration, "JwtOptions", true);
 
         services.AddAuthentication(options =>
         {
