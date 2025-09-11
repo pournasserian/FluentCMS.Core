@@ -1,11 +1,12 @@
 ﻿using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging;
 using System.Data;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace FluentCMS.Configuration.SqlServer;
 
-internal class SqlServerOptionsRepository(string connectionString) : IOptionsRepository
+internal class SqlServerOptionsRepository(string connectionString, ILogger<SqlServerOptionsRepository>? logger = null) : IOptionsRepository
 {
     // Use NVARCHAR to store text; 450 keeps PK within SQL Server's index key size limit (900 bytes).
     private const string CreateSql = @"
@@ -66,10 +67,18 @@ internal class SqlServerOptionsRepository(string connectionString) : IOptionsRep
                 {
                     FlattenJson(data, section, obj);
                 }
+                else
+                {
+                    logger?.LogWarning("Configuration section '{Section}' contains non-object JSON: {Json}", section, json);
+                }
             }
-            catch
+            catch (JsonException ex)
             {
-                // Ignore malformed rows
+                logger?.LogWarning(ex, "Failed to parse JSON for configuration section '{Section}': {Json}", section, json);
+            }
+            catch (Exception ex)
+            {
+                logger?.LogError(ex, "Unexpected error processing configuration section '{Section}'", section);
             }
         }
 
@@ -78,10 +87,13 @@ internal class SqlServerOptionsRepository(string connectionString) : IOptionsRep
 
     public async Task<int> Upsert(OptionRegistration registration, CancellationToken cancellationToken = default)
     {
+        // Security: Validate input parameters
+        ValidateRegistration(registration);
+
         await using var conn = new SqlConnection(connectionString);
         await conn.OpenAsync(cancellationToken);
 
-        // We’ll try UPDATE first; if it didn’t touch anything, do INSERT.
+        // We'll try UPDATE first; if it didn't touch anything, do INSERT.
         await using var updateCmd = conn.CreateCommand();
         updateCmd.CommandText = UpdateSql;
         AddParameters(updateCmd, registration);
@@ -103,6 +115,51 @@ internal class SqlServerOptionsRepository(string connectionString) : IOptionsRep
         {
             // Race: someone inserted between our UPDATE and INSERT. Treat as success (0 or 1).
             return 0;
+        }
+    }
+
+    private static void ValidateRegistration(OptionRegistration registration)
+    {
+        ArgumentNullException.ThrowIfNull(registration, nameof(registration));
+
+        // Security: Validate section name
+        if (string.IsNullOrWhiteSpace(registration.Section))
+        {
+            throw new ArgumentException("Section name cannot be null or whitespace", nameof(registration));
+        }
+
+        // Security: Prevent excessively long section names that could cause issues
+        if (registration.Section.Length > 450) // Match database constraint
+        {
+            throw new ArgumentException("Section name cannot exceed 450 characters", nameof(registration));
+        }
+
+        // Security: Validate section name doesn't contain dangerous characters
+        if (registration.Section.Contains('\0') || registration.Section.Contains('\r') || registration.Section.Contains('\n'))
+        {
+            throw new ArgumentException("Section name contains invalid characters", nameof(registration));
+        }
+
+        // Security: Validate JSON content
+        if (string.IsNullOrWhiteSpace(registration.DefaultValue))
+        {
+            throw new ArgumentException("Default value cannot be null or whitespace", nameof(registration));
+        }
+
+        // Security: Prevent excessively large JSON payloads
+        if (registration.DefaultValue.Length > 1_000_000) // 1MB limit
+        {
+            throw new ArgumentException("Default value cannot exceed 1MB", nameof(registration));
+        }
+
+        // Security: Basic JSON validation
+        try
+        {
+            JsonDocument.Parse(registration.DefaultValue);
+        }
+        catch (JsonException ex)
+        {
+            throw new ArgumentException($"Default value is not valid JSON: {ex.Message}", nameof(registration));
         }
     }
 
