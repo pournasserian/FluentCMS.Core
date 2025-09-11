@@ -11,12 +11,12 @@ public sealed class DbConfigurationProvider : ConfigurationProvider, IDisposable
     private readonly DbConfigurationSource _source;
     private readonly Timer? _timer;
     private volatile bool _disposed;
+    private volatile bool _databaseEnsured;
     private readonly Lock _disposeLock = new();
 
     public DbConfigurationProvider(DbConfigurationSource source)
     {
         _source = source;
-        source.Repository.EnsureCreated().GetAwaiter().GetResult();
         if (_source.ReloadInterval is { } interval)
         {
             _timer = new Timer(_ => TriggerReload(), null, interval, interval);
@@ -27,6 +27,14 @@ public sealed class DbConfigurationProvider : ConfigurationProvider, IDisposable
     {
         if (_disposed)
             return;
+
+        // Ensure database is created on first load instead of in constructor
+        // This avoids blocking async calls in constructor which can cause deadlocks
+        if (!_databaseEnsured)
+        {
+            _source.Repository.EnsureCreated().GetAwaiter().GetResult();
+            _databaseEnsured = true;
+        }
 
         Data = _source.Repository.GetAllSections().GetAwaiter().GetResult();
     }
