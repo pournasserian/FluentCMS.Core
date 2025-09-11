@@ -29,13 +29,21 @@ internal sealed class OptionsDbSeeder(ILogger<OptionsDbSeeder> logger, IOptionsC
 
             // After seeding, refresh the configuration provider so IOptions binds from DB
             // Check if provider is initialized to avoid race condition
-            if (source.Provider != null)
+            try
             {
-                source.Provider.TriggerReload();
+                if (source.Provider != null)
+                {
+                    source.Provider.TriggerReload();
+                    logger.LogDebug("Configuration provider reloaded after seeding");
+                }
+                else
+                {
+                    logger.LogWarning("Configuration provider not yet initialized, skipping reload trigger");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                logger.LogWarning("Configuration provider not yet initialized, skipping reload trigger");
+                logger.LogError(ex, "Failed to trigger configuration reload after seeding");
             }
         }
         catch (Exception ex)

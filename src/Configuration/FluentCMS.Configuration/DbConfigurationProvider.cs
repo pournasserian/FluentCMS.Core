@@ -28,15 +28,20 @@ public sealed class DbConfigurationProvider : ConfigurationProvider, IDisposable
         if (_disposed)
             return;
 
+        LoadAsync().GetAwaiter().GetResult();
+    }
+
+    private async Task LoadAsync()
+    {
         // Ensure database is created on first load instead of in constructor
         // This avoids blocking async calls in constructor which can cause deadlocks
         if (!_databaseEnsured)
         {
-            _source.Repository.EnsureCreated().GetAwaiter().GetResult();
+            await _source.Repository.EnsureCreated().ConfigureAwait(false);
             _databaseEnsured = true;
         }
 
-        Data = _source.Repository.GetAllSections().GetAwaiter().GetResult();
+        Data = await _source.Repository.GetAllSections().ConfigureAwait(false);
     }
 
     /// <summary>

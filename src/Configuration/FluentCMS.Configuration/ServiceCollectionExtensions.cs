@@ -22,12 +22,8 @@ public static class ServiceCollectionExtensions
             {
                 var regType = typeof(TOptions);
                 var bound = configuration.GetSection(sectionName).Get<TOptions>();
-                var registration = new OptionRegistration
-                {
-                    Section = sectionName,
-                    Type = typeof(TOptions),
-                    DefaultValue = JsonSerializer.Serialize(bound, regType, jsonSerializerOptions)
-                };
+                var defaultValue = JsonSerializer.Serialize(bound, regType, jsonSerializerOptions);
+                var registration = new OptionRegistration(sectionName, typeof(TOptions), defaultValue);
                 options.Types.Add(registration);
             }
         });
