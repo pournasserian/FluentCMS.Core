@@ -1,8 +1,9 @@
 ﻿global using AutoMapper;
+global using FluentCMS.Configuration;
+global using FluentCMS.DataSeeder.Abstractions;
 global using FluentCMS.Exceptions;
 global using FluentCMS.Identity;
 global using FluentCMS.Plugins.IdentityManager.Controllers;
-global using FluentCMS.DataSeeder.Abstractions;
 global using FluentCMS.Plugins.IdentityManager.Options;
 global using FluentCMS.Plugins.IdentityManager.Repositories;
 global using FluentCMS.Plugins.IdentityManager.Services;
@@ -15,7 +16,6 @@ global using Microsoft.AspNetCore.Identity;
 global using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.EntityFrameworkCore;
-global using FluentCMS.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Hosting;
 global using Microsoft.Extensions.Logging;

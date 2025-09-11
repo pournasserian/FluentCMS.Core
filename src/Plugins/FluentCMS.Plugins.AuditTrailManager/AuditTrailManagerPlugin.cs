@@ -24,6 +24,6 @@ public class AuditTrailManagerPlugin : IPlugin
 
     public void Configure(IApplicationBuilder app)
     {
-        
+
     }
 }
