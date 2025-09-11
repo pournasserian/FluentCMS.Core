@@ -10,6 +10,8 @@ public sealed class DbConfigurationProvider : ConfigurationProvider, IDisposable
 {
     private readonly DbConfigurationSource _source;
     private readonly Timer? _timer;
+    private volatile bool _disposed;
+    private readonly Lock _disposeLock = new();
 
     public DbConfigurationProvider(DbConfigurationSource source)
     {
@@ -23,6 +25,9 @@ public sealed class DbConfigurationProvider : ConfigurationProvider, IDisposable
 
     public override void Load()
     {
+        if (_disposed)
+            return;
+
         Data = _source.Repository.GetAllSections().GetAwaiter().GetResult();
     }
 
@@ -31,9 +36,32 @@ public sealed class DbConfigurationProvider : ConfigurationProvider, IDisposable
     /// </summary>
     public void TriggerReload()
     {
+        if (_disposed)
+            return;
+
         Load();
         OnReload();
     }
 
-    public void Dispose() => _timer?.Dispose();
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        lock (_disposeLock)
+        {
+            if (_disposed)
+                return;
+
+            _disposed = true;
+            _timer?.Dispose();
+            GC.SuppressFinalize(this);
+        }
+    }
+
+    // Finalizer to ensure timer is disposed even if Dispose is not called
+    ~DbConfigurationProvider()
+    {
+        Dispose();
+    }
 }
