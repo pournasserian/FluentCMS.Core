@@ -16,12 +16,20 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddDbOptions<TOptions>(this IServiceCollection services, IConfiguration configuration, string sectionName, bool seedData = true) where TOptions : class, new()
     {
+        // Validate inputs
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentException.ThrowIfNullOrWhiteSpace(sectionName);
+
         services.Configure<ProviderCatalogOptions>(options =>
         {
             if (seedData)
             {
                 var regType = typeof(TOptions);
-                var bound = configuration.GetSection(sectionName).Get<TOptions>();
+                var configSection = configuration.GetSection(sectionName);
+
+                // Get bound configuration or create default instance if section doesn't exist
+                var bound = configSection.Exists() ? configSection.Get<TOptions>() : new TOptions();
                 var defaultValue = JsonSerializer.Serialize(bound, regType, jsonSerializerOptions);
                 var registration = new OptionRegistration(sectionName, typeof(TOptions), defaultValue);
                 options.Types.Add(registration);
@@ -31,7 +39,7 @@ public static class ServiceCollectionExtensions
         services.TryAddSingleton<IOptionsCatalog, OptionsCatalog>();
 
         services.AddOptions<TOptions>()
-            .Bind(configuration.GetRequiredSection(sectionName))
+            .Bind(configuration.GetSection(sectionName)) // Use GetSection instead of GetRequiredSection to avoid throwing
             .ValidateDataAnnotations()
             .ValidateOnStart();
 

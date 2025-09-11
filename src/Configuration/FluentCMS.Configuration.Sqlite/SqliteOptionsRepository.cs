@@ -1,10 +1,11 @@
 ﻿using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace FluentCMS.Configuration.Sqlite;
 
-internal class SqliteOptionsRepository(string connectionString) : IOptionsRepository
+internal class SqliteOptionsRepository(string connectionString, ILogger<SqliteOptionsRepository>? logger = null) : IOptionsRepository
 {
     private const string CreateSql = @"CREATE TABLE IF NOT EXISTS Options (
             Section TEXT PRIMARY KEY,
@@ -48,10 +49,18 @@ internal class SqliteOptionsRepository(string connectionString) : IOptionsReposi
                 {
                     FlattenJson(data, section, obj);
                 }
+                else
+                {
+                    logger?.LogWarning("Configuration section '{Section}' contains non-object JSON: {Json}", section, json);
+                }
             }
-            catch
+            catch (JsonException ex)
             {
-                // Ignore malformed rows
+                logger?.LogWarning(ex, "Failed to parse JSON for configuration section '{Section}': {Json}", section, json);
+            }
+            catch (Exception ex)
+            {
+                logger?.LogError(ex, "Unexpected error processing configuration section '{Section}'", section);
             }
         }
         return data;

@@ -12,11 +12,11 @@ public sealed class DbConfigurationProvider : ConfigurationProvider, IDisposable
     private readonly Timer? _timer;
     private volatile bool _disposed;
     private volatile bool _databaseEnsured;
-    private readonly Lock _disposeLock = new();
+    private readonly object _disposeLock = new();
 
     public DbConfigurationProvider(DbConfigurationSource source)
     {
-        _source = source;
+        _source = source ?? throw new ArgumentNullException(nameof(source));
         if (_source.ReloadInterval is { } interval)
         {
             _timer = new Timer(_ => TriggerReload(), null, interval, interval);

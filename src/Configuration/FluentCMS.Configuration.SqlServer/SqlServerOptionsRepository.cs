@@ -1,11 +1,12 @@
 ﻿using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging;
 using System.Data;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace FluentCMS.Configuration.SqlServer;
 
-internal class SqlServerOptionsRepository(string connectionString) : IOptionsRepository
+internal class SqlServerOptionsRepository(string connectionString, ILogger<SqlServerOptionsRepository>? logger = null) : IOptionsRepository
 {
     // Use NVARCHAR to store text; 450 keeps PK within SQL Server's index key size limit (900 bytes).
     private const string CreateSql = @"
@@ -66,10 +67,18 @@ internal class SqlServerOptionsRepository(string connectionString) : IOptionsRep
                 {
                     FlattenJson(data, section, obj);
                 }
+                else
+                {
+                    logger?.LogWarning("Configuration section '{Section}' contains non-object JSON: {Json}", section, json);
+                }
             }
-            catch
+            catch (JsonException ex)
             {
-                // Ignore malformed rows
+                logger?.LogWarning(ex, "Failed to parse JSON for configuration section '{Section}': {Json}", section, json);
+            }
+            catch (Exception ex)
+            {
+                logger?.LogError(ex, "Unexpected error processing configuration section '{Section}'", section);
             }
         }
 
