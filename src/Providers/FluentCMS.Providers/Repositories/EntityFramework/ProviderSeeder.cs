@@ -1,12 +1,10 @@
 ﻿using FluentCMS.DataSeeder.Abstractions;
-using FluentCMS.Providers.Abstractions;
-using FluentCMS.Providers.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace FluentCMS.Providers.Repositories.EntityFramework;
 
-public class ProviderSeeder(ProviderDbContext dbContext, IDatabaseManager databaseManager, IConfiguration configuration, IProviderManager providerManager) : ISeeder
+internal class ProviderSeeder(ProviderDbContext dbContext, IDatabaseManager databaseManager, IConfiguration configuration, IProviderManager providerManager) : ISeeder
 {
     public int Order => 1;
 
@@ -44,5 +42,17 @@ public class ProviderSeeder(ProviderDbContext dbContext, IDatabaseManager databa
                 await providerManager.Add(providerCatalog, cancellationToken);
             }
         }
+    }
+
+    internal class ProviderConfigurationRoot : Dictionary<string, List<ProviderAreaConfiguration>>
+    {
+    }
+
+    internal class ProviderAreaConfiguration
+    {
+        public string Name { get; set; } = string.Empty;
+        public bool? Active { get; set; }
+        public string Module { get; set; } = string.Empty;
+        public Dictionary<string, object?>? Options { get; set; } // stays as dictionary
     }
 }
