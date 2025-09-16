@@ -42,11 +42,4 @@ internal sealed class ProviderManager(IProviderRepository repository, ProviderCa
     {
         return Task.FromResult(providerCatalogCache.GetRegisteredModule(area, typeName));
     }
-
-    public async Task Remove(string area, string name, CancellationToken cancellationToken = default)
-    {
-        _ = providerCatalogCache.GetCatalog(area, name) ?? throw new InvalidOperationException($"Provider '{name}' in area '{area}' not found.");
-        await repository.Remove(area, name, cancellationToken);
-        providerCatalogCache.RemoveCatalog(area, name);
-    }
 }
