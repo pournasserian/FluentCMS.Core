@@ -1,27 +1,19 @@
-using FluentCMS.Providers.Abstractions;
-using FluentCMS.Providers.Data;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FluentCMS.Providers.Extensions;
+namespace FluentCMS.Providers;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddProviders(this IServiceCollection services, string connectionString, Action<ProviderDiscoveryOptions>? configure = null)
+    public static IServiceCollection AddProviderSystem(this IServiceCollection services, Action<ProviderDiscoveryOptions>? configure = null)
     {
-        services.GetProviderModules(configure);
+        services.PrepareProviderCatalogCache(configure);
 
-        // Add Entity Framework with SQLite
-        services.AddDbContext<ProviderDbContext>(options =>
-            options.UseSqlite(connectionString));
-
-        services.AddScoped<IProviderRepository, ProviderRepository>();
         services.AddScoped<IProviderManager, ProviderManager>();
 
         return services;
     }
 
-    private static IServiceCollection GetProviderModules(this IServiceCollection services, Action<ProviderDiscoveryOptions>? configure = null)
+    private static void PrepareProviderCatalogCache(this IServiceCollection services, Action<ProviderDiscoveryOptions>? configure = null)
     {
         // Configure options
         var opts = new ProviderDiscoveryOptions();
@@ -52,13 +44,11 @@ public static class ServiceCollectionExtensions
             services.AddScoped(interfaceType, serviceProvider =>
             {
                 var providerManager = serviceProvider.GetRequiredService<IProviderManager>();
-                var catalog = providerManager.GetActiveByArea(area).GetAwaiter().GetResult() ?? 
+                var catalog = providerManager.GetActiveByArea(area).GetAwaiter().GetResult() ??
                     throw new InvalidOperationException($"No active provider found for area '{area}'.");
                 var provider = ActivatorUtilities.CreateInstance(serviceProvider, catalog.Module.ProviderType);
                 return provider;
             });
         }
-
-        return services;
     }
 }

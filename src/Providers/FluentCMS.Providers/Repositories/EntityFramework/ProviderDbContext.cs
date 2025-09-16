@@ -1,6 +1,7 @@
+using FluentCMS.Providers.Repositories.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
-namespace FluentCMS.Providers.Data;
+namespace FluentCMS.Providers.Repositories.EntityFramework;
 
 /// <summary>
 /// Entity Framework database context for the provider system.

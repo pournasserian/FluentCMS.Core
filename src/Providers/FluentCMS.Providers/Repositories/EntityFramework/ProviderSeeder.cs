@@ -1,11 +1,10 @@
 ﻿using FluentCMS.DataSeeder.Abstractions;
 using FluentCMS.Providers.Abstractions;
 using FluentCMS.Providers.Configuration;
-using FluentCMS.Providers.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace FluentCMS.Providers;
+namespace FluentCMS.Providers.Repositories.EntityFramework;
 
 public class ProviderSeeder(ProviderDbContext dbContext, IDatabaseManager databaseManager, IConfiguration configuration, IProviderManager providerManager) : ISeeder
 {

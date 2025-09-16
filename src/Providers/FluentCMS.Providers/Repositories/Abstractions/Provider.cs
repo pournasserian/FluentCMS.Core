@@ -1,15 +1,10 @@
-namespace FluentCMS.Providers.Data;
+namespace FluentCMS.Providers.Repositories.Abstractions;
 
 /// <summary>
 /// Represents a provider instance stored in the database.
 /// </summary>
-public class Provider
+public class Provider : AuditableEntity
 {
-    /// <summary>
-    /// Unique identifier for the provider instance.
-    /// </summary>
-    public Guid Id { get; set; }
-
     /// <summary>
     /// Unique name for the provider within its area.
     /// </summary>

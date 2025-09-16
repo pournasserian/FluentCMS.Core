@@ -1,6 +1,5 @@
 using FluentCMS.Providers.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace FluentCMS.Providers;
 

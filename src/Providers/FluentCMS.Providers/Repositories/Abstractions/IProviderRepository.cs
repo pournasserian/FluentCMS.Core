@@ -1,6 +1,8 @@
-﻿namespace FluentCMS.Providers.Abstractions;
+﻿using FluentCMS.Repositories.Abstractions;
 
-public interface IProviderRepository
+namespace FluentCMS.Providers.Repositories.Abstractions;
+
+public interface IProviderRepository : IRepository<Provider>
 {
     Task Add(string area, string name, string moduleTypeName, string options, bool isActive, string displayName, CancellationToken cancellationToken = default);
     Task Activate(string area, string name, CancellationToken cancellationToken = default);
