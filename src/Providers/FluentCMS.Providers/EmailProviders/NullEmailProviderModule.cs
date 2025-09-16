@@ -1,6 +1,4 @@
-﻿using FluentCMS.Providers.Core;
-
-namespace FluentCMS.Providers.EmailProviders;
+﻿namespace FluentCMS.Providers.EmailProviders;
 
 public class NullEmailProviderModule : ProviderModuleBase<NullEmailProvider, NullEmailProviderOptions>
 {

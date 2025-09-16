@@ -5,9 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FluentCMS.Providers.Extensions;
 
-/// <summary>
-/// Extension methods for configuring the provider system in dependency injection.
-/// </summary>
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddProviders(this IServiceCollection services, string connectionString, Action<ProviderDiscoveryOptions>? configure = null)

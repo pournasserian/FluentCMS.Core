@@ -51,10 +51,22 @@ internal sealed class ProviderCatalogCache
     // Area -> (TypeName -> IProviderModule)
     private readonly Dictionary<string, Dictionary<string, IProviderModule>> registeredModules = [];
 
+    // Area -> InterfaceType)
+    private readonly Dictionary<string, Type> registeredInterfaces = [];
+
     public ProviderCatalogCache(IEnumerable<IProviderModule> modules)
     {
         foreach (var module in modules)
         {
+            if (!registeredInterfaces.TryGetValue(module.Area, out Type? valueType))
+            {
+                registeredInterfaces[module.Area] = module.InterfaceType;
+            }
+            else if (valueType != module.InterfaceType)
+            {
+                throw new InvalidOperationException($"Multiple interface types registered for area '{module.Area}'.");
+            }
+
             if (!registeredModules.TryGetValue(module.Area, out Dictionary<string, IProviderModule>? value))
             {
                 value = new Dictionary<string, IProviderModule>(StringComparer.OrdinalIgnoreCase);
@@ -71,13 +83,9 @@ internal sealed class ProviderCatalogCache
         return registeredModules.Values.SelectMany(dict => dict.Values);
     }
 
-    public Dictionary<string, Type> GetRegisteredInterfaceTypes()
+    public IReadOnlyDictionary<string, Type> GetRegisteredInterfaceTypes()
     {
-        return registeredModules.Values
-            .SelectMany(dict => dict.Values)
-            .Select(m => m.InterfaceType)
-            .Distinct()
-            .ToDictionary(t => t.FullName ?? throw new InvalidOperationException("Interface type must have a full name."), t => t, StringComparer.OrdinalIgnoreCase);
+        return registeredInterfaces.AsReadOnly();
     }
 
     public IProviderModule? GetRegisteredModule(string area, string typeName)
