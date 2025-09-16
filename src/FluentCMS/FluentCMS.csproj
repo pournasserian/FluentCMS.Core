@@ -19,6 +19,7 @@
     <ProjectReference Include="..\Plugins\FluentCMS.Plugins.TodoManager\FluentCMS.Plugins.TodoManager.csproj" />
     <ProjectReference Include="..\Providers\Caching\FluentCMS.Providers.Caching.InMemory\FluentCMS.Providers.Caching.InMemory.csproj" />
     <ProjectReference Include="..\Providers\EventBus\FluentCMS.Providers.EventBus.InMemory\FluentCMS.Providers.EventBus.InMemory.csproj" />
+    <ProjectReference Include="..\Providers\FluentCMS.Providers\FluentCMS.Providers.csproj" />
     <ProjectReference Include="..\Providers\Plugins\FluentCMS.Providers.Plugins\FluentCMS.Providers.Plugins.csproj" />
     <ProjectReference Include="..\Repositories\FluentCMS.Repositories.SQLite\FluentCMS.Repositories.Sqlite.csproj" />
   </ItemGroup>

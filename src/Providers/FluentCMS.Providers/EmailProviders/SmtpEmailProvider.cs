@@ -1,0 +1,39 @@
+﻿using FluentCMS.Providers.EmailProviders.Abstractions;
+using Microsoft.Extensions.Options;
+using System.Net;
+using System.Net.Mail;
+
+namespace FluentCMS.Providers.EmailProviders;
+
+public class SmtpEmailProvider(IOptionsMonitor<SmtpEmailProviderOptions> smtpOptionsAccessor) : IEmailProvider
+{
+    public async Task Send(string recipient, string subject, string body, IDictionary<string, string>? headers = null)
+    {
+        var options = smtpOptionsAccessor.CurrentValue;
+        using var smtpClient = new SmtpClient(options.Host, options.Port)
+        {
+            Credentials = new NetworkCredential(options.Username, options.Password),
+            EnableSsl = options.EnableSsl
+        };
+
+        using var mailMessage = new MailMessage
+        {
+            From = new MailAddress(options.FromAddress, options.FromName),
+            Subject = subject,
+            Body = body,
+            IsBodyHtml = options.IsBodyHtml
+        };
+
+        mailMessage.To.Add(recipient);
+
+        if (headers != null)
+        {
+            foreach (var header in headers)
+            {
+                mailMessage.Headers.Add(header.Key, header.Value);
+            }
+        }
+
+        await smtpClient.SendMailAsync(mailMessage);
+    }
+}
