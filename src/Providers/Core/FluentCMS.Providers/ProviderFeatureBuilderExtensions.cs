@@ -53,6 +53,11 @@ public static class ProviderFeatureBuilderExtensions
                 var providerManager = serviceProvider.GetRequiredService<IProviderManager>();
                 var catalog = providerManager.GetActiveByArea(area).GetAwaiter().GetResult() ??
                     throw new InvalidOperationException($"No active provider found for area '{area}'.");
+
+                // Check if the provider's type implements the requested interface
+                if (!interfaceType.IsAssignableFrom(catalog.Module.ProviderType))
+                    throw new InvalidOperationException($"The active provider '{catalog.Name}' for area '{area}' does not implement the interface '{interfaceType.FullName}'.");
+
                 var provider = ActivatorUtilities.CreateInstance(serviceProvider, catalog.Module.ProviderType);
                 return provider;
             });
