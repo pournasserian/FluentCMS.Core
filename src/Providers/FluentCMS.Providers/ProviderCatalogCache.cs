@@ -64,8 +64,44 @@ internal sealed class ProviderCatalogCache
     private readonly ConcurrentDictionary<string, ProviderCatalog> _catalogsByKey = new();
     private readonly ConcurrentDictionary<string, List<ProviderCatalog>> _catalogsByArea = new();
     private readonly ConcurrentDictionary<string, ProviderCatalog> _activeCatalogs = new();
+    private bool _isInitialized = false;
+    private readonly Lock _lock = new Lock();
 
-    public void AddCatalog(ProviderCatalog providerCatalog) 
+    public bool IsInitialized => _isInitialized;
+
+    public void Initialize(IEnumerable<ProviderCatalog> catalogs)
+    {
+        lock (_lock)
+        {
+            if (_isInitialized)
+                throw new InvalidOperationException("ProviderCatalogCache is already initialized.");
+
+            foreach (var catalog in catalogs)
+            {
+                AddCatalog(catalog);
+            }
+            _isInitialized = true;
+        }
+    }
+
+    public void Reload(IEnumerable<ProviderCatalog> catalogs)
+    {
+        lock (_lock)
+        {
+            Clear();
+            Initialize(catalogs);
+        }
+    }
+
+    public void Clear()
+    {
+        _catalogsByKey.Clear();
+        _catalogsByArea.Clear();
+        _activeCatalogs.Clear();
+        _isInitialized = false;
+    }
+
+    public void AddCatalog(ProviderCatalog providerCatalog)
     {
         var area = providerCatalog.Module.Area;
         var key = $"{area}:{providerCatalog.Name}";
@@ -84,22 +120,6 @@ internal sealed class ProviderCatalogCache
             });
     }
 
-    public void RemoveCatalog(string area, string providerName)
-    {
-        var key = $"{area}:{providerName}";
-        if (_catalogsByKey.TryRemove(key, out var catalog))
-        {
-            if (catalog.Active)
-                _activeCatalogs.TryRemove(area, out _);
-            if (_catalogsByArea.TryGetValue(area, out var list))
-            {
-                list.RemoveAll(c => c.Name.Equals(providerName, StringComparison.OrdinalIgnoreCase));
-                if (list.Count == 0)
-                    _catalogsByArea.TryRemove(area, out _);
-            }
-        }
-    }
-
     public ProviderCatalog? GetActiveCatalog(string area)
     {
         _activeCatalogs.TryGetValue(area, out var catalog);
@@ -113,43 +133,6 @@ internal sealed class ProviderCatalogCache
         return catalog;
     }
 
-    public void Activate(string area, string name)
-    {
-        var key = $"{area}:{name}";
-        if (_catalogsByKey.TryGetValue(key, out var catalog))
-        {
-            if (catalog.Active)
-                return; // already active
-            // Deactivate current active
-            if (_activeCatalogs.TryGetValue(area, out var currentActive))
-            {
-                currentActive.Active = false;
-            }
-            // Activate new
-            catalog.Active = true;
-            _activeCatalogs[area] = catalog;
-        }
-        else
-        {
-            throw new InvalidOperationException($"Provider '{name}' in area '{area}' not found.");
-        }
-    }
-
-    public void Deactivate(string area, string name)
-    {
-        var key = $"{area}:{name}";
-        if (_catalogsByKey.TryGetValue(key, out var catalog))
-        {
-            if (!catalog.Active)
-                return; // already inactive
-            catalog.Active = false;
-            _activeCatalogs.TryRemove(area, out _);
-        }
-        else
-        {
-            throw new InvalidOperationException($"Provider '{name}' in area '{area}' not found.");
-        }
-    }
     #endregion
 
 }

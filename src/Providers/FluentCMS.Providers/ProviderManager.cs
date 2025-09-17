@@ -1,45 +1,58 @@
 ﻿using FluentCMS.Providers.Abstractions;
-using FluentCMS.Providers.Repositories.Abstractions;
 
 namespace FluentCMS.Providers;
 
 public interface IProviderManager
 {
-    Task<ProviderCatalog> Add(ProviderCatalog providerCatalog, CancellationToken cancellationToken = default!);
     Task<IProviderModule?> GetProviderModule(string area, string typeName, CancellationToken cancellationToken = default!);
     Task<ProviderCatalog?> GetActiveByArea(string area, CancellationToken cancellationToken = default);
 }
 
-internal sealed class ProviderManager(IProviderRepository repository, ProviderCatalogCache providerCatalogCache) : IProviderManager
+internal sealed class ProviderManager(ProviderCatalogCache providerCatalogCache, IProviderRepository repository) : IProviderManager
 {
-    public async Task<ProviderCatalog> Add(ProviderCatalog providerCatalog, CancellationToken cancellationToken = default)
+    public async Task<ProviderCatalog?> GetActiveByArea(string area, CancellationToken cancellationToken = default)
     {
-        var module = providerCatalog.Module;
-        await repository.Add(module.Area, providerCatalog.Name, module.ProviderType.FullName!, "{}", providerCatalog.Active, module.DisplayName, cancellationToken);
-        providerCatalogCache.AddCatalog(providerCatalog);
+        await Initialize(cancellationToken);
+        return providerCatalogCache.GetActiveCatalog(area);
+    }
 
-        if (providerCatalog.Active)
+    public async Task<IProviderModule?> GetProviderModule(string area, string typeName, CancellationToken cancellationToken = default)
+    {
+        await Initialize(cancellationToken);
+        return providerCatalogCache.GetRegisteredModule(area, typeName);
+    }
+
+    private async Task Initialize(CancellationToken cancellationToken = default)
+    {
+        if (providerCatalogCache.IsInitialized)
+            return;
+
+        var providers = await repository.GetAll(cancellationToken);
+        IEnumerable<ProviderCatalog> providerCatalogs = [];
+
+        foreach (var provider in providers)
         {
-            var activeCatalog = providerCatalogCache.GetActiveCatalog(module.Area);
-            if (activeCatalog != null)
-            {
-                activeCatalog.Active = false;
-                await repository.Deactivate(activeCatalog.Module.Area, activeCatalog.Name, cancellationToken);
-                providerCatalogCache.Deactivate(activeCatalog.Module.Area, activeCatalog.Name);
-                providerCatalogCache.Activate(providerCatalog.Module.Area, providerCatalog.Name);
-            }
+            var module = providerCatalogCache.GetRegisteredModule(provider.Area, provider.ModuleType) ??
+                throw new InvalidOperationException($"Provider module '{provider.ModuleType}' for area '{provider.Area}' not found.");
+
+            var catalog = new ProviderCatalog(module, provider.Name, provider.IsActive);
+            providerCatalogs = providerCatalogs.Append(catalog);
         }
-        return providerCatalogCache.GetCatalog(module.Area, providerCatalog.Name) ??
-            throw new InvalidOperationException("Failed to add provider catalog.");
-    }
 
-    public Task<ProviderCatalog?> GetActiveByArea(string area, CancellationToken cancellationToken = default)
-    {
-        return Task.FromResult(providerCatalogCache.GetActiveCatalog(area));
-    }
+        // Check if there are multiple active providers in the same area, if exists throw exception
+        var activeGroups = providerCatalogs
+            .Where(pc => pc.Active)
+            .GroupBy(pc => pc.Module.Area)
+            .Where(g => g.Count() > 1)
+            .ToList();
 
-    public Task<IProviderModule?> GetProviderModule(string area, string typeName, CancellationToken cancellationToken = default)
-    {
-        return Task.FromResult(providerCatalogCache.GetRegisteredModule(area, typeName));
+        if (activeGroups.Count != 0)
+        {
+            var errorMessage = string.Join(", ", activeGroups.Select(g => $"Area '{g.Key}' has multiple active providers: {string.Join(", ", g.Select(pc => pc.Name))}"));
+            throw new InvalidOperationException($"Provider error: {errorMessage}");
+        }
+
+        providerCatalogCache.Initialize(providerCatalogs);
     }
 }
+

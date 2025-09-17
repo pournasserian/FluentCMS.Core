@@ -1,5 +1,4 @@
-﻿using FluentCMS.Providers.Repositories.Abstractions;
-using FluentCMS.Repositories.EntityFramework;
+﻿using FluentCMS.Repositories.EntityFramework;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FluentCMS.Providers.Repositories.EntityFramework;

@@ -36,8 +36,8 @@ services.AddProviderSystem(options =>
     {
         options.AssemblyPrefixesToScan.Add("FluentCMS");
         options.IgnoreExceptions = true; // Set to true to ignore exceptions during provider loading
-    })
-    .AddEntityFrameworkProviderRepository();
+    });
+    //.AddEntityFrameworkProviderRepository();
 
 // Add plugin system
 builder.AddPlugins(["FluentCMS"]);

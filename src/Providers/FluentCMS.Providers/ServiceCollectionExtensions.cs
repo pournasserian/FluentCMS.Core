@@ -1,3 +1,4 @@
+using FluentCMS.Providers.Repositories.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FluentCMS.Providers;
@@ -9,6 +10,8 @@ public static class ServiceCollectionExtensions
         services.PrepareProviderCatalogCache(configure);
 
         services.AddScoped<IProviderManager, ProviderManager>();
+        services.AddScoped<IProviderRepository, ConfigurationReadOnlyProviderRepository>();
+        services.AddScoped<ConfigurationReadOnlyProviderRepository>();
 
         return services;
     }
