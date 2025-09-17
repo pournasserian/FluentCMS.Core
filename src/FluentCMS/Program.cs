@@ -32,12 +32,11 @@ builder.AddSqliteOptions(connectionString);
 
 builder.Host.UseSerilog();
 
-services.AddProviderSystem(options =>
+services.AddProviders(options =>
     {
         options.AssemblyPrefixesToScan.Add("FluentCMS");
-        options.IgnoreExceptions = true; // Set to true to ignore exceptions during provider loading
-    });
-    //.AddEntityFrameworkProviderRepository();
+        options.IgnoreExceptions = false; // Set to true to ignore exceptions during provider loading
+    }).UseEntityFramework();
 
 // Add plugin system
 builder.AddPlugins(["FluentCMS"]);

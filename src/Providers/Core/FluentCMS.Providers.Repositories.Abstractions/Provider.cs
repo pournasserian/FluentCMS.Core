@@ -1,4 +1,4 @@
-namespace FluentCMS.Providers;
+namespace FluentCMS.Providers.Repositories.Abstractions;
 
 /// <summary>
 /// Represents a provider instance stored in the database.

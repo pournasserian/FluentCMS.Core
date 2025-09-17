@@ -9,14 +9,14 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.9" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.9" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.9" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\DataSeeder\FluentCMS.DataSeeder.Abstractions\FluentCMS.DataSeeder.Abstractions.csproj" />
-    <ProjectReference Include="..\..\Repositories\FluentCMS.Repositories.EntityFramework\FluentCMS.Repositories.EntityFramework.csproj" />
+    <ProjectReference Include="..\..\..\DataSeeder\FluentCMS.DataSeeder.Abstractions\FluentCMS.DataSeeder.Abstractions.csproj" />
+    <ProjectReference Include="..\FluentCMS.Providers.Abstractions\FluentCMS.Providers.Abstractions.csproj" />
+    <ProjectReference Include="..\FluentCMS.Providers.Repositories.Abstractions\FluentCMS.Providers.Repositories.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

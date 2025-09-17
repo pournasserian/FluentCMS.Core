@@ -9,7 +9,7 @@ public interface IProviderModule
     Type ProviderType { get; }
     Type OptionsType { get; }
     Type InterfaceType { get; }
-    void ConfigureServices(IServiceCollection services, string providerName);
+    void ConfigureServices(IServiceCollection services);
 }
 
 

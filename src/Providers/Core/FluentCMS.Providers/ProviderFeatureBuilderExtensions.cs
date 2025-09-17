@@ -1,19 +1,14 @@
-using FluentCMS.Providers.Repositories.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FluentCMS.Providers;
 
-public static class ServiceCollectionExtensions
+public static class ProviderFeatureBuilderExtensions
 {
-    public static IServiceCollection AddProviderSystem(this IServiceCollection services, Action<ProviderDiscoveryOptions>? configure = null)
+    public static ProviderFeatureBuilder AddProviders(this IServiceCollection services, Action<ProviderDiscoveryOptions>? configure = null)
     {
         services.PrepareProviderCatalogCache(configure);
-
         services.AddScoped<IProviderManager, ProviderManager>();
-        services.AddScoped<IProviderRepository, ConfigurationReadOnlyProviderRepository>();
-        services.AddScoped<ConfigurationReadOnlyProviderRepository>();
-
-        return services;
+        return new ProviderFeatureBuilder(services);
     }
 
     private static void PrepareProviderCatalogCache(this IServiceCollection services, Action<ProviderDiscoveryOptions>? configure = null)
@@ -32,7 +27,7 @@ public static class ServiceCollectionExtensions
         {
             try
             {
-                module.ConfigureServices(services, "Default");
+                module.ConfigureServices(services);
             }
             catch (Exception)
             {
@@ -44,7 +39,7 @@ public static class ServiceCollectionExtensions
         // for each interface type in the catalog, register a factory to resolve the default provider
         foreach (var (area, interfaceType) in providerCatalogCache.GetRegisteredInterfaceTypes())
         {
-            services.AddScoped(interfaceType, serviceProvider =>
+            services.AddTransient(interfaceType, serviceProvider =>
             {
                 var providerManager = serviceProvider.GetRequiredService<IProviderManager>();
                 var catalog = providerManager.GetActiveByArea(area).GetAwaiter().GetResult() ??

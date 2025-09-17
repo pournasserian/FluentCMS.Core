@@ -1,3 +1,4 @@
+using FluentCMS.Providers.Repositories.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace FluentCMS.Providers.Repositories.EntityFramework;

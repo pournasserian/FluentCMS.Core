@@ -1,8 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using FluentCMS.Providers.Repositories.Abstractions;
+using Microsoft.Extensions.Configuration;
 
 namespace FluentCMS.Providers.Repositories.Configuration;
 
-internal sealed class ConfigurationReadOnlyProviderRepository(IConfiguration configuration) : IProviderRepository
+public sealed class ConfigurationReadOnlyProviderRepository(IConfiguration configuration) : IProviderRepository
 {
     public Task<IEnumerable<Provider>> GetAll(CancellationToken cancellationToken = default)
     {
@@ -26,11 +27,6 @@ internal sealed class ConfigurationReadOnlyProviderRepository(IConfiguration con
         return Task.FromResult<IEnumerable<Provider>>(providers);
     }
 
-    public Task Add(Provider provider, CancellationToken cancellationToken = default)
-    {
-        throw new Exception("In-memory repository does not support adding providers.");
-    }
-
     public Task Remove(Provider provider, CancellationToken cancellationToken = default)
     {
         throw new Exception("In-memory repository does not support removing providers.");
@@ -39,6 +35,11 @@ internal sealed class ConfigurationReadOnlyProviderRepository(IConfiguration con
     public Task Update(Provider provider, CancellationToken cancellationToken = default)
     {
         throw new Exception("In-memory repository does not support updating providers.");
+    }
+
+    public Task AddMany(IEnumerable<Provider> providers, CancellationToken cancellationToken = default)
+    {
+        throw new Exception("In-memory repository does not support adding providers.");
     }
 }
 

@@ -1,4 +1,5 @@
 ﻿using FluentCMS.Providers.Abstractions;
+using FluentCMS.Providers.Repositories.Abstractions;
 
 namespace FluentCMS.Providers;
 

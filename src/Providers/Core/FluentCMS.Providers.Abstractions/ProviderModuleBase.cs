@@ -1,7 +1,6 @@
-using FluentCMS.Providers.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FluentCMS.Providers;
+namespace FluentCMS.Providers.Abstractions;
 
 public abstract class ProviderModuleBase<TProvider, TOptions> : IProviderModule<TProvider, TOptions>
     where TProvider : class, IProvider
@@ -28,7 +27,7 @@ public abstract class ProviderModuleBase<TProvider, TOptions> : IProviderModule<
         }
     }
 
-    public virtual void ConfigureServices(IServiceCollection services, string providerName)
+    public virtual void ConfigureServices(IServiceCollection services)
     {
         // Default implementation does nothing
         // Override in derived classes to register additional services
