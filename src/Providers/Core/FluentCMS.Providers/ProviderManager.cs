@@ -17,10 +17,9 @@ internal sealed class ProviderManager(ProviderCatalogCache providerCatalogCache,
         return providerCatalogCache.GetActiveCatalog(area);
     }
 
-    public async Task<IProviderModule?> GetProviderModule(string area, string typeName, CancellationToken cancellationToken = default)
+    public Task<IProviderModule?> GetProviderModule(string area, string typeName, CancellationToken cancellationToken = default)
     {
-        await Initialize(cancellationToken);
-        return providerCatalogCache.GetRegisteredModule(area, typeName);
+        return Task.FromResult(providerCatalogCache.GetRegisteredModule(area, typeName));
     }
 
     private async Task Initialize(CancellationToken cancellationToken = default)

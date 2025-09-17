@@ -1,9 +1,9 @@
-﻿using FluentCMS.Providers.EmailProviders.Abstractions;
+﻿using FluentCMS.Providers.Email.Abstractions;
 using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Mail;
 
-namespace FluentCMS.Providers.EmailProviders;
+namespace FluentCMS.Providers.Email.Smtp;
 
 public class SmtpEmailProvider(IOptionsMonitor<SmtpEmailProviderOptions> smtpOptionsAccessor) : IEmailProvider
 {

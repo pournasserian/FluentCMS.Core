@@ -1,4 +1,4 @@
-﻿namespace FluentCMS.Providers.EmailProviders;
+﻿namespace FluentCMS.Providers.Email.Smtp;
 
 public class SmtpEmailProviderOptions
 {

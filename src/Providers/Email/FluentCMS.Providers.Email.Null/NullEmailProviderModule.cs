@@ -1,6 +1,6 @@
 ﻿using FluentCMS.Providers.Abstractions;
 
-namespace FluentCMS.Providers.EmailProviders;
+namespace FluentCMS.Providers.Email.Null;
 
 public class NullEmailProviderModule : ProviderModuleBase<NullEmailProvider, NullEmailProviderOptions>
 {

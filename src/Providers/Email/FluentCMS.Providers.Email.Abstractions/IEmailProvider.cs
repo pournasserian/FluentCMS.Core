@@ -1,6 +1,6 @@
 ﻿using FluentCMS.Providers.Abstractions;
 
-namespace FluentCMS.Providers.EmailProviders.Abstractions;
+namespace FluentCMS.Providers.Email.Abstractions;
 
 public interface IEmailProvider : IProvider
 {

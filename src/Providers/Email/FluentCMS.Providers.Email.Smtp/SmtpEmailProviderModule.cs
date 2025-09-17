@@ -1,6 +1,6 @@
 ﻿using FluentCMS.Providers.Abstractions;
 
-namespace FluentCMS.Providers.EmailProviders;
+namespace FluentCMS.Providers.Email.Smtp;
 
 public class SmtpEmailProviderModule : ProviderModuleBase<SmtpEmailProvider, SmtpEmailProviderOptions>
 {

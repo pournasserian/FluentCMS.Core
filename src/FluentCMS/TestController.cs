@@ -1,4 +1,4 @@
-﻿using FluentCMS.Providers.EmailProviders.Abstractions;
+﻿using FluentCMS.Providers.Email.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FluentCMS;

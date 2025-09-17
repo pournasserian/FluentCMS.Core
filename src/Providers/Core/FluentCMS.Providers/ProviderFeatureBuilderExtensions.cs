@@ -1,3 +1,5 @@
+using FluentCMS.Providers.Repositories.Abstractions;
+using FluentCMS.Providers.Repositories.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FluentCMS.Providers;
@@ -9,6 +11,13 @@ public static class ProviderFeatureBuilderExtensions
         services.PrepareProviderCatalogCache(configure);
         services.AddScoped<IProviderManager, ProviderManager>();
         return new ProviderFeatureBuilder(services);
+    }
+
+    public static ProviderFeatureBuilder UseConfiguration(this ProviderFeatureBuilder providerFeatureBuilder)
+    {
+        providerFeatureBuilder.Services.AddScoped<IProviderRepository, ConfigurationReadOnlyProviderRepository>();
+
+        return providerFeatureBuilder;
     }
 
     private static void PrepareProviderCatalogCache(this IServiceCollection services, Action<ProviderDiscoveryOptions>? configure = null)

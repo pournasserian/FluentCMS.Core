@@ -7,7 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\FluentCMS.Shared\FluentCMS.Shared.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FluentCMS.Providers.Email.Abstractions\FluentCMS.Providers.Email.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>
