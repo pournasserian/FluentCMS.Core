@@ -103,21 +103,24 @@ internal sealed class ProviderCatalogCache
 
     public void AddCatalog(ProviderCatalog providerCatalog)
     {
-        var area = providerCatalog.Module.Area;
-        var key = $"{area}:{providerCatalog.Name}";
+        lock (_lock)
+        {
+            var area = providerCatalog.Module.Area;
+            var key = $"{area}:{providerCatalog.Name}";
 
-        _catalogsByKey.TryAdd(key, providerCatalog);
+            _catalogsByKey.TryAdd(key, providerCatalog);
 
-        if (providerCatalog.Active)
-            _activeCatalogs[area] = providerCatalog;
+            if (providerCatalog.Active)
+                _activeCatalogs[area] = providerCatalog;
 
-        _catalogsByArea.AddOrUpdate(area,
-            [providerCatalog],
-            (area, existing) =>
-            {
-                existing.Add(providerCatalog);
-                return existing;
-            });
+            _catalogsByArea.AddOrUpdate(area,
+                [providerCatalog],
+                (area, existing) =>
+                {
+                    existing.Add(providerCatalog);
+                    return existing;
+                });
+        }
     }
 
     public ProviderCatalog? GetActiveCatalog(string area)
