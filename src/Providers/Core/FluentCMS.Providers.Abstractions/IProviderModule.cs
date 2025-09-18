@@ -7,7 +7,7 @@ public interface IProviderModule
     string Area { get; }
     string DisplayName { get; }
     Type ProviderType { get; }
-    Type OptionsType { get; }
+    Type? OptionsType { get; }
     Type InterfaceType { get; }
     void ConfigureServices(IServiceCollection services);
 }
@@ -21,5 +21,10 @@ public interface IProviderModule
 public interface IProviderModule<TProvider, TOptions> : IProviderModule
     where TProvider : class, IProvider
     where TOptions : class, new()
+{
+}
+
+public interface IProviderModule<TProvider> : IProviderModule
+    where TProvider : class, IProvider
 {
 }

@@ -51,11 +51,10 @@ public class ProviderSeeder(IServiceProvider sp) : ISeeder
             var providerModule = await _providerManager!.GetProviderModule(provider.Area, provider.ModuleType, cancellationToken) ??
                 throw new InvalidOperationException($"Provider module '{provider.ModuleType}' for area '{provider.Area}' not found.");
 
-            var providerCatalog = new ProviderCatalog(providerModule, provider.Name, provider.IsActive);
+            var providerCatalog = new ProviderCatalog(providerModule, provider.Name, provider.IsActive, provider.Options);
             providerCatalogs.Add(providerCatalog);
         }
 
         await _providerRepository!.AddMany(providers, cancellationToken);
-
     }
 }

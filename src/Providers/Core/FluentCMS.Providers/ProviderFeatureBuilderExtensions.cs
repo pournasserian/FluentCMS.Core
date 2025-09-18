@@ -26,11 +26,12 @@ public static class ProviderFeatureBuilderExtensions
         var opts = new ProviderDiscoveryOptions();
         configure?.Invoke(opts);
         services.AddSingleton(opts);
+        services.AddSingleton<ProviderCatalogCache>();
 
         var providerDiscovery = new ProviderDiscovery(opts);
         var providerModules = providerDiscovery.GetProviderModules();
-        var providerCatalogCache = new ProviderCatalogCache(providerModules);
-        services.AddSingleton(providerCatalogCache);
+        var providerModuleCatalogCache = new ProviderModuleCatalogCache(providerModules);
+        services.AddSingleton(providerModuleCatalogCache);
 
         foreach (var module in providerModules)
         {
@@ -46,7 +47,7 @@ public static class ProviderFeatureBuilderExtensions
         }
 
         // for each interface type in the catalog, register a factory to resolve the default provider
-        foreach (var (area, interfaceType) in providerCatalogCache.GetRegisteredInterfaceTypes())
+        foreach (var (area, interfaceType) in providerModuleCatalogCache.GetRegisteredInterfaceTypes())
         {
             services.AddTransient(interfaceType, serviceProvider =>
             {
@@ -58,8 +59,23 @@ public static class ProviderFeatureBuilderExtensions
                 if (!interfaceType.IsAssignableFrom(catalog.Module.ProviderType))
                     throw new InvalidOperationException($"The active provider '{catalog.Name}' for area '{area}' does not implement the interface '{interfaceType.FullName}'.");
 
-                var provider = ActivatorUtilities.CreateInstance(serviceProvider, catalog.Module.ProviderType);
-                return provider;
+                // Check if provider's constructor accepts the options type
+                var constructor = catalog.Module.ProviderType.GetConstructors()
+                    .FirstOrDefault(ctor =>
+                    {
+                        return ctor.GetParameters().Any(p => p.ParameterType == catalog.Module.OptionsType);
+                    });
+                // If it does, create an instance using ActivatorUtilities and pass the options
+                if (constructor != null)
+                {
+                    var provider = ActivatorUtilities.CreateInstance(serviceProvider, catalog.Module.ProviderType, catalog.Options);
+                    return provider;
+                }
+                else
+                {
+                    var provider = ActivatorUtilities.CreateInstance(serviceProvider, catalog.Module.ProviderType);
+                    return provider;
+                }
             });
         }
     }

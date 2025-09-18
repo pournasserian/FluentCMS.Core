@@ -1,30 +1,46 @@
 ﻿using FluentCMS.Providers.Repositories.Abstractions;
 using Microsoft.Extensions.Configuration;
+using System.Text.Json;
 
 namespace FluentCMS.Providers.Repositories.Configuration;
 
-public sealed class ConfigurationReadOnlyProviderRepository(IConfiguration configuration) : IProviderRepository
+public sealed class ConfigurationReadOnlyProviderRepository(IConfiguration configuration, IProviderManager providerManager) : IProviderRepository
 {
-    public Task<IEnumerable<Provider>> GetAll(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<Provider>> GetAll(CancellationToken cancellationToken = default)
     {
-        var providerRoot = configuration.GetSection("Providers").Get<ProviderConfigurationRoot>() ?? [];
         var providers = new List<Provider>();
-        foreach (var (area, providerAreas) in providerRoot)
+        var providerAreas = configuration.GetSection("Providers").GetChildren();
+        foreach (var areaSection in providerAreas)
         {
-            foreach (var providerArea in providerAreas)
+            var areaName = areaSection.Key;
+            var providersSection = areaSection.GetChildren();
+            foreach (var providerSection in providersSection)
             {
+                var providerConfig = providerSection.Get<ProviderAreaConfiguration>() ??
+                    throw new InvalidOperationException($"Invalid provider configuration for area '{areaName}'.");
+
+                var module = await providerManager.GetProviderModule(areaName, providerConfig.Module, cancellationToken) ??
+                    throw new InvalidOperationException($"Provider module '{providerConfig.Module}' for area '{areaName}' not found.");
+
+                var optionsSection = providerSection.GetSection("Options");
+                object? options = null;
+                if (module.OptionsType != null)
+                {
+                    options = optionsSection.Get(module.OptionsType) ?? Activator.CreateInstance(module.OptionsType);
+                }
+
                 providers.Add(new Provider
                 {
-                    Area = area,
-                    Name = providerArea.Name,
-                    DisplayName = providerArea.Name,
-                    IsActive = providerArea.Active ?? false,
-                    ModuleType = providerArea.Module,
-                    Options = providerArea.Options is not null ? System.Text.Json.JsonSerializer.Serialize(providerArea.Options) : "{}"
+                    Area = areaName,
+                    Name = providerConfig.Name,
+                    DisplayName = module.DisplayName,
+                    IsActive = providerConfig.Active,
+                    ModuleType = providerConfig.Module,
+                    Options = options is null ? null : JsonSerializer.Serialize(options)
                 });
             }
         }
-        return Task.FromResult<IEnumerable<Provider>>(providers);
+        return await Task.FromResult(providers);
     }
 
     public Task Remove(Provider provider, CancellationToken cancellationToken = default)
@@ -43,14 +59,9 @@ public sealed class ConfigurationReadOnlyProviderRepository(IConfiguration confi
     }
 }
 
-internal class ProviderConfigurationRoot : Dictionary<string, List<ProviderAreaConfiguration>>
-{
-}
-
 internal class ProviderAreaConfiguration
 {
-    public string Name { get; set; } = string.Empty;
-    public bool? Active { get; set; }
-    public string Module { get; set; } = string.Empty;
-    public Dictionary<string, object?>? Options { get; set; } // stays as dictionary
+    public string Name { get; set; } = default!;
+    public bool Active { get; set; }
+    public string Module { get; set; } = default!;
 }

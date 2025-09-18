@@ -34,7 +34,7 @@ public class ProviderDbContext(DbContextOptions<ProviderDbContext> options) : Db
                 .HasMaxLength(200);
 
             entity.Property(p => p.Options)
-                .IsRequired();
+                .HasMaxLength(4000);
 
         });
     }

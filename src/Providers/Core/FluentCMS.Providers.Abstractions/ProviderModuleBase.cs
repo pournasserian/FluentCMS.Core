@@ -2,14 +2,20 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FluentCMS.Providers.Abstractions;
 
-public abstract class ProviderModuleBase<TProvider, TOptions> : IProviderModule<TProvider, TOptions>
+public abstract class ProviderModuleBase<TProvider, TOptions> : ProviderModuleBase<TProvider>
     where TProvider : class, IProvider
     where TOptions : class, new()
+{
+    public override Type? OptionsType => typeof(TOptions);
+}
+
+public abstract class ProviderModuleBase<TProvider> : IProviderModule<TProvider>
+    where TProvider : class, IProvider
 {
     public abstract string Area { get; }
     public abstract string DisplayName { get; }
     public Type ProviderType => typeof(TProvider);
-    public Type OptionsType => typeof(TOptions);
+    public virtual Type? OptionsType => null;
 
     public virtual Type InterfaceType
     {

@@ -45,6 +45,5 @@ public class Provider : AuditableEntity
     /// <summary>
     /// JSON string for the provider options.
     /// </summary>
-    [Required(ErrorMessage = "Options are required")]
-    public string Options { get; set; } = string.Empty;
+    public string? Options { get; set; }
 }

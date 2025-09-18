@@ -2,7 +2,7 @@
 
 namespace FluentCMS.Providers.Email.Null;
 
-public class NullEmailProviderModule : ProviderModuleBase<NullEmailProvider, NullEmailProviderOptions>
+public class NullEmailProviderModule : ProviderModuleBase<NullEmailProvider>
 {
     public override string Area => "Email";
 

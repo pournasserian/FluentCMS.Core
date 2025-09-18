@@ -1,71 +1,14 @@
-﻿using FluentCMS.Providers.Abstractions;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 
 namespace FluentCMS.Providers;
 
 internal sealed class ProviderCatalogCache
 {
-    #region Module
-
-    // Area -> (TypeName -> IProviderModule)
-    private readonly Dictionary<string, Dictionary<string, IProviderModule>> registeredModules = [];
-
-    // Area -> InterfaceType)
-    private readonly Dictionary<string, Type> registeredInterfaces = [];
-
-    public ProviderCatalogCache(IEnumerable<IProviderModule> modules)
-    {
-        foreach (var module in modules)
-        {
-            if (!registeredInterfaces.TryGetValue(module.Area, out Type? valueType))
-            {
-                registeredInterfaces[module.Area] = module.InterfaceType;
-            }
-            else if (valueType != module.InterfaceType)
-            {
-                throw new InvalidOperationException($"Multiple interface types registered for area '{module.Area}'.");
-            }
-
-            if (!registeredModules.TryGetValue(module.Area, out Dictionary<string, IProviderModule>? value))
-            {
-                value = new Dictionary<string, IProviderModule>(StringComparer.OrdinalIgnoreCase);
-                registeredModules[module.Area] = value;
-            }
-            var moduleType = module.GetType().FullName ??
-                throw new InvalidOperationException("Provider type must have a full name.");
-
-            value[moduleType] = module;
-        }
-    }
-    public IEnumerable<IProviderModule> GetRegisteredModules()
-    {
-        return registeredModules.Values.SelectMany(dict => dict.Values);
-    }
-
-    public IReadOnlyDictionary<string, Type> GetRegisteredInterfaceTypes()
-    {
-        return registeredInterfaces.AsReadOnly();
-    }
-
-    public IProviderModule? GetRegisteredModule(string area, string typeName)
-    {
-        if (registeredModules.TryGetValue(area, out var areaModules) &&
-            areaModules.TryGetValue(typeName, out var module))
-        {
-            return module;
-        }
-        return null;
-    }
-
-    #endregion
-
-    #region ProviderCatalog
-
     private readonly ConcurrentDictionary<string, ProviderCatalog> _catalogsByKey = new();
     private readonly ConcurrentDictionary<string, List<ProviderCatalog>> _catalogsByArea = new();
     private readonly ConcurrentDictionary<string, ProviderCatalog> _activeCatalogs = new();
     private bool _isInitialized = false;
-    private readonly Lock _lock = new Lock();
+    private readonly Lock _lock = new();
 
     public bool IsInitialized => _isInitialized;
 
@@ -135,7 +78,5 @@ internal sealed class ProviderCatalogCache
         _catalogsByKey.TryGetValue(key, out var catalog);
         return catalog;
     }
-
-    #endregion
 
 }

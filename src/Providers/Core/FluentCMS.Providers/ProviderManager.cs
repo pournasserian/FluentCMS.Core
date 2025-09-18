@@ -1,5 +1,6 @@
 ﻿using FluentCMS.Providers.Abstractions;
 using FluentCMS.Providers.Repositories.Abstractions;
+using System.Text.Json;
 
 namespace FluentCMS.Providers;
 
@@ -9,7 +10,7 @@ public interface IProviderManager
     Task<ProviderCatalog?> GetActiveByArea(string area, CancellationToken cancellationToken = default);
 }
 
-internal sealed class ProviderManager(ProviderCatalogCache providerCatalogCache, IProviderRepository repository) : IProviderManager
+internal sealed class ProviderManager(ProviderCatalogCache providerCatalogCache, ProviderModuleCatalogCache providerModuleCatalogCache, IProviderRepository repository) : IProviderManager
 {
     public async Task<ProviderCatalog?> GetActiveByArea(string area, CancellationToken cancellationToken = default)
     {
@@ -19,7 +20,7 @@ internal sealed class ProviderManager(ProviderCatalogCache providerCatalogCache,
 
     public Task<IProviderModule?> GetProviderModule(string area, string typeName, CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(providerCatalogCache.GetRegisteredModule(area, typeName));
+        return Task.FromResult(providerModuleCatalogCache.GetRegisteredModule(area, typeName));
     }
 
     private async Task Initialize(CancellationToken cancellationToken = default)
@@ -32,10 +33,18 @@ internal sealed class ProviderManager(ProviderCatalogCache providerCatalogCache,
 
         foreach (var provider in providers)
         {
-            var module = providerCatalogCache.GetRegisteredModule(provider.Area, provider.ModuleType) ??
+            var module = providerModuleCatalogCache.GetRegisteredModule(provider.Area, provider.ModuleType) ??
                 throw new InvalidOperationException($"Provider module '{provider.ModuleType}' for area '{provider.Area}' not found.");
 
-            var catalog = new ProviderCatalog(module, provider.Name, provider.IsActive);
+            object? options = null;
+            if(module.OptionsType != null)
+            {
+                if (string.IsNullOrEmpty(provider.Options))
+                    options = Activator.CreateInstance(module.OptionsType);
+                else
+                    options = JsonSerializer.Deserialize(provider.Options, module.OptionsType);
+            }
+            var catalog = new ProviderCatalog(module, provider.Name, provider.IsActive, options);
             providerCatalogs = providerCatalogs.Append(catalog);
         }
 
