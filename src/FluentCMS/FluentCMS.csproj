@@ -18,6 +18,9 @@
     <ProjectReference Include="..\Plugins\FluentCMS.Plugins.IdentityManager\FluentCMS.Plugins.IdentityManager.csproj" />
     <ProjectReference Include="..\Plugins\FluentCMS.Plugins.TodoManager\FluentCMS.Plugins.TodoManager.csproj" />
     <ProjectReference Include="..\Providers\Caching\FluentCMS.Providers.Caching.InMemory\FluentCMS.Providers.Caching.InMemory.csproj" />
+    <ProjectReference Include="..\Providers\Core\FluentCMS.Providers.Repositories.EntityFramework\FluentCMS.Providers.Repositories.EntityFramework.csproj" />
+    <ProjectReference Include="..\Providers\Email\FluentCMS.Providers.Email.Null\FluentCMS.Providers.Email.Null.csproj" />
+    <ProjectReference Include="..\Providers\Email\FluentCMS.Providers.Email.Smtp\FluentCMS.Providers.Email.Smtp.csproj" />
     <ProjectReference Include="..\Providers\EventBus\FluentCMS.Providers.EventBus.InMemory\FluentCMS.Providers.EventBus.InMemory.csproj" />
     <ProjectReference Include="..\Providers\Plugins\FluentCMS.Providers.Plugins\FluentCMS.Providers.Plugins.csproj" />
     <ProjectReference Include="..\Repositories\FluentCMS.Repositories.SQLite\FluentCMS.Repositories.Sqlite.csproj" />

@@ -2,6 +2,8 @@ using FluentCMS.Api;
 using FluentCMS.Configuration.Sqlite;
 using FluentCMS.DataSeeder;
 using FluentCMS.DataSeeder.Sqlite;
+using FluentCMS.Providers;
+using FluentCMS.Providers.Repositories.EntityFramework;
 using FluentCMS.Providers.Caching.InMemory;
 using FluentCMS.Providers.EventBus.InMemory;
 using FluentCMS.Providers.Plugins;
@@ -29,6 +31,12 @@ var services = builder.Services;
 builder.AddSqliteOptions(connectionString);
 
 builder.Host.UseSerilog();
+
+services.AddProviders(options =>
+    {
+        options.AssemblyPrefixesToScan.Add("FluentCMS");
+        options.IgnoreExceptions = false; // Set to true to ignore exceptions during provider loading
+    }).UseEntityFramework();
 
 // Add plugin system
 builder.AddPlugins(["FluentCMS"]);

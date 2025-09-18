@@ -101,6 +101,9 @@ public class Repository<TEntity, TContext>(TContext context, ILogger<Repository<
             await SaveChangesAsync(cancellationToken);
 
             Logger.LogInformation("Entity {EntityType} with id {EntityId} added", typeof(TEntity).Name, entity.Id);
+            // Detach entity to prevent tracking issues in future operations
+            Context.Entry(entity).State = EntityState.Detached;
+
             return entity;
         }
         catch (Exception ex)
@@ -127,6 +130,11 @@ public class Repository<TEntity, TContext>(TContext context, ILogger<Repository<
             await SaveChangesAsync(cancellationToken);
 
             Logger.LogInformation("Entities {EntityType} added", typeof(TEntity).Name);
+
+            // Detach entities to prevent tracking issues in future operations
+            foreach (var entity in entities)
+                Context.Entry(entity).State = EntityState.Detached;
+
             return entities;
         }
         catch (Exception ex)
@@ -144,6 +152,12 @@ public class Repository<TEntity, TContext>(TContext context, ILogger<Repository<
         try
         {
             DbSet.Remove(entity);
+            await SaveChangesAsync(cancellationToken);
+
+            // Detach entity to prevent tracking issues in future operations
+            Context.Entry(entity).State = EntityState.Detached;
+
+            // Ensure exactly one row was affected
             var affectedRows = await SaveChangesWithAffectedRowsAsync(cancellationToken);
             if (affectedRows == 0)
             {
@@ -187,6 +201,8 @@ public class Repository<TEntity, TContext>(TContext context, ILogger<Repository<
             await SaveChangesAsync(cancellationToken);
 
             Logger.LogInformation("Entity {EntityType} with id {EntityId} updated", typeof(TEntity).Name, entity.Id);
+
+            Context.Entry(entity).State = EntityState.Detached;
             return entity;
         }
         catch (Exception ex)

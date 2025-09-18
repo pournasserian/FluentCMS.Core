@@ -19,9 +19,8 @@ public static class ServiceCollectionExtensions
             services.AddTransient(typeof(ISeeder), seederType);
         }
 
-        services.AddTransient<SeedingService>();
+        services.AddScoped<SeedingService>();
 
-        services.AddSingleton<SeedingHostedService>();
         services.AddHostedService<SeedingHostedService>();
 
         return services;
