@@ -72,6 +72,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Configuration.SqlServer", "src\Configuration\FluentCMS.Configuration.SqlServer\FluentCMS.Configuration.SqlServer.csproj", "{352246F6-D829-48D6-9187-41B3A1E40AF1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{F61D3634-9506-4831-B402-7D06CC875908}"
+	ProjectSection(SolutionItems) = preProject
+		src\Providers\Core\README.md = src\Providers\Core\README.md
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Providers", "src\Providers\Core\FluentCMS.Providers\FluentCMS.Providers.csproj", "{E67E3175-0B10-A846-96E5-72E6890FD813}"
 EndProject
