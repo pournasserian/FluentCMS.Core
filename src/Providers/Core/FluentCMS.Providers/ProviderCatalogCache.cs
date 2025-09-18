@@ -1,13 +1,14 @@
 ﻿using System.Collections.Concurrent;
+using System.Collections.Immutable;
 
 namespace FluentCMS.Providers;
 
 internal sealed class ProviderCatalogCache
 {
     private readonly ConcurrentDictionary<string, ProviderCatalog> _catalogsByKey = new();
-    private readonly ConcurrentDictionary<string, List<ProviderCatalog>> _catalogsByArea = new();
+    private readonly ConcurrentDictionary<string, ImmutableList<ProviderCatalog>> _catalogsByArea = new();
     private readonly ConcurrentDictionary<string, ProviderCatalog> _activeCatalogs = new();
-    private bool _isInitialized = false;
+    private volatile bool _isInitialized = false;
     private readonly Lock _lock = new();
 
     public bool IsInitialized => _isInitialized;
@@ -21,7 +22,7 @@ internal sealed class ProviderCatalogCache
 
             foreach (var catalog in catalogs)
             {
-                AddCatalog(catalog);
+                AddCatalogInternal(catalog);
             }
             _isInitialized = true;
         }
@@ -32,38 +33,60 @@ internal sealed class ProviderCatalogCache
         lock (_lock)
         {
             Clear();
-            Initialize(catalogs);
+            foreach (var catalog in catalogs)
+            {
+                AddCatalogInternal(catalog);
+            }
+            _isInitialized = true;
         }
     }
 
     public void Clear()
     {
-        _catalogsByKey.Clear();
-        _catalogsByArea.Clear();
-        _activeCatalogs.Clear();
-        _isInitialized = false;
+        lock (_lock)
+        {
+            _catalogsByKey.Clear();
+            _catalogsByArea.Clear();
+            _activeCatalogs.Clear();
+            _isInitialized = false;
+        }
     }
 
     public void AddCatalog(ProviderCatalog providerCatalog)
     {
         lock (_lock)
         {
-            var area = providerCatalog.Module.Area;
-            var key = $"{area}:{providerCatalog.Name}";
+            if (_isInitialized)
+                throw new InvalidOperationException("Cannot add catalogs after initialization. Use Reload() instead.");
 
-            _catalogsByKey.TryAdd(key, providerCatalog);
-
-            if (providerCatalog.Active)
-                _activeCatalogs[area] = providerCatalog;
-
-            _catalogsByArea.AddOrUpdate(area,
-                [providerCatalog],
-                (area, existing) =>
-                {
-                    existing.Add(providerCatalog);
-                    return existing;
-                });
+            AddCatalogInternal(providerCatalog);
         }
+    }
+
+    private void AddCatalogInternal(ProviderCatalog providerCatalog)
+    {
+        var area = providerCatalog.Module.Area;
+        var key = $"{area}:{providerCatalog.Name}";
+
+        // Add to key-based lookup
+        _catalogsByKey[key] = providerCatalog;
+
+        // Update active catalog if this provider is active
+        if (providerCatalog.Active)
+        {
+            if (_activeCatalogs.TryGetValue(area, out ProviderCatalog? value))
+            {
+                throw new InvalidOperationException(
+                    $"Multiple active providers found for area '{area}'. " +
+                    $"Existing: '{value.Name}', New: '{providerCatalog.Name}'");
+            }
+            _activeCatalogs[area] = providerCatalog;
+        }
+
+        // Update area-based collection using thread-safe immutable operations
+        _catalogsByArea.AddOrUpdate(area, 
+            [providerCatalog], 
+            (_, existing) => existing.Add(providerCatalog));
     }
 
     public ProviderCatalog? GetActiveCatalog(string area)
@@ -79,4 +102,10 @@ internal sealed class ProviderCatalogCache
         return catalog;
     }
 
+    public IReadOnlyList<ProviderCatalog> GetCatalogsByArea(string area)
+    {
+        return _catalogsByArea.TryGetValue(area, out var catalogs)
+            ? catalogs
+            : [];
+    }
 }
