@@ -5,13 +5,13 @@ using System.Net.Mail;
 
 namespace FluentCMS.Providers.Email.Smtp;
 
-public class SmtpEmailProvider(IOptionsMonitor<SmtpEmailProviderOptions> smtpOptionsAccessor, SmtpEmailProviderOptions smtpEmailProviderOptions) : IEmailProvider
+public class SmtpEmailProvider(IOptions<SmtpEmailProviderOptions> smtpOptionsAccessor, SmtpEmailProviderOptions smtpEmailProviderOptions) : IEmailProvider
 {
     public readonly SmtpEmailProviderOptions SmtpEmailProviderOptions = smtpEmailProviderOptions;
 
     public async Task Send(string recipient, string subject, string body, IDictionary<string, string>? headers = null)
     {
-        var options = smtpOptionsAccessor.CurrentValue;
+        var options = smtpOptionsAccessor.Value;
         using var smtpClient = new SmtpClient(options.Host, options.Port)
         {
             Credentials = new NetworkCredential(options.Username, options.Password),

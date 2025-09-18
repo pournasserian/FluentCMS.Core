@@ -1,6 +1,8 @@
 using FluentCMS.Providers.Repositories.Abstractions;
 using FluentCMS.Providers.Repositories.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using System.Reflection;
 
 namespace FluentCMS.Providers;
 
@@ -59,23 +61,39 @@ public static class ProviderFeatureBuilderExtensions
                 if (!interfaceType.IsAssignableFrom(catalog.Module.ProviderType))
                     throw new InvalidOperationException($"The active provider '{catalog.Name}' for area '{area}' does not implement the interface '{interfaceType.FullName}'.");
 
-                // Check if provider's constructor accepts the options type
-                var constructor = catalog.Module.ProviderType.GetConstructors()
-                    .FirstOrDefault(ctor =>
+                var providerType = catalog.Module.ProviderType;
+
+                // Check if the provider type has more than one constructor, then raise exception
+                var constructors = providerType.GetConstructors();
+                if (constructors.Length == 0)
+                    throw new InvalidOperationException($"The provider type '{providerType.FullName}' has no public constructors.");
+
+                if (constructors.Length > 1)
+                    throw new InvalidOperationException($"The provider type '{providerType.FullName}' has more than one constructor. Only one constructor is allowed.");
+
+                // Prepare arguments for the constructor
+                var constructor = constructors[0];
+                var argsList = new List<object>();
+
+                if (catalog.Options != null)
+                {
+                    foreach (var parameter in constructor.GetParameters())
                     {
-                        return ctor.GetParameters().Any(p => p.ParameterType == catalog.Module.OptionsType);
-                    });
-                // If it does, create an instance using ActivatorUtilities and pass the options
-                if (constructor != null)
-                {
-                    var provider = ActivatorUtilities.CreateInstance(serviceProvider, catalog.Module.ProviderType, catalog.Options);
-                    return provider;
+                        // Adding the options instance
+                        if (parameter.ParameterType == catalog.Module.OptionsType)
+                            argsList.Add(catalog.Options);
+
+                        if (parameter.ParameterType.IsGenericType && parameter.ParameterType.GetGenericTypeDefinition() == typeof(IOptions<>) && parameter.ParameterType.GetGenericArguments()[0] == catalog.Module.OptionsType)
+                        {
+                            var optionsCreate = typeof(Options).GetMethods(BindingFlags.Public | BindingFlags.Static).First(m => m.Name == nameof(Options.Create) && m.IsGenericMethodDefinition);
+                            var createGeneric = optionsCreate.MakeGenericMethod(catalog.Module.OptionsType);
+                            var ioptionsInstance = createGeneric.Invoke(null, [catalog.Options]);
+                            argsList.Add(ioptionsInstance!);
+                        }
+                    }
                 }
-                else
-                {
-                    var provider = ActivatorUtilities.CreateInstance(serviceProvider, catalog.Module.ProviderType);
-                    return provider;
-                }
+
+                return ActivatorUtilities.CreateInstance(serviceProvider, catalog.Module.ProviderType, [.. argsList]);
             });
         }
     }
