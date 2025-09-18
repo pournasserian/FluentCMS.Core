@@ -1,10 +1,14 @@
-﻿namespace FluentCMS.Providers.Caching.Abstractions;
+﻿using FluentCMS.Providers.Abstractions;
+
+namespace FluentCMS.Providers.Caching.Abstractions;
 
 /// <summary>
 /// Provides a generic interface for cache operations
 /// </summary>
-public interface ICacheProvider
+public interface ICacheProvider : IProvider
 {
+    public const string Area = "Caching";
+
     /// <summary>
     /// Gets a value from cache by key
     /// </summary>
