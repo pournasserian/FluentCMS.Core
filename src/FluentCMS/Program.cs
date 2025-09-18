@@ -46,7 +46,6 @@ services.AddSqliteDatabase(connectionString);
 
 // Register providers
 services.AddEventPublisher();
-services.AddInMemoryCaching();
 
 // Add services to the container.
 services.AddFluentCmsApi();
