@@ -51,7 +51,7 @@ services.AddEventPublisher();
 services.AddFluentCmsApi();
 
 // Data seeding dependencies
-services.AddSqliteDatabaseManager(connectionString, options =>
+services.AddSqliteDataSeeder(connectionString, options =>
 {
     options.AssemblyPrefixesToScan.Add("FluentCMS");
 

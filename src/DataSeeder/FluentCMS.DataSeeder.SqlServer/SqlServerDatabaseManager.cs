@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 
 namespace FluentCMS.DataSeeder.SqlServer;
 
-
 public sealed class SqlServerDatabaseManager : IDatabaseManager
 {
     private readonly string _connectionString;

@@ -1,4 +1,3 @@
-using FluentCMS.DataSeeder.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -9,7 +8,7 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Registers the SqliteDatabaseManager as a scoped service in the dependency injection container.
     /// </summary>
-    public static IServiceCollection AddSqliteDatabaseManager(this IServiceCollection services, string connectionString, Action<SeedingOptions>? configure = null)
+    public static IServiceCollection AddSqliteDataSeeder(this IServiceCollection services, string connectionString, Action<SeedingOptions>? configure = null)
     {
         if (string.IsNullOrWhiteSpace(connectionString))
         {

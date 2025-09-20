@@ -1,4 +1,3 @@
-using FluentCMS.DataSeeder.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -9,7 +8,7 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Registers the SqlServerDatabaseManager as a scoped service in the dependency injection container.
     /// </summary>
-    public static IServiceCollection AddSqlServerDatabaseManager(this IServiceCollection services, string connectionString, Action<SeedingOptions>? configure = null)
+    public static IServiceCollection AddSqlServerDataSeeder(this IServiceCollection services, string connectionString, Action<SeedingOptions>? configure = null)
     {
         if (string.IsNullOrWhiteSpace(connectionString))
         {
