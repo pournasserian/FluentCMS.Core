@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.DataSeeding", "Fl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.DataSeeding.Sqlite", "FluentCMS.DataSeeding.Sqlite\FluentCMS.DataSeeding.Sqlite.csproj", "{D7E4E39A-ACCD-4B52-8E96-6EDE1D36AA07}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.DataSeeding.MongoDB", "FluentCMS.DataSeeding.MongoDB\FluentCMS.DataSeeding.MongoDB.csproj", "{F8E7A5C3-9B4D-4E2A-8F6C-1D7B8E9F0A2B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{D7E4E39A-ACCD-4B52-8E96-6EDE1D36AA07}.Release|x64.Build.0 = Release|Any CPU
 		{D7E4E39A-ACCD-4B52-8E96-6EDE1D36AA07}.Release|x86.ActiveCfg = Release|Any CPU
 		{D7E4E39A-ACCD-4B52-8E96-6EDE1D36AA07}.Release|x86.Build.0 = Release|Any CPU
+		{F8E7A5C3-9B4D-4E2A-8F6C-1D7B8E9F0A2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8E7A5C3-9B4D-4E2A-8F6C-1D7B8E9F0A2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8E7A5C3-9B4D-4E2A-8F6C-1D7B8E9F0A2B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F8E7A5C3-9B4D-4E2A-8F6C-1D7B8E9F0A2B}.Debug|x64.Build.0 = Debug|Any CPU
+		{F8E7A5C3-9B4D-4E2A-8F6C-1D7B8E9F0A2B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F8E7A5C3-9B4D-4E2A-8F6C-1D7B8E9F0A2B}.Debug|x86.Build.0 = Debug|Any CPU
+		{F8E7A5C3-9B4D-4E2A-8F6C-1D7B8E9F0A2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8E7A5C3-9B4D-4E2A-8F6C-1D7B8E9F0A2B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8E7A5C3-9B4D-4E2A-8F6C-1D7B8E9F0A2B}.Release|x64.ActiveCfg = Release|Any CPU
+		{F8E7A5C3-9B4D-4E2A-8F6C-1D7B8E9F0A2B}.Release|x64.Build.0 = Release|Any CPU
+		{F8E7A5C3-9B4D-4E2A-8F6C-1D7B8E9F0A2B}.Release|x86.ActiveCfg = Release|Any CPU
+		{F8E7A5C3-9B4D-4E2A-8F6C-1D7B8E9F0A2B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

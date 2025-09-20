@@ -14,9 +14,10 @@ public abstract class SeedingContext : IDisposable
     /// <summary>
     /// Gets a database connection for the current seeding operation.
     /// Each call may return a new connection instance - callers should dispose appropriately.
+    /// For databases that don't use IDbConnection (like MongoDB), this may return null.
     /// </summary>
-    /// <returns>A database connection ready for use</returns>
-    public abstract IDbConnection GetConnection();
+    /// <returns>A database connection ready for use, or null for non-SQL databases</returns>
+    public abstract IDbConnection? GetConnection();
 
     /// <summary>
     /// Gets a required service from the dependency injection container.
