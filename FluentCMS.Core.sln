@@ -90,6 +90,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Providers.Email.S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Providers.Email.Null", "src\Providers\Email\FluentCMS.Providers.Email.Null\FluentCMS.Providers.Email.Null.csproj", "{88D5F0D8-EA49-4FAB-86A7-EB3666B6765D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataSeeding", "DataSeeding", "{C833D647-0D1A-4EDD-AA1E-F1C91E10AE13}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
