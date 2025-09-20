@@ -2,15 +2,15 @@
 
 internal class SeedingDiscovery(SeedingOptions options, ILogger<SeedingDiscovery> logger)
 {
-    public List<Type> GetSeerders()
+    public List<Type> GetSeeders()
     {
         var executablePath = Assembly.GetExecutingAssembly().Location;
 
-        var executanbleFolder = Path.GetDirectoryName(executablePath) ??
+        var executableFolder = Path.GetDirectoryName(executablePath) ??
             throw new InvalidOperationException("Could not determine the executable folder path.");
 
         // Get all DLL files in the specified directory
-        var allDllFiles = Directory.GetFiles(executanbleFolder, "*.dll", SearchOption.TopDirectoryOnly);
+        var allDllFiles = Directory.GetFiles(executableFolder, "*.dll", SearchOption.TopDirectoryOnly);
 
         var dllFiles = allDllFiles
             .Where(dllFilePath => options.AssemblyPrefixesToScan.Any(prefix => Path.GetFileName(dllFilePath).StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))

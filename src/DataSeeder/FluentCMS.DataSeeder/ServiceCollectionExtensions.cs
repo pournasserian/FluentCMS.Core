@@ -13,7 +13,7 @@ public static class ServiceCollectionExtensions
         // TODO: Replace with real logger
         var discoveryLogger = NullLoggerFactory.Instance.CreateLogger<SeedingDiscovery>();
         var discovery = new SeedingDiscovery(opts, discoveryLogger);
-        var seeders = discovery.GetSeerders();
+        var seeders = discovery.GetSeeders();
         foreach (var seederType in seeders)
         {
             services.AddTransient(typeof(ISeeder), seederType);

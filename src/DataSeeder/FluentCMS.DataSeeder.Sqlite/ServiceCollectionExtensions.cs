@@ -1,3 +1,4 @@
+using FluentCMS.DataSeeder.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 

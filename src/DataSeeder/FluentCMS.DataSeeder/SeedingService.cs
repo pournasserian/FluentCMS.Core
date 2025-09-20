@@ -7,11 +7,12 @@ internal class SeedingService(IEnumerable<ISeeder> seeders, ILogger<SeedingServi
 
     public async Task EnsureSchema(CancellationToken cancellationToken)
     {
+        // Check all conditions - ALL must be met to proceed
         foreach (var seedingCondition in seedingOptions.Conditions)
         {
             if (!await seedingCondition.ShouldSeed())
             {
-                _logger?.LogInformation("Seeding condition '{ConditionName}' not met. Skipping seeding process.", seedingCondition.Name);
+                _logger?.LogInformation("Seeding condition '{ConditionName}' not met. Skipping schema creation process.", seedingCondition.Name);
                 return;
             }
         }
@@ -38,6 +39,7 @@ internal class SeedingService(IEnumerable<ISeeder> seeders, ILogger<SeedingServi
 
     public async Task EnsureSeedData(CancellationToken cancellationToken)
     {
+        // Check all conditions - ALL must be met to proceed
         foreach (var seedingCondition in seedingOptions.Conditions)
         {
             if (!await seedingCondition.ShouldSeed())
