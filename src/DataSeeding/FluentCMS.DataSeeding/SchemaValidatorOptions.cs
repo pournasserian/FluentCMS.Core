@@ -16,4 +16,9 @@ public class SchemaValidatorOptions
     /// Whether to ignore exceptions during the seeding process
     /// </summary>
     public bool IgnoreExceptions { get; set; } = false;
+
+    /// <summary>
+    /// Timeout for schema validation operations. Default is 5 minutes.
+    /// </summary>
+    public TimeSpan Timeout { get; set; } = TimeSpan.FromMinutes(5);
 }

@@ -42,12 +42,13 @@ public static class ServiceCollectionExtensions
             {
                 o.Conditions = opts.Conditions;
                 o.IgnoreExceptions = opts.IgnoreExceptions;
+                o.Timeout = opts.Timeout;
             });
 
         return services;
     }
 
-    public static IServiceCollection AddScehmaValidators(this IServiceCollection services, Action<SchemaValidatorOptions>? configure = null)
+    public static IServiceCollection AddSchemaValidators(this IServiceCollection services, Action<SchemaValidatorOptions>? configure = null)
     {
         AddInternalHostedServices(services);
 
@@ -60,6 +61,7 @@ public static class ServiceCollectionExtensions
             {
                 o.Conditions = opts.Conditions;
                 o.IgnoreExceptions = opts.IgnoreExceptions;
+                o.Timeout = opts.Timeout;
             });
 
         return services;
@@ -109,4 +111,3 @@ public static class ServiceCollectionExtensions
     }
 
 }
-

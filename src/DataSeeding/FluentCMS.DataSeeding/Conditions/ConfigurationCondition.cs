@@ -23,17 +23,20 @@ public class ConfigurationCondition(IConfiguration configuration, string configK
     {
         try
         {
+            // Validate inputs
+            if (string.IsNullOrEmpty(configKey))
+                throw new InvalidOperationException("Configuration key cannot be null or empty");
+
             // Retrieve the configuration value using the provided key
             var configValue = configuration[configKey];
 
             // Compare the actual configuration value with the expected value (case-insensitive)
             return Task.FromResult(string.Equals(configValue, expectedValue, StringComparison.OrdinalIgnoreCase));
         }
-        catch
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            // Return false if any exception occurs during configuration retrieval
-            // This ensures seeding is skipped when configuration is unavailable or invalid
-            return Task.FromResult(false);
+            // Provide better error context for configuration-related failures
+            throw new InvalidOperationException($"Configuration condition evaluation failed for key '{configKey}': {ex.Message}", ex);
         }
     }
 }

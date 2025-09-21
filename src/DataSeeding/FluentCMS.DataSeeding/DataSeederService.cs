@@ -13,8 +13,8 @@ namespace FluentCMS.DataSeeding;
 /// <param name="dataSeederOptions">Configuration options for the seeding process</param>
 internal class DataSeederService(IEnumerable<IDataSeeder> dataSeeders, ILogger<DataSeederService> logger, IOptions<DataSeederOptions> dataSeederOptions)
 {
-    // Order seeders by priority to ensure correct execution sequence
-    private readonly IEnumerable<IDataSeeder> dataSeeders = dataSeeders.OrderBy(s => s.Priority);
+    // Cache ordered seeders by priority to avoid repeated ordering operations
+    private readonly IDataSeeder[] orderedDataSeeders = dataSeeders.OrderBy(s => s.Priority).ToArray();
 
     /// <summary>
     /// Ensures that seed data is created if all conditions are met and data doesn't already exist.
@@ -24,18 +24,27 @@ internal class DataSeederService(IEnumerable<IDataSeeder> dataSeeders, ILogger<D
     /// <returns>A task representing the asynchronous seeding operation</returns>
     public async Task EnsureSeedData(CancellationToken cancellationToken)
     {
-        // Check all conditions - ALL must be met to proceed with seeding
-        foreach (var condition in dataSeederOptions.Value.Conditions)
+        // Check all conditions in parallel - ALL must be met to proceed with seeding
+        if (dataSeederOptions.Value.Conditions.Count > 0)
         {
-            if (!await condition.ShouldExecute(cancellationToken))
-            {
-                logger.LogInformation("Seeding condition '{Name}' not met. Skipping seeding process.", condition.Name);
-                return; // Exit early if any condition fails
-            }
+            var conditionResults = await Task.WhenAll(
+                dataSeederOptions.Value.Conditions.Select(async condition => 
+                {
+                    var result = await condition.ShouldExecute(cancellationToken);
+                    if (!result)
+                    {
+                        logger.LogInformation("Seeding condition '{Name}' not met. Skipping seeding process.", condition.Name);
+                    }
+                    return result;
+                }));
+
+            // If any condition failed, skip seeding
+            if (conditionResults.Any(result => !result))
+                return;
         }
 
-        // Execute each seeder in priority order
-        foreach (var seeder in dataSeeders)
+        // Execute each seeder in priority order using cached ordered collection
+        foreach (var seeder in orderedDataSeeders)
         {
             // Skip seeding if data already exists (idempotent operation)
             if (await seeder.HasData(cancellationToken))

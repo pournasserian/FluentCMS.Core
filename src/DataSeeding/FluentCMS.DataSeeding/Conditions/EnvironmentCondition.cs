@@ -32,7 +32,7 @@ public class EnvironmentCondition(IHostEnvironment environment, Func<IHostEnviro
     /// <param name="cancellationToken">Token to cancel the operation if needed</param>
     /// <returns>
     /// True if the environment predicate returns true, indicating seeding should proceed.
-    /// False if the predicate returns false or throws an exception.
+    /// False if the predicate returns false or evaluation fails.
     /// </returns>
     public Task<bool> ShouldExecute(CancellationToken cancellationToken = default)
     {
@@ -42,11 +42,16 @@ public class EnvironmentCondition(IHostEnvironment environment, Func<IHostEnviro
             // This allows for flexible environment checking logic
             return Task.FromResult(predicate(environment));
         }
-        catch
+        catch (ArgumentException ex)
         {
-            // If the predicate throws any exception, default to false to prevent seeding
-            // This ensures safe fallback behavior in case of environment evaluation errors
-            return Task.FromResult(false);
+            // Handle argument-related errors in predicate evaluation
+            throw new InvalidOperationException($"Environment condition predicate failed: {ex.Message}", ex);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            // Log unexpected errors but allow seeding to proceed safely
+            // Only catch non-cancellation exceptions to preserve cancellation semantics
+            throw new InvalidOperationException($"Environment condition evaluation failed for condition '{Name}': {ex.Message}", ex);
         }
     }
 }

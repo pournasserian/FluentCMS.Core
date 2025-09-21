@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace FluentCMS.DataSeeding;
 
@@ -28,17 +29,38 @@ internal sealed class DataSeedingHostedService(IServiceProvider serviceProvider,
         var schemaValidatorService = scope.ServiceProvider.GetRequiredService<SchemaValidatorService>();
         var dataSeederService = scope.ServiceProvider.GetRequiredService<DataSeederService>();
         
+        // Resolve options to get timeout configurations
+        var schemaValidatorOptions = scope.ServiceProvider.GetService<IOptions<SchemaValidatorOptions>>();
+        var dataSeederOptions = scope.ServiceProvider.GetService<IOptions<DataSeederOptions>>();
+        
+        // Calculate combined timeout (use the maximum of both timeouts to allow adequate time)
+        var schemaTimeout = schemaValidatorOptions?.Value?.Timeout ?? TimeSpan.FromMinutes(5);
+        var seedingTimeout = dataSeederOptions?.Value?.Timeout ?? TimeSpan.FromMinutes(5);
+        var totalTimeout = TimeSpan.FromTicks(Math.Max(schemaTimeout.Ticks, seedingTimeout.Ticks));
+        
+        // Create a combined cancellation token with timeout
+        using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeoutCts.CancelAfter(totalTimeout);
+        
         try
         {
+            logger.LogInformation("Starting database seeding process with timeout of {Timeout} minutes...", totalTimeout.TotalMinutes);
+            
             // Step 1: Ensure database schema exists and is up to date
             logger.LogInformation("Starting database schema creation if needed...");
-            await schemaValidatorService.EnsureSchema(cancellationToken);
+            await schemaValidatorService.EnsureSchema(timeoutCts.Token);
             logger.LogInformation("Database schema creation process completed.");
             
             // Step 2: Seed initial data into the database
             logger.LogInformation("Starting data seeding process...");
-            await dataSeederService.EnsureSeedData(cancellationToken);
+            await dataSeederService.EnsureSeedData(timeoutCts.Token);
             logger.LogInformation("Data seeding process completed.");
+        }
+        catch (OperationCanceledException) when (timeoutCts.Token.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+        {
+            // Handle timeout-specific cancellation
+            logger.LogError("Data seeding process timed out after {Timeout} minutes.", totalTimeout.TotalMinutes);
+            throw new TimeoutException($"Data seeding process timed out after {totalTimeout.TotalMinutes} minutes.");
         }
         catch (Exception ex)
         {

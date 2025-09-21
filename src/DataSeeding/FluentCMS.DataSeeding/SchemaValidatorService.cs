@@ -10,8 +10,8 @@ namespace FluentCMS.DataSeeding;
 /// </summary>
 internal class SchemaValidatorService(IEnumerable<ISchemaValidator> schemaValidators, ILogger<SchemaValidatorService> logger, IOptions<SchemaValidatorOptions> schemaValidatorOptions)
 {
-    // Order schema validators by priority (lower numbers execute first)
-    private readonly IEnumerable<ISchemaValidator> schemaValidators = schemaValidators.OrderBy(s => s.Priority);
+    // Cache ordered schema validators by priority to avoid repeated ordering operations
+    private readonly ISchemaValidator[] orderedSchemaValidators = schemaValidators.OrderBy(s => s.Priority).ToArray();
 
     /// <summary>
     /// Ensures database schemas are valid and creates them if necessary.
@@ -20,18 +20,27 @@ internal class SchemaValidatorService(IEnumerable<ISchemaValidator> schemaValida
     /// <param name="cancellationToken">Cancellation token for async operations</param>
     public async Task EnsureSchema(CancellationToken cancellationToken)
     {
-        // Check all conditions - ALL must be met to proceed
-        foreach (var condition in schemaValidatorOptions.Value.Conditions)
+        // Check all conditions in parallel - ALL must be met to proceed
+        if (schemaValidatorOptions.Value.Conditions.Count > 0)
         {
-            if (!await condition.ShouldExecute(cancellationToken))
-            {
-                logger.LogInformation("Schema validation condition '{Name}' not met. Skipping schema creation process.", condition.Name);
+            var conditionResults = await Task.WhenAll(
+                schemaValidatorOptions.Value.Conditions.Select(async condition => 
+                {
+                    var result = await condition.ShouldExecute(cancellationToken);
+                    if (!result)
+                    {
+                        logger.LogInformation("Schema validation condition '{Name}' not met. Skipping schema creation process.", condition.Name);
+                    }
+                    return result;
+                }));
+
+            // If any condition failed, skip schema validation
+            if (conditionResults.Any(result => !result))
                 return;
-            }
         }
 
-        // Validate and create schemas for each validator in priority order
-        foreach (var validator in schemaValidators)
+        // Validate and create schemas for each validator in priority order using cached ordered collection
+        foreach (var validator in orderedSchemaValidators)
         {
             if (await validator.ValidateSchema(cancellationToken))
             {

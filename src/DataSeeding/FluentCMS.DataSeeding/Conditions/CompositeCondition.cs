@@ -40,32 +40,24 @@ public class CompositeCondition(bool useAndLogic, params ICondition[] conditions
         {
             if (useAndLogic)
             {
-                // AND logic - all conditions must be true
-                // Short-circuit evaluation: return false as soon as any condition fails
-                foreach (var condition in _conditions)
-                {
-                    if (!await condition.ShouldExecute(cancellationToken))
-                        return false; // One false condition makes the entire AND expression false
-                }
-                return true; // All conditions passed
+                // AND logic - evaluate all conditions in parallel for better performance
+                // All conditions must be true for the result to be true
+                var results = await Task.WhenAll(_conditions.Select(c => c.ShouldExecute(cancellationToken)));
+                return results.All(r => r);
             }
             else
             {
-                // OR logic - at least one condition must be true
-                // Short-circuit evaluation: return true as soon as any condition succeeds
-                foreach (var condition in _conditions)
-                {
-                    if (await condition.ShouldExecute(cancellationToken))
-                        return true; // One true condition makes the entire OR expression true
-                }
-                return false; // No conditions passed
+                // OR logic - evaluate all conditions in parallel for better performance
+                // At least one condition must be true for the result to be true
+                var results = await Task.WhenAll(_conditions.Select(c => c.ShouldExecute(cancellationToken)));
+                return results.Any(r => r);
             }
         }
-        catch
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            // If any condition throws an exception, treat it as a failure
-            // This ensures seeding doesn't proceed with potentially invalid conditions
-            return false;
+            // Provide better error context for composite condition failures
+            var conditionNames = string.Join(", ", _conditions.Select(c => c.Name));
+            throw new InvalidOperationException($"Composite condition evaluation failed for conditions [{conditionNames}]: {ex.Message}", ex);
         }
     }
 }
