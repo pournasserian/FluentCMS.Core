@@ -84,8 +84,8 @@ internal sealed class ProviderCatalogCache
         }
 
         // Update area-based collection using thread-safe immutable operations
-        _catalogsByArea.AddOrUpdate(area, 
-            [providerCatalog], 
+        _catalogsByArea.AddOrUpdate(area,
+            [providerCatalog],
             (_, existing) => existing.Add(providerCatalog));
     }
 

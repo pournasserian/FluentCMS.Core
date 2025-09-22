@@ -79,7 +79,7 @@ public static class ServiceCollectionExtensions
         var reg = new DataSeederRegistry();
         services.AddSingleton(reg);
         return reg;
-    }   
+    }
 
     private static SchemaValidatorRegistry GetOrAddDataSchemaValidatorRegistry(IServiceCollection services)
     {

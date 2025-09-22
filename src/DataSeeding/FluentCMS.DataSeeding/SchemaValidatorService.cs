@@ -24,7 +24,7 @@ internal class SchemaValidatorService(IEnumerable<ISchemaValidator> schemaValida
         if (schemaValidatorOptions.Value.Conditions.Count > 0)
         {
             var conditionResults = await Task.WhenAll(
-                schemaValidatorOptions.Value.Conditions.Select(async condition => 
+                schemaValidatorOptions.Value.Conditions.Select(async condition =>
                 {
                     var result = await condition.ShouldExecute(cancellationToken);
                     if (!result)
@@ -71,7 +71,7 @@ internal class SchemaValidatorService(IEnumerable<ISchemaValidator> schemaValida
         catch (Exception ex)
         {
             logger.LogError(ex, "Error occurred while creating schema for validator '{ValidatorName}'.", schemaValidator.GetType().Name);
-            
+
             // Re-throw exception unless configured to ignore exceptions
             if (!schemaValidatorOptions.Value.IgnoreExceptions)
                 throw;

@@ -48,8 +48,9 @@ internal sealed class LibraryDatabaseMappingBuilder(IServiceCollection services)
             throw new ArgumentException("Provider name cannot be null or empty.", nameof(providerName));
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new ArgumentException("Connection string cannot be null or empty.", nameof(connectionString));
-        if (factory == null)
-            throw new ArgumentNullException(nameof(factory));
+
+        ArgumentNullException.ThrowIfNull(factory);
+
         if (_currentMarkerType == null)
             throw new InvalidOperationException("No library marker specified for mapping. Call SetDefault() or MapLibrary() first.");
 

@@ -1,12 +1,13 @@
 using FluentCMS.Api;
 using FluentCMS.Configuration.Sqlite;
-using FluentCMS.DataSeeder;
-using FluentCMS.DataSeeder.Sqlite;
+using FluentCMS.Database.Extensions;
+using FluentCMS.Database.Sqlite;
+using FluentCMS.DataSeeding;
+using FluentCMS.DataSeeding.Conditions;
 using FluentCMS.Providers;
-using FluentCMS.Providers.Repositories.EntityFramework;
-using FluentCMS.Providers.Caching.InMemory;
 using FluentCMS.Providers.EventBus.InMemory;
 using FluentCMS.Providers.Plugins;
+using FluentCMS.Providers.Repositories.EntityFramework;
 using FluentCMS.Repositories.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -30,6 +31,12 @@ var services = builder.Services;
 
 builder.AddSqliteOptions(connectionString);
 
+services.AddDatabaseManager(options =>
+{
+    // Default database for general services
+    options.SetDefault().UseSqlite(connectionString);
+});
+
 builder.Host.UseSerilog();
 
 services.AddProviders(options =>
@@ -50,15 +57,29 @@ services.AddEventPublisher();
 // Add services to the container.
 services.AddFluentCmsApi();
 
-// Data seeding dependencies
-services.AddSqliteDataSeeder(connectionString, options =>
+services.AddDatabaseManager(options =>
 {
-    options.AssemblyPrefixesToScan.Add("FluentCMS");
+    // Default database (SQL Server)
+    options.SetDefault()
+           .UseSqlite(connectionString);
+});
 
-    // Only create scheman and seed data in Development environment
-    options.Conditions.Add(new EnvironmentCondition(
-        builder.Environment,
-        env => env.IsDevelopment()));
+// Configure seeding options
+services.AddDataSeeders(options =>
+{
+    options.IgnoreExceptions = false; // Fail fast on errors
+    options.Timeout = TimeSpan.FromMinutes(10); // Custom timeout
+
+    // Add conditions
+    options.Conditions.Add(new EnvironmentCondition(builder.Environment, e => e.IsDevelopment()));
+});
+
+services.AddSchemaValidators(options =>
+{
+    options.IgnoreExceptions = false;
+
+    // Only run schema validation in Development
+    options.Conditions.Add(new EnvironmentCondition(builder.Environment, e => e.IsDevelopment()));
 });
 
 var app = builder.Build();

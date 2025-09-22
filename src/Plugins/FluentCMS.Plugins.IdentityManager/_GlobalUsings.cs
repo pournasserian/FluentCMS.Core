@@ -1,6 +1,7 @@
 ﻿global using AutoMapper;
 global using FluentCMS.Configuration;
-global using FluentCMS.DataSeeder.Abstractions;
+global using FluentCMS.Database.Abstractions;
+global using FluentCMS.DataSeeding.Abstractions;
 global using FluentCMS.Exceptions;
 global using FluentCMS.Identity;
 global using FluentCMS.Plugins.IdentityManager.Controllers;

@@ -1,7 +1,7 @@
+using FluentCMS.Database.Abstractions;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 using System.Data;
-using FluentCMS.Database.Abstractions;
 
 namespace FluentCMS.Database.Sqlite;
 

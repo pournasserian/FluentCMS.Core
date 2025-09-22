@@ -9,12 +9,12 @@ internal class SchemaValidatorRegistry
     /// Internal collection of registered validator types.
     /// </summary>
     private readonly HashSet<Type> _types = [];
-    
+
     /// <summary>
     /// Gets a read-only collection of all registered validator types.
     /// </summary>
     public IReadOnlyCollection<Type> Types => _types;
-    
+
     /// <summary>
     /// Adds a validator type to the registry.
     /// </summary>

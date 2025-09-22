@@ -1,8 +1,8 @@
+using FluentCMS.Database.Abstractions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using System.Data;
 using System.Text.RegularExpressions;
-using FluentCMS.Database.Abstractions;
 
 namespace FluentCMS.Database.SqlServer;
 

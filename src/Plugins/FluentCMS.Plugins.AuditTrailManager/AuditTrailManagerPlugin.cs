@@ -1,10 +1,15 @@
-﻿namespace FluentCMS.Plugins.AuditTrailManager;
+﻿using FluentCMS.DataSeeding;
+
+namespace FluentCMS.Plugins.AuditTrailManager;
 
 public class AuditTrailManagerPlugin : IPlugin
 {
     public void ConfigureServices(IHostApplicationBuilder builder)
     {
         var services = builder.Services;
+
+        services.AddSchemaValidator<AuditTrailSchemaValidator>();
+        services.AddDataSeeder<AuditTrailDataSeeder>();
 
         services.AddDbContext<AuditTrailDbContext>((provider, options) =>
         {

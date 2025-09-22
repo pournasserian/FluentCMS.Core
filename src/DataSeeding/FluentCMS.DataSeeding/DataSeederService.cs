@@ -28,7 +28,7 @@ internal class DataSeederService(IEnumerable<IDataSeeder> dataSeeders, ILogger<D
         if (dataSeederOptions.Value.Conditions.Count > 0)
         {
             var conditionResults = await Task.WhenAll(
-                dataSeederOptions.Value.Conditions.Select(async condition => 
+                dataSeederOptions.Value.Conditions.Select(async condition =>
                 {
                     var result = await condition.ShouldExecute(cancellationToken);
                     if (!result)
@@ -52,7 +52,7 @@ internal class DataSeederService(IEnumerable<IDataSeeder> dataSeeders, ILogger<D
                 logger.LogInformation("Data for seeder '{Name}' already exists. Skipping seeding.", seeder.GetType().Name);
                 continue;
             }
-            
+
             // Proceed with seeding for this seeder
             await SeedData(seeder, cancellationToken);
         }
@@ -70,17 +70,17 @@ internal class DataSeederService(IEnumerable<IDataSeeder> dataSeeders, ILogger<D
         try
         {
             logger.LogInformation("Seeding data for seeder '{Name}'.", dataSeeder.GetType().Name);
-            
+
             // Execute the actual seeding operation
             await dataSeeder.SeedData(cancellationToken);
-            
+
             logger.LogInformation("Data seeded for seeder '{Name}'.", dataSeeder.GetType().Name);
         }
         catch (Exception ex)
         {
             // Log the error with seeder context
             logger.LogError(ex, "Error occurred while seeding data for seeder '{SeederName}'.", dataSeeder.GetType().Name);
-            
+
             // Re-throw exception unless configured to ignore errors
             if (!dataSeederOptions.Value.IgnoreExceptions)
                 throw;

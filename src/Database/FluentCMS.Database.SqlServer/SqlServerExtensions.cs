@@ -1,6 +1,6 @@
+using FluentCMS.Database.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using FluentCMS.Database.Extensions;
 
 namespace FluentCMS.Database.SqlServer;
 

@@ -54,7 +54,7 @@ public static class ProviderFeatureBuilderExtensions
             services.AddTransient(interfaceType, serviceProvider =>
             {
                 var providerCatalogCache = serviceProvider.GetRequiredService<ProviderCatalogCache>();
-                
+
                 // Synchronous access to avoid deadlock issues
                 var catalog = providerCatalogCache.GetActiveCatalog(area) ??
                     throw new InvalidOperationException($"No active provider found for area '{area}'. Ensure providers are properly initialized.");
@@ -125,8 +125,8 @@ public static class ProviderFeatureBuilderExtensions
             }
 
             // IOptions<T> wrapper injection
-            if (parameter.ParameterType.IsGenericType && 
-                parameter.ParameterType.GetGenericTypeDefinition() == typeof(IOptions<>) && 
+            if (parameter.ParameterType.IsGenericType &&
+                parameter.ParameterType.GetGenericTypeDefinition() == typeof(IOptions<>) &&
                 parameter.ParameterType.GetGenericArguments()[0] == catalog.Module.OptionsType)
             {
                 var optionsWrapperType = typeof(OptionsWrapper<>).MakeGenericType(catalog.Module.OptionsType);

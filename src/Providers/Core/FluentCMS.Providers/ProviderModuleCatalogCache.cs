@@ -165,8 +165,8 @@ internal sealed class ProviderModuleCatalogCache
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(area);
 
-        return registeredModules.TryGetValue(area, out var areaModules) 
-            ? areaModules.Values 
+        return registeredModules.TryGetValue(area, out var areaModules)
+            ? areaModules.Values
             : [];
     }
 
