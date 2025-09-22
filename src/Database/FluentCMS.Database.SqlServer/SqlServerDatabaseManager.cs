@@ -1,9 +1,10 @@
-﻿using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using System.Data;
 using System.Text.RegularExpressions;
+using FluentCMS.Database.Abstractions;
 
-namespace FluentCMS.Database.Abstractions;
+namespace FluentCMS.Database.SqlServer;
 
 internal sealed class SqlServerDatabaseManager : IDatabaseManager
 {

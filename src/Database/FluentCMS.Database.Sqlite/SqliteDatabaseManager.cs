@@ -1,8 +1,9 @@
-﻿using Microsoft.Data.Sqlite;
+using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 using System.Data;
+using FluentCMS.Database.Abstractions;
 
-namespace FluentCMS.Database.Abstractions;
+namespace FluentCMS.Database.Sqlite;
 
 internal sealed class SqliteDatabaseManager : IDatabaseManager
 {
