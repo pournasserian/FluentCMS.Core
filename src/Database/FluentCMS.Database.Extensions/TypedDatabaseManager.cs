@@ -7,14 +7,9 @@ namespace FluentCMS.Database.Extensions;
 /// This provides compile-time type safety while delegating to the actual database manager implementation.
 /// </summary>
 /// <typeparam name="T">The library marker interface used to identify the database configuration.</typeparam>
-internal sealed class TypedDatabaseManager<T> : IDatabaseManager<T> where T : IDatabaseManagerMarker
+internal sealed class TypedDatabaseManager<T>(IDatabaseManager inner) : IDatabaseManager<T> where T : IDatabaseManagerMarker
 {
-    private readonly IDatabaseManager _inner;
-
-    public TypedDatabaseManager(IDatabaseManager inner)
-    {
-        _inner = inner ?? throw new ArgumentNullException(nameof(inner));
-    }
+    private readonly IDatabaseManager _inner = inner ?? throw new ArgumentNullException(nameof(inner));
 
     public Task<bool> DatabaseExists(CancellationToken cancellationToken = default)
         => _inner.DatabaseExists(cancellationToken);

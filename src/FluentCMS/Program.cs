@@ -57,13 +57,6 @@ services.AddEventPublisher();
 // Add services to the container.
 services.AddFluentCmsApi();
 
-services.AddDatabaseManager(options =>
-{
-    // Default database (SQL Server)
-    options.SetDefault()
-           .UseSqlite(connectionString);
-});
-
 // Configure seeding options
 services.AddDataSeeders(options =>
 {
