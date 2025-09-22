@@ -97,6 +97,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.DataSeeding", "src\DataSeeding\FluentCMS.DataSeeding\FluentCMS.DataSeeding.csproj", "{AD804731-4A5F-4B60-BEEA-9E30FA35CB9B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{096F6A3D-7849-4593-B554-C5BD70B9DE37}"
+	ProjectSection(SolutionItems) = preProject
+		src\Database\README.md = src\Database\README.md
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Database.Sqlite", "src\Database\FluentCMS.Database.Sqlite\FluentCMS.Database.Sqlite.csproj", "{93B57223-100E-4E3F-9A3B-3419E0AA9646}"
 EndProject
