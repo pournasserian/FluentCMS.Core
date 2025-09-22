@@ -1,9 +1,11 @@
 using FluentCMS.Api;
 using FluentCMS.Configuration.Sqlite;
+using FluentCMS.Database.Abstractions;
 using FluentCMS.Database.Extensions;
 using FluentCMS.Database.Sqlite;
 using FluentCMS.DataSeeding;
 using FluentCMS.DataSeeding.Conditions;
+using FluentCMS.Plugins.TodoManager;
 using FluentCMS.Providers;
 using FluentCMS.Providers.EventBus.InMemory;
 using FluentCMS.Providers.Plugins;
@@ -57,27 +59,46 @@ services.AddEventPublisher();
 // Add services to the container.
 services.AddFluentCmsApi();
 
-// Configure seeding options
-services.AddDataSeeders(options =>
-{
-    options.IgnoreExceptions = false; // Fail fast on errors
-    options.Timeout = TimeSpan.FromMinutes(10); // Custom timeout
+//// Configure seeding options
+//services.AddDataSeeders(options =>
+//{
+//    options.IgnoreExceptions = false; // Fail fast on errors
+//    options.Timeout = TimeSpan.FromMinutes(10); // Custom timeout
 
-    // Add conditions
-    options.Conditions.Add(new EnvironmentCondition(builder.Environment, e => e.IsDevelopment()));
-});
+//    // Add conditions
+//    options.Conditions.Add(new EnvironmentCondition(builder.Environment, e => e.IsDevelopment()));
+//});
 
-services.AddSchemaValidators(options =>
-{
-    options.IgnoreExceptions = false;
+//services.AddSchemaValidators(options =>
+//{
+//    options.IgnoreExceptions = false;
 
-    // Only run schema validation in Development
-    options.Conditions.Add(new EnvironmentCondition(builder.Environment, e => e.IsDevelopment()));
-});
+//    // Only run schema validation in Development
+//    options.Conditions.Add(new EnvironmentCondition(builder.Environment, e => e.IsDevelopment()));
+//});
 
 var app = builder.Build();
 
 app.UseFluentCmsApi();
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var servicesProvider = scope.ServiceProvider;
+    try
+    {
+        // Run schema validators
+        var dbmanagers = servicesProvider.GetService<IDatabaseManager>();
+        var x = servicesProvider.GetService<IDatabaseManager<ITodoDatabaseMarker>>();
+        var k = servicesProvider.GetService<IDatabaseManager<IDefaultLibraryMarker>>();
+        var t = await dbmanagers.DatabaseExists();
+    }
+    catch (Exception ex)
+    {
+        Log.Fatal(ex, "An error occurred during schema validation or data seeding");
+        throw; // Rethrow to stop application startup
+    }
+}
 
 // Use plugin system
 app.UsePlugins();
