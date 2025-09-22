@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FluentCMS.Database.Abstractions\FluentCMS.Database.Abstractions.csproj" />
+    <ProjectReference Include="..\FluentCMS.Database.Extensions\FluentCMS.Database.Extensions.csproj" />
   </ItemGroup>
 
 </Project>

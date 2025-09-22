@@ -1,24 +1,24 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using FluentCMS.Database.Abstractions;
+using FluentCMS.Database.Extensions;
 
 namespace FluentCMS.Database.SqlServer;
 
 /// <summary>
-/// Extension methods for configuring SQL Server database provider.
+/// Extension methods for configuring SQL Server database provider with library-based markers.
 /// </summary>
 public static class SqlServerExtensions
 {
     /// <summary>
-    /// Configures the current assembly mapping to use SQL Server database.
+    /// Configures the current library mapping to use SQL Server database.
     /// </summary>
-    /// <param name="builder">The assembly mapping builder.</param>
+    /// <param name="builder">The library mapping builder.</param>
     /// <param name="connectionString">The SQL Server connection string.</param>
-    /// <returns>The assembly mapping builder for method chaining.</returns>
-    public static IAssemblyMappingBuilder UseSqlServer(this IAssemblyMappingBuilder builder, string connectionString)
+    /// <returns>The library mapping builder for method chaining.</returns>
+    public static ILibraryMappingBuilder UseSqlServer(this ILibraryMappingBuilder builder, string connectionString)
     {
-        if (builder == null)
-            throw new ArgumentNullException(nameof(builder));
+        ArgumentNullException.ThrowIfNull(builder);
+
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new ArgumentException("Connection string cannot be null or empty.", nameof(connectionString));
 
