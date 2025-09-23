@@ -1,8 +1,8 @@
 using FluentCMS.DataSeeding;
+using FluentCMS.Plugins.Abstractions;
 using FluentCMS.Plugins.TodoManagement.Models;
 using FluentCMS.Plugins.TodoManager.Repositories;
 using FluentCMS.Plugins.TodoManager.Services;
-using FluentCMS.Plugins.Abstractions;
 using FluentCMS.Repositories.EntityFramework;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;

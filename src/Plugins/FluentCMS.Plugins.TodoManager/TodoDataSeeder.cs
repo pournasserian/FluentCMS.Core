@@ -5,7 +5,7 @@ using FluentCMS.Plugins.TodoManager.Repositories;
 
 namespace FluentCMS.Plugins.TodoManager;
 
-public class TodoDataSeeder(TodoDbContext dbContext, IDatabaseManager<IDatabaseManagerMarker> databaseManager) : IDataSeeder
+public class TodoDataSeeder(TodoDbContext dbContext, IDatabaseManager<ITodoDatabaseMarker> databaseManager) : IDataSeeder
 {
     public int Priority => 10000;
 

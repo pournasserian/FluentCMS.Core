@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FluentCMS.Plugins.TodoManager;
 
-public class TodoSchemaValidator(TodoDbContext dbContext, IDatabaseManager<IDatabaseManagerMarker> databaseManager) : ISchemaValidator
+public class TodoSchemaValidator(TodoDbContext dbContext, IDatabaseManager<ITodoDatabaseMarker> databaseManager) : ISchemaValidator
 {
     public int Priority => 10000;
 
