@@ -1,4 +1,4 @@
-namespace FluentCMS.Providers.Plugins.Abstractions;
+namespace FluentCMS.Providers.Plugins;
 
 public interface IPluginMetadata
 {
