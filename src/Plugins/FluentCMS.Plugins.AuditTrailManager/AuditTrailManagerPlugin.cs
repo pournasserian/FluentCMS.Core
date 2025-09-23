@@ -1,6 +1,4 @@
-﻿using FluentCMS.DataSeeding;
-
-namespace FluentCMS.Plugins.AuditTrailManager;
+﻿namespace FluentCMS.Plugins.AuditTrailManager;
 
 public class AuditTrailManagerPlugin : IPlugin
 {
