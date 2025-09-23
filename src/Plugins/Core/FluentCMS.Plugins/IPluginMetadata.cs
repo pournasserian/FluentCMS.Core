@@ -1,4 +1,4 @@
-namespace FluentCMS.Providers.Plugins;
+namespace FluentCMS.Plugins;
 
 public interface IPluginMetadata
 {

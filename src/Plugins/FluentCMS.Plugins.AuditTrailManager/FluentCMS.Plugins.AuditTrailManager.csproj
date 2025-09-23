@@ -15,8 +15,8 @@
     <ProjectReference Include="..\..\Database\FluentCMS.Database.Abstractions\FluentCMS.Database.Abstractions.csproj" />
     <ProjectReference Include="..\..\DataSeeding\FluentCMS.DataSeeding\FluentCMS.DataSeeding.csproj" />
     <ProjectReference Include="..\..\Providers\EventBus\FluentCMS.Providers.EventBus.Abstractions\FluentCMS.Providers.EventBus.Abstractions.csproj" />
-    <ProjectReference Include="..\..\Providers\Plugins\FluentCMS.Providers.Plugins.Abstractions\FluentCMS.Providers.Plugins.Abstractions.csproj" />
     <ProjectReference Include="..\..\Repositories\FluentCMS.Repositories.EntityFramework\FluentCMS.Repositories.EntityFramework.csproj" />
+    <ProjectReference Include="..\Core\FluentCMS.Plugins.Abstractions\FluentCMS.Plugins.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

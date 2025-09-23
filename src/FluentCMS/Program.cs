@@ -6,7 +6,7 @@ using FluentCMS.DataSeeding;
 using FluentCMS.DataSeeding.Conditions;
 using FluentCMS.Providers;
 using FluentCMS.Providers.EventBus.InMemory;
-using FluentCMS.Providers.Plugins;
+using FluentCMS.Plugins;
 using FluentCMS.Providers.Repositories.EntityFramework;
 using FluentCMS.Repositories.Sqlite;
 using Microsoft.EntityFrameworkCore;

@@ -1,4 +1,7 @@
-namespace FluentCMS.Providers.Plugins.Abstractions;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Hosting;
+
+namespace FluentCMS.Plugins.Abstractions;
 
 public interface IPlugin
 {
