@@ -1,13 +1,9 @@
 using FluentCMS.Api;
 using FluentCMS.Configuration.Sqlite;
-using FluentCMS.Database.Abstractions;
 using FluentCMS.Database.Extensions;
 using FluentCMS.Database.Sqlite;
 using FluentCMS.DataSeeding;
 using FluentCMS.DataSeeding.Conditions;
-using FluentCMS.Plugins.AuditTrailManager;
-using FluentCMS.Plugins.IdentityManager;
-using FluentCMS.Plugins.TodoManager;
 using FluentCMS.Providers;
 using FluentCMS.Providers.EventBus.InMemory;
 using FluentCMS.Providers.Plugins;
@@ -39,8 +35,6 @@ services.AddDatabaseManager(options =>
 {
     // Default database for general services
     options.SetDefault().UseSqlite(connectionString);
-    options.MapLibrary<ITodoDatabaseMarker>().UseSqlite("DataSource=app1.db;Cache=Shared");
-    options.MapLibrary<IAuditTrailDatabaseMarker>().UseSqlite("DataSource=app2.db;Cache=Shared");
 });
 
 builder.Host.UseSerilog();
@@ -63,40 +57,27 @@ services.AddEventPublisher();
 // Add services to the container.
 services.AddFluentCmsApi();
 
-//// Configure seeding options
-//services.AddDataSeeders(options =>
-//{
-//    options.IgnoreExceptions = false; // Fail fast on errors
-//    options.Timeout = TimeSpan.FromMinutes(10); // Custom timeout
+// Configure seeding options
+services.AddDataSeeders(options =>
+{
+    options.IgnoreExceptions = false; // Fail fast on errors
+    options.Timeout = TimeSpan.FromMinutes(10); // Custom timeout
 
-//    // Add conditions
-//    options.Conditions.Add(new EnvironmentCondition(builder.Environment, e => e.IsDevelopment()));
-//});
+    // Add conditions
+    options.Conditions.Add(new EnvironmentCondition(builder.Environment, e => e.IsDevelopment()));
+});
 
-//services.AddSchemaValidators(options =>
-//{
-//    options.IgnoreExceptions = false;
+services.AddSchemaValidators(options =>
+{
+    options.IgnoreExceptions = false;
 
-//    // Only run schema validation in Development
-//    options.Conditions.Add(new EnvironmentCondition(builder.Environment, e => e.IsDevelopment()));
-//});
+    // Only run schema validation in Development
+    options.Conditions.Add(new EnvironmentCondition(builder.Environment, e => e.IsDevelopment()));
+});
 
 var app = builder.Build();
 
 app.UseFluentCmsApi();
-
-
-using (var scope = app.Services.CreateScope())
-{
-    var servicesProvider = scope.ServiceProvider;
-
-    var dbmanagers = servicesProvider.GetService<IDatabaseManager<IDatabaseManagerMarker>>();
-    var dbmanager2 = servicesProvider.GetService(typeof(IDatabaseManager));
-    var dbmanagers1 = servicesProvider.GetService<IDatabaseManager<ITodoDatabaseMarker>>();
-    var dbmanagers2 = servicesProvider.GetService<IDatabaseManager<IAuditTrailDatabaseMarker>>();
-    var dbmanagers3 = servicesProvider.GetService<IDatabaseManager<IIdentityDatabaseMarker>>();
-    var exists = await dbmanagers1.DatabaseExists();
-}
 
 // Use plugin system
 app.UsePlugins();

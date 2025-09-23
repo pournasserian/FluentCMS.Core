@@ -15,8 +15,8 @@ public class TodoPlugin : IPlugin
     public void ConfigureServices(IHostApplicationBuilder builder)
     {
 
-        //builder.Services.AddSchemaValidator<TodoSchemaValidator>();
-        //builder.Services.AddDataSeeder<TodoDataSeeder>();
+        builder.Services.AddSchemaValidator<TodoSchemaValidator>();
+        builder.Services.AddDataSeeder<TodoDataSeeder>();
 
         builder.Services.AddScoped<ITodoService, TodoService>();
         builder.Services.AddGenericRepository<Todo, TodoDbContext>();

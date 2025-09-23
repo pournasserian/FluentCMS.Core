@@ -10,8 +10,8 @@ public class IdentityManagerPlugin : IPlugin
 
         services.AddAutoMapper(cfg => { }, typeof(MappingProfile));
 
-        //builder.Services.AddSchemaValidator<IdentitySchemaValidator>();
-        //builder.Services.AddDataSeeder<IdentityDataSeeder>();
+        builder.Services.AddSchemaValidator<IdentitySchemaValidator>();
+        builder.Services.AddDataSeeder<IdentityDataSeeder>();
 
         // Services registration
         //services.AddScoped<IUserService, UserService>();

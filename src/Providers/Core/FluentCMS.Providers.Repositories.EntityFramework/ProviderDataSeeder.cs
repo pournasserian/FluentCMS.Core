@@ -37,6 +37,6 @@ public class ProviderDataSeeder(IServiceProvider sp) : IDataSeeder
         if (!_isActive)
             return false;
 
-        return await _databaseManager!.TablesEmpty(["Providers"], cancellationToken);
+        return !await _databaseManager!.TablesEmpty(["Providers"], cancellationToken);
     }
 }
