@@ -27,6 +27,9 @@ public static class ServiceCollectionExtensions
                 "A default database provider must be configured. Call SetDefault() and chain with a provider method (e.g., UseSqlServer()).");
         }
 
+        // Register fallback factory for marker types without explicit mappings
+        //builder.RegisterFallbackFactory();
+
         return services;
     }
 }

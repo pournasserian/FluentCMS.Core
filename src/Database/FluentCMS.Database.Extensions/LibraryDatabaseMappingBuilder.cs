@@ -1,15 +1,11 @@
-using FluentCMS.Database.Abstractions;
+﻿using FluentCMS.Database.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FluentCMS.Database.Extensions;
 
-/// <summary>
-/// Fluent builder for configuring library-based database mappings that registers services directly in DI container.
-/// This eliminates the need for runtime reflection and provides high-performance database resolution.
-/// </summary>
 internal sealed class LibraryDatabaseMappingBuilder(IServiceCollection services) : ILibraryDatabaseMappingBuilder, ILibraryMappingBuilder
 {
-    private readonly IServiceCollection _services = services ?? throw new ArgumentNullException(nameof(services));
+    private readonly IServiceCollection services = services ?? throw new ArgumentNullException(nameof(services));
     private Type? _currentMarkerType;
     private bool _isDefault;
     private bool _hasDefaultConfiguration;
@@ -19,13 +15,17 @@ internal sealed class LibraryDatabaseMappingBuilder(IServiceCollection services)
     /// </summary>
     public bool HasDefaultConfiguration => _hasDefaultConfiguration;
 
+
     /// <summary>
     /// Configures the default database provider for libraries that don't have explicit mappings.
     /// </summary>
     public ILibraryMappingBuilder SetDefault()
     {
+        if (_hasDefaultConfiguration)
+            throw new InvalidOperationException("Default database manager has already been configured.");
+
         _isDefault = true;
-        _currentMarkerType = typeof(IDefaultLibraryMarker);
+        _currentMarkerType = typeof(IDatabaseManagerMarker);
         return this;
     }
 
@@ -54,18 +54,32 @@ internal sealed class LibraryDatabaseMappingBuilder(IServiceCollection services)
         if (_currentMarkerType == null)
             throw new InvalidOperationException("No library marker specified for mapping. Call SetDefault() or MapLibrary() first.");
 
-        // Register specific library marker service
-        var serviceType = typeof(IDatabaseManager<>).MakeGenericType(_currentMarkerType);
-        _services.AddScoped(serviceType, serviceProvider =>
-        {
-            var databaseManager = factory(connectionString, serviceProvider);
-            var typedManagerType = typeof(TypedDatabaseManager<>).MakeGenericType(_currentMarkerType);
-            return Activator.CreateInstance(typedManagerType, databaseManager)!;
-        });
-
         if (_isDefault)
         {
             _hasDefaultConfiguration = true;
+            services.AddScoped(sp =>
+            {
+                return factory(connectionString, sp); // returns an IDatabaseManager
+            });
+
+            // DEFAULT: map open generic to wrapper (will inject the *unkeyed* IDatabaseManager)
+            services.AddScoped(typeof(IDatabaseManager<>), typeof(TypedDatabaseManager<>));
+        }
+        else
+        {
+            // Close the generic service and implementation
+            var serviceType = typeof(IDatabaseManager<>).MakeGenericType(_currentMarkerType);
+            var implType = typeof(TypedDatabaseManager<>).MakeGenericType(_currentMarkerType);
+
+            // Closed registration overrides the open generic one.
+            services.AddScoped(serviceType, sp =>
+            {
+                // Get the inner non-generic IDatabaseManager
+                var inner = factory(connectionString, sp);
+                // Pass the keyed inner into the wrapper
+                return ActivatorUtilities.CreateInstance(sp, implType, inner);
+            });
+
         }
 
         return this;

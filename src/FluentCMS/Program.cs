@@ -5,6 +5,8 @@ using FluentCMS.Database.Extensions;
 using FluentCMS.Database.Sqlite;
 using FluentCMS.DataSeeding;
 using FluentCMS.DataSeeding.Conditions;
+using FluentCMS.Plugins.AuditTrailManager;
+using FluentCMS.Plugins.IdentityManager;
 using FluentCMS.Plugins.TodoManager;
 using FluentCMS.Providers;
 using FluentCMS.Providers.EventBus.InMemory;
@@ -37,6 +39,8 @@ services.AddDatabaseManager(options =>
 {
     // Default database for general services
     options.SetDefault().UseSqlite(connectionString);
+    options.MapLibrary<ITodoDatabaseMarker>().UseSqlite("DataSource=app1.db;Cache=Shared");
+    options.MapLibrary<IAuditTrailDatabaseMarker>().UseSqlite("DataSource=app2.db;Cache=Shared");
 });
 
 builder.Host.UseSerilog();
@@ -85,19 +89,13 @@ app.UseFluentCmsApi();
 using (var scope = app.Services.CreateScope())
 {
     var servicesProvider = scope.ServiceProvider;
-    try
-    {
-        // Run schema validators
-        var dbmanagers = servicesProvider.GetService<IDatabaseManager>();
-        var x = servicesProvider.GetService<IDatabaseManager<ITodoDatabaseMarker>>();
-        var k = servicesProvider.GetService<IDatabaseManager<IDefaultLibraryMarker>>();
-        var t = await dbmanagers.DatabaseExists();
-    }
-    catch (Exception ex)
-    {
-        Log.Fatal(ex, "An error occurred during schema validation or data seeding");
-        throw; // Rethrow to stop application startup
-    }
+
+    var dbmanagers = servicesProvider.GetService<IDatabaseManager<IDatabaseManagerMarker>>();
+    var dbmanager2 = servicesProvider.GetService(typeof(IDatabaseManager));
+    var dbmanagers1 = servicesProvider.GetService<IDatabaseManager<ITodoDatabaseMarker>>();
+    var dbmanagers2 = servicesProvider.GetService<IDatabaseManager<IAuditTrailDatabaseMarker>>();
+    var dbmanagers3 = servicesProvider.GetService<IDatabaseManager<IIdentityDatabaseMarker>>();
+    var exists = await dbmanagers1.DatabaseExists();
 }
 
 // Use plugin system
