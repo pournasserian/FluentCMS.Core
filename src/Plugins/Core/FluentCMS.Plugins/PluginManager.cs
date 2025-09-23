@@ -1,6 +1,6 @@
-﻿namespace FluentCMS.Providers.Plugins;
+﻿namespace FluentCMS.Plugins;
 
-internal class PluginManager : IPluginManager
+internal sealed class PluginManager : IPluginManager
 {
     private readonly IEnumerable<IPluginMetadata> _pluginsMetaData;
     private readonly List<IPlugin> _pluginInstances = [];

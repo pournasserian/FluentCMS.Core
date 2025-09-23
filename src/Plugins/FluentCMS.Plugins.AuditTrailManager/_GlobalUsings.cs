@@ -7,7 +7,7 @@ global using FluentCMS.Plugins.AuditTrailManager.Models;
 global using FluentCMS.Plugins.AuditTrailManager.Repositories;
 global using FluentCMS.Plugins.AuditTrailManager.Services;
 global using FluentCMS.Providers.EventBus.Abstractions;
-global using FluentCMS.Providers.Plugins.Abstractions;
+global using FluentCMS.Plugins.Abstractions;
 global using FluentCMS.Repositories.Abstractions;
 global using Microsoft.AspNetCore.Builder;
 global using Microsoft.EntityFrameworkCore;
