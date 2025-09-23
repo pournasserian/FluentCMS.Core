@@ -6,6 +6,8 @@ public class AuditTrailManagerPlugin : IPlugin
     {
         var services = builder.Services;
 
+        services.AddSchemaValidator<AuditTrailSchemaValidator>();
+
         services.AddDbContext<AuditTrailDbContext>((provider, options) =>
         {
             options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);

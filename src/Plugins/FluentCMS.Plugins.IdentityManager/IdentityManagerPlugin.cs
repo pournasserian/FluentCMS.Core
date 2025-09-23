@@ -1,4 +1,6 @@
-﻿namespace FluentCMS.Plugins.IdentityManager;
+﻿using FluentCMS.DataSeeding;
+
+namespace FluentCMS.Plugins.IdentityManager;
 
 public class IdentityManagerPlugin : IPlugin
 {
@@ -7,6 +9,9 @@ public class IdentityManagerPlugin : IPlugin
         var services = builder.Services;
 
         services.AddAutoMapper(cfg => { }, typeof(MappingProfile));
+
+        builder.Services.AddSchemaValidator<IdentitySchemaValidator>();
+        builder.Services.AddDataSeeder<IdentityDataSeeder>();
 
         // Services registration
         //services.AddScoped<IUserService, UserService>();

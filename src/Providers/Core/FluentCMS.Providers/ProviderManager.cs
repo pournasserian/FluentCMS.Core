@@ -37,7 +37,7 @@ internal sealed class ProviderManager(ProviderCatalogCache providerCatalogCache,
                 throw new InvalidOperationException($"Provider module '{provider.ModuleType}' for area '{provider.Area}' not found.");
 
             object? options = null;
-            if(module.OptionsType != null)
+            if (module.OptionsType != null)
             {
                 if (string.IsNullOrEmpty(provider.Options))
                     options = Activator.CreateInstance(module.OptionsType);
